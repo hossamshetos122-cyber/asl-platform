@@ -76,7 +76,7 @@ function InlineCreateForm({ teams }: { teams: TeamOption[] }) {
       className="rounded-xl border border-gold/20 bg-surface p-5"
     >
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        <ImageUpload name="photoUrl" label="صورة اللاعب" value={photoUrl} onChange={setPhotoUrl} />
+        <ImageUpload name="photoUrl" purpose="player-photo" label="صورة اللاعب" value={photoUrl} onChange={setPhotoUrl} />
         <div>
           <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الاسم الكامل</label>
           <input name="fullName" required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-gold" placeholder="محمد أحمد" />

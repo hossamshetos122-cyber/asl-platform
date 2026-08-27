@@ -62,6 +62,7 @@ export function TeamEditForm({
       )}
       <ImageUpload
         name="logoUrl"
+        purpose="team-logo"
         label="شعار الفريق"
         value={logoUrl}
         onChange={setLogoUrl}

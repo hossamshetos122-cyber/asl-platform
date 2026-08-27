@@ -118,6 +118,7 @@ export default function NewTeamPage() {
             <form ref={formRef} action={handleSubmit} className="space-y-5">
               <ImageUpload
                 name="logoUrl"
+                purpose="team-logo"
                 label="شعار الفريق"
                 value={logoUrl}
                 onChange={setLogoUrl}

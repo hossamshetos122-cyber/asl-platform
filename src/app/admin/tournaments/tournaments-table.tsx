@@ -87,7 +87,7 @@ function InlineCreateForm() {
     <form action={async (formData) => { if (logoUrl) formData.set("logoUrl", logoUrl); if (coverUrl) formData.set("coverUrl", coverUrl); await createTournament(formData); setIsAdding(false); setLogoUrl(null); setCoverUrl(null); }} className="rounded-xl border border-gold/20 bg-surface p-5">
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2">
-          <ImageUpload name="logoUrl" label="شعار البطولة" value={logoUrl} onChange={setLogoUrl} />
+<ImageUpload name="logoUrl" purpose="tournament-logo" label="شعار البطولة" value={logoUrl} onChange={setLogoUrl} />
         </div>
         <div>
           <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">اسم البطولة</label>
@@ -110,7 +110,7 @@ function InlineCreateForm() {
           <input type="date" name="startDate" required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-gold" />
         </div>
       </div>
-      <div className="mb-4"><ImageUpload name="coverUrl" label="صورة الغلاف" value={coverUrl} onChange={setCoverUrl} /></div>
+      <div className="mb-4"><ImageUpload name="coverUrl" purpose="tournament-cover" label="صورة الغلاف" value={coverUrl} onChange={setCoverUrl} /></div>
       <div className="flex items-center gap-3">
         <SubmitButton />
         <button type="button" onClick={() => { setIsAdding(false); setLogoUrl(null); setCoverUrl(null); }} className="rounded-lg border border-line px-4 py-2 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>
@@ -129,7 +129,7 @@ function EditRow({ tournament, onClose }: { tournament: TournamentRow; onClose: 
         <form action={async (formData) => { if (logoUrl !== undefined) formData.set("logoUrl", logoUrl || ""); if (coverUrl !== undefined) formData.set("coverUrl", coverUrl || ""); await updateTournament(formData); onClose(); }} className="rounded-xl border border-gold/20 bg-surface p-4">
           <input type="hidden" name="id" value={tournament.id} />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="sm:col-span-2"><ImageUpload name="logoUrl" label="شعار البطولة" value={logoUrl} onChange={setLogoUrl} /></div>
+            <div className="sm:col-span-2"><ImageUpload name="logoUrl" purpose="tournament-logo" label="شعار البطولة" value={logoUrl} onChange={setLogoUrl} /></div>
             <div>
               <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">اسم البطولة</label>
               <input name="name" defaultValue={tournament.name} required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold" />
@@ -151,7 +151,7 @@ function EditRow({ tournament, onClose }: { tournament: TournamentRow; onClose: 
               <input type="date" name="startDate" defaultValue={new Date(tournament.startDate).toISOString().split("T")[0]} required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold" />
             </div>
           </div>
-          <div className="my-4"><ImageUpload name="coverUrl" label="صورة الغلاف" value={coverUrl} onChange={setCoverUrl} /></div>
+          <div className="my-4"><ImageUpload name="coverUrl" purpose="tournament-cover" label="صورة الغلاف" value={coverUrl} onChange={setCoverUrl} /></div>
           <div className="flex items-center gap-3">
             <button type="submit" className="btn-primary">تحديث</button>
             <button type="button" onClick={onClose} className="rounded-lg border border-line px-4 py-2 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>

@@ -64,6 +64,7 @@ function InlineCreateForm() {
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-4">
         <ImageUpload
           name="logoUrl"
+          purpose="team-logo"
           label="شعار الفريق"
           value={logoUrl}
           onChange={setLogoUrl}
@@ -127,6 +128,7 @@ function EditRow({ team, onClose }: { team: TeamRow; onClose: () => void }) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
             <ImageUpload
               name="logoUrl"
+              purpose="team-logo"
               label="شعار الفريق"
               value={logoUrl}
               onChange={setLogoUrl}

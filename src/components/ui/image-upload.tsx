@@ -5,6 +5,7 @@ import Image from "next/image";
 
 interface ImageUploadProps {
   name: string;
+  purpose?: string;
   label: string;
   value: string | null;
   onChange: (dataUri: string | null) => void;
@@ -16,6 +17,7 @@ interface ImageUploadProps {
 
 export function ImageUpload({
   name,
+  purpose = "general",
   label,
   value,
   onChange,
@@ -47,7 +49,7 @@ export function ImageUpload({
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("purpose", name);
+      formData.append("purpose", purpose);
 
       const res = await fetch("/api/upload", {
         method: "POST",

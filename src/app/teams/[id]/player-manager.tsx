@@ -75,6 +75,7 @@ export function PlayerManager({
         )}
         <ImageUpload
           name="photoUrl"
+          purpose="player-photo"
           label="صورة اللاعب"
           value={photoUrl}
           onChange={setPhotoUrl}
