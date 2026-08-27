@@ -223,7 +223,8 @@ export async function getStandings(
         if (b.points !== a.points) return b.points - a.points;
         const gdA = a.goalsFor - a.goalsAgainst;
         const gdB = b.goalsFor - b.goalsAgainst;
-        return gdB - gdA;
+        if (gdB !== gdA) return gdB - gdA;
+        return b.goalsFor - a.goalsFor;
       })
       .slice(0, limit)
       .map((row, index) => ({ ...row, rank: index + 1 }));
@@ -243,7 +244,7 @@ export async function getTopScorers(
     const grouped = await prisma.matchEvent.groupBy({
       by: ["playerId"],
       where: {
-        type: "GOAL",
+        type: { in: ["GOAL", "PENALTY_SCORED"] },
         match: { tournamentId },
       },
       _count: { playerId: true },
@@ -327,7 +328,7 @@ export async function getHomeStats(): Promise<Result<HomeStatsVM>> {
         prisma.team.count(),
         prisma.player.count(),
         prisma.tournament.count({ where: { status: "ONGOING" } }),
-        prisma.matchEvent.count({ where: { type: "GOAL" } }),
+        prisma.matchEvent.count({ where: { type: { in: ["GOAL", "PENALTY_SCORED"] } } }),
       ]);
 
     const stats: HomeStatsVM = {

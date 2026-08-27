@@ -22,6 +22,7 @@ export function ImageUpload({
   value,
   onChange,
   required = false,
+  accept = "image/*",
   maxSizeMB = 2,
   className = "",
 }: ImageUploadProps) {
@@ -127,7 +128,7 @@ export function ImageUpload({
           <input
             ref={inputRef}
             type="file"
-            accept="image/*"
+            accept={accept}
             onChange={handleChange}
             className="hidden"
           />
@@ -160,7 +161,7 @@ export function ImageUpload({
             ref={inputRef}
             type="file"
             name={name}
-            accept="image/*"
+            accept={accept}
             onChange={handleChange}
             className="hidden"
           />

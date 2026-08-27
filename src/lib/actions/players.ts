@@ -97,27 +97,31 @@ export async function createPlayer(
   const passwordHash = await hashPassword(password);
 
   try {
-    const createdUser = await prisma.user.create({
-      data: { email, passwordHash, fullName, phone, role: "PLAYER" },
-    });
+    const result = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
+        data: { email, passwordHash, fullName, phone, role: "PLAYER" },
+      });
 
-    const player = await prisma.player.create({
-      data: {
-        userId: createdUser.id,
-        photoUrl: photoUrl ?? null,
-        jerseyNumber: jerseyNumber ? parseInt(jerseyNumber, 10) : null,
-        position,
-      },
-    });
+      const player = await tx.player.create({
+        data: {
+          userId: createdUser.id,
+          photoUrl: photoUrl ?? null,
+          jerseyNumber: jerseyNumber ? parseInt(jerseyNumber, 10) : null,
+          position,
+        },
+      });
 
-    await prisma.teamMembership.create({
-      data: { teamId, playerId: player.id, status: "ACTIVE" },
+      await tx.teamMembership.create({
+        data: { teamId, playerId: player.id, status: "ACTIVE" },
+      });
+
+      return player;
     });
 
     await auditLog({
       actorId: user.id,
       action: "CREATE_PLAYER",
-      targetId: player.id,
+      targetId: result.id,
       metadata: { fullName, teamId },
     });
 
@@ -215,54 +219,63 @@ export async function updatePlayer(
   }
 }
 
-export async function deletePlayer(playerId: string) {
-  const user = await getCurrentUser();
-  if (!user) throw new Error("يجب تسجيل الدخول");
+export async function deletePlayer(playerId: string): Promise<PlayerActionResult> {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: "يجب تسجيل الدخول" };
 
-  const idParsed = cuid.safeParse(playerId);
-  if (!idParsed.success) throw new Error("معرف اللاعب غير صالح");
+    const idParsed = cuid.safeParse(playerId);
+    if (!idParsed.success) return { success: false, error: "معرف اللاعب غير صالح" };
 
-  if (user.role !== "ADMIN") {
-    const player = await prisma.player.findUnique({
-      where: { id: playerId },
-      include: {
-        memberships: {
-          where: { status: "ACTIVE" },
-          include: { team: { select: { ownerId: true } } },
-          take: 1,
+    if (user.role !== "ADMIN") {
+      const player = await prisma.player.findUnique({
+        where: { id: playerId },
+        include: {
+          memberships: {
+            where: { status: "ACTIVE" },
+            include: { team: { select: { ownerId: true } } },
+            take: 1,
+          },
         },
-      },
+      });
+
+      if (!player) return { success: false, error: "اللاعب غير موجود" };
+
+      const isOwnedByUser = player.memberships.some((m) => m.team.ownerId === user.id);
+      if (!isOwnedByUser) return { success: false, error: "غير مصرح لك بحذف هذا اللاعب" };
+    }
+
+    const player = await prisma.player.findUnique({ where: { id: playerId } });
+    if (!player) return { success: false, error: "اللاعب غير موجود" };
+
+    const memberships = await prisma.teamMembership.findMany({
+      where: { playerId },
+      select: { teamId: true },
     });
 
-    if (!player) throw new Error("اللاعب غير موجود");
+    await prisma.$transaction(async (tx) => {
+      await tx.player.delete({ where: { id: playerId } });
+      await tx.user.delete({ where: { id: player.userId } });
+    });
 
-    const isOwnedByUser = player.memberships.some((m) => m.team.ownerId === user.id);
-    if (!isOwnedByUser) throw new Error("غير مصرح لك بحذف هذا اللاعب");
+    await auditLog({
+      actorId: user.id,
+      action: "DELETE_PLAYER",
+      targetId: playerId,
+    });
+
+    for (const m of memberships) {
+      revalidatePath(`/teams/${m.teamId}`);
+    }
+    revalidatePath("/teams");
+    revalidatePath("/admin/players");
+    revalidatePath("/admin");
+
+    return { success: true };
+  } catch (error) {
+    console.error("[deletePlayer]", error);
+    return { success: false, error: "تعذّر حذف اللاعب" };
   }
-
-  const player = await prisma.player.findUnique({ where: { id: playerId } });
-  if (!player) throw new Error("اللاعب غير موجود");
-
-  const memberships = await prisma.teamMembership.findMany({
-    where: { playerId },
-    select: { teamId: true },
-  });
-
-  await prisma.player.delete({ where: { id: playerId } });
-  await prisma.user.delete({ where: { id: player.userId } });
-
-  await auditLog({
-    actorId: user.id,
-    action: "DELETE_PLAYER",
-    targetId: playerId,
-  });
-
-  for (const m of memberships) {
-    revalidatePath(`/teams/${m.teamId}`);
-  }
-  revalidatePath("/teams");
-  revalidatePath("/admin/players");
-  revalidatePath("/admin");
 }
 
 export async function addToTeam(teamId: string, playerId: string) {

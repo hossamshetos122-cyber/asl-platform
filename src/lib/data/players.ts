@@ -12,7 +12,7 @@ export async function getPlayerById(id: string): Promise<Result<PlayerProfileVM>
           include: { team: { select: { id: true, name: true, crestUrl: true } } },
           take: 1,
         },
-        matchEvents: { where: { type: "GOAL" }, select: { id: true } },
+        matchEvents: { where: { type: { in: ["GOAL", "PENALTY_SCORED"] } }, select: { id: true } },
       },
     });
 
@@ -27,12 +27,15 @@ export async function getPlayerById(id: string): Promise<Result<PlayerProfileVM>
 
     let matchesPlayed = 0;
     if (team) {
-      const matchIds = await prisma.matchEvent.findMany({
-        where: { playerId: id },
-        select: { matchId: true },
-        distinct: ["matchId"],
+      const squadAppearances = await prisma.matchSquadPlayer.count({
+        where: {
+          playerId: id,
+          squad: {
+            match: { status: "FINISHED" },
+          },
+        },
       });
-      matchesPlayed = matchIds.length;
+      matchesPlayed = squadAppearances;
     }
 
     const vm: PlayerProfileVM = {

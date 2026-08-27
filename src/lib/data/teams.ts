@@ -37,7 +37,7 @@ export async function getTeamById(id: string): Promise<Result<TeamDetailVM>> {
             player: {
               include: {
                 user: { select: { fullName: true } },
-                matchEvents: { where: { type: "GOAL" }, select: { id: true } },
+                matchEvents: { where: { type: { in: ["GOAL", "PENALTY_SCORED"] } }, select: { id: true } },
               },
             },
           },

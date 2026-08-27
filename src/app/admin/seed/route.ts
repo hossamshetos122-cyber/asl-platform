@@ -393,9 +393,9 @@ async function handleSeed() {
     });
   } catch (error) {
     console.error("[admin/seed]", error);
-    return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+    const message = error instanceof Error ? error.message : "خطأ غير معروف";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
-export async function GET() { return handleSeed(); }
 export async function POST() { return handleSeed(); }

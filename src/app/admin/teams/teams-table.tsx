@@ -113,14 +113,23 @@ function InlineCreateForm() {
 
 function EditRow({ team, onClose }: { team: TeamRow; onClose: () => void }) {
   const [logoUrl, setLogoUrl] = useState<string | null>(team.crestUrl);
+  const [error, setError] = useState<string | null>(null);
   return (
     <tr>
       <td colSpan={5} className="px-4 py-3">
+        {error && (
+          <div className="mb-3 rounded-lg border border-live/30 bg-live/10 px-4 py-2 font-body text-sm text-live">{error}</div>
+        )}
         <form
           action={async (formData) => {
+            setError(null);
             if (logoUrl !== undefined) formData.set("logoUrl", logoUrl || "");
-            await updateTeam(formData);
-            onClose();
+            try {
+              await updateTeam(formData);
+              onClose();
+            } catch (e: unknown) {
+              setError(e instanceof Error ? e.message : "حدث خطأ");
+            }
           }}
           className="rounded-xl border border-gold/20 bg-surface p-4"
         >
@@ -210,32 +219,47 @@ export default function TeamsTable({ teams }: { teams: TeamRow[] }) {
             editingId === team.id ? (
               <EditRow key={team.id} team={team} onClose={() => setEditingId(null)} />
             ) : (
-              <tr key={team.id} className="transition-colors hover:bg-surface-elevated/50">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <ImageDisplay src={team.crestUrl} alt={`شعار ${team.name}`} type="team-logo" size="sm" shortCode={team.shortName} />
-                    <span className="font-body text-sm font-bold text-text">{team.name}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-line bg-surface-elevated font-utility text-[10px] font-bold text-gold">{team.shortName}</span>
-                </td>
-                <td className="px-4 py-3 font-body text-sm text-text-dim">{team.city || "—"}</td>
-                <td className="px-4 py-3 font-num text-sm font-bold text-text">{team._count.memberships}</td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => setEditingId(team.id)} className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-1.5 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">تعديل</button>
-                    <form action={async (formData) => { await deleteTeam(formData); }} className="inline">
-                      <input type="hidden" name="id" value={team.id} />
-                      <DeleteButton />
-                    </form>
-                  </div>
-                </td>
-              </tr>
+              <TeamDeleteRow key={team.id} team={team} onEdit={() => setEditingId(team.id)} />
             )
           )}
         </tbody>
       </table>
     </div>
+  );
+}
+
+function TeamDeleteRow({ team, onEdit }: { team: TeamRow; onEdit: () => void }) {
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <tr className="transition-colors hover:bg-surface-elevated/50">
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-3">
+          <ImageDisplay src={team.crestUrl} alt={`شعار ${team.name}`} type="team-logo" size="sm" shortCode={team.shortName} />
+          <span className="font-body text-sm font-bold text-text">{team.name}</span>
+        </div>
+      </td>
+      <td className="px-4 py-3">
+        <span className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-line bg-surface-elevated font-utility text-[10px] font-bold text-gold">{team.shortName}</span>
+      </td>
+      <td className="px-4 py-3 font-body text-sm text-text-dim">{team.city || "—"}</td>
+      <td className="px-4 py-3 font-num text-sm font-bold text-text">{team._count.memberships}</td>
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-2">
+          <button onClick={onEdit} className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-1.5 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">تعديل</button>
+          <form action={async (formData) => {
+            try {
+              await deleteTeam(formData);
+            } catch (e: unknown) {
+              setError(e instanceof Error ? e.message : "حدث خطأ");
+            }
+          }} className="inline">
+            <input type="hidden" name="id" value={team.id} />
+            <DeleteButton />
+          </form>
+          {error && <span className="font-body text-[11px] text-live">{error}</span>}
+        </div>
+      </td>
+    </tr>
   );
 }

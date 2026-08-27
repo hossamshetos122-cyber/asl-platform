@@ -91,20 +91,30 @@ export function TeamEditForm({
 
 export function TeamDeleteButton({ teamId }: { teamId: string }) {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   return (
-    <form
-      action={async (formData) => {
-        if (!confirm("هل أنت متأكد من حذف الفريق؟")) return;
-        formData.set("id", teamId);
-        await deleteTeam(formData);
-        router.push("/dashboard");
-      }}
-      className="inline"
-    >
-      <button type="submit" className="rounded-sm border border-live/30 bg-live/10 px-4 py-2 font-body text-[13px] font-bold text-live transition-colors hover:bg-live/20">
-        حذف الفريق
-      </button>
-    </form>
+    <>
+      {error && (
+        <div className="mb-2 rounded border border-live/30 bg-live/10 px-3 py-2 font-body text-sm text-live">{error}</div>
+      )}
+      <form
+        action={async (formData) => {
+          if (!confirm("هل أنت متأكد من حذف الفريق؟")) return;
+          formData.set("id", teamId);
+          try {
+            await deleteTeam(formData);
+            router.push("/dashboard");
+          } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : "حدث خطأ أثناء الحذف");
+          }
+        }}
+        className="inline"
+      >
+        <button type="submit" className="rounded-sm border border-live/30 bg-live/10 px-4 py-2 font-body text-[13px] font-bold text-live transition-colors hover:bg-live/20">
+          حذف الفريق
+        </button>
+      </form>
+    </>
   );
 }

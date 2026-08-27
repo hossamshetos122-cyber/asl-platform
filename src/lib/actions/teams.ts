@@ -125,6 +125,15 @@ export async function deleteTeam(formData: FormData) {
 
   const user = await requireTeamOwner(rawId);
 
+  const matchCount = await prisma.match.count({
+    where: {
+      OR: [{ homeTeamId: rawId }, { awayTeamId: rawId }],
+    },
+  });
+  if (matchCount > 0) {
+    throw new Error("لا يمكن حذف الفريق لأنه مشارك في مباريات مسجلة");
+  }
+
   await prisma.team.delete({ where: { id: rawId } });
 
   await auditLog({
