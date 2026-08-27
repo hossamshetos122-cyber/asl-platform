@@ -97,23 +97,30 @@ export async function updateTeam(formData: FormData) {
 
   const { name, shortName, city, logoUrl } = parsed.data;
 
-  await prisma.team.update({
-    where: { id: rawId },
-    data: { name, shortName, city, crestUrl: logoUrl ?? null },
-  });
+  try {
+    await prisma.team.update({
+      where: { id: rawId },
+      data: { name, shortName, city, crestUrl: logoUrl ?? null },
+    });
 
-  await auditLog({
-    actorId: user.id,
-    action: "UPDATE_TEAM",
-    targetId: rawId,
-    metadata: { name },
-  });
+    await auditLog({
+      actorId: user.id,
+      action: "UPDATE_TEAM",
+      targetId: rawId,
+      metadata: { name },
+    });
 
-  revalidatePath("/teams");
-  revalidatePath(`/teams/${rawId}`);
-  revalidatePath("/dashboard");
-  revalidatePath("/admin");
-  revalidatePath("/admin/teams");
+    revalidatePath("/teams");
+    revalidatePath(`/teams/${rawId}`);
+    revalidatePath("/dashboard");
+    revalidatePath("/admin");
+    revalidatePath("/admin/teams");
+  } catch (error: unknown) {
+    if (error && typeof error === "object" && "code" in error && error.code === "P2002") {
+      throw new Error("يوجد فريق بنفس الاسم مسبقاً");
+    }
+    throw new Error("تعذّر تحديث الفريق");
+  }
 }
 
 export async function deleteTeam(formData: FormData) {
@@ -134,17 +141,24 @@ export async function deleteTeam(formData: FormData) {
     throw new Error("لا يمكن حذف الفريق لأنه مشارك في مباريات مسجلة");
   }
 
-  await prisma.team.delete({ where: { id: rawId } });
+  try {
+    await prisma.team.delete({ where: { id: rawId } });
 
-  await auditLog({
-    actorId: user.id,
-    action: "DELETE_TEAM",
-    targetId: rawId,
-  });
+    await auditLog({
+      actorId: user.id,
+      action: "DELETE_TEAM",
+      targetId: rawId,
+    });
 
-  revalidatePath("/teams");
-  revalidatePath("/dashboard");
-  revalidatePath("/");
-  revalidatePath("/admin");
-  revalidatePath("/admin/teams");
+    revalidatePath("/teams");
+    revalidatePath("/dashboard");
+    revalidatePath("/");
+    revalidatePath("/admin");
+    revalidatePath("/admin/teams");
+  } catch (error: unknown) {
+    if (error && typeof error === "object" && "code" in error && error.code === "P2003") {
+      throw new Error("لا يمكن حذف الفريق لأنه مرتبط ببيانات أخرى. احذف البيانات المرتبطة أولاً.");
+    }
+    throw new Error("تعذّر حذف الفريق");
+  }
 }

@@ -92,7 +92,7 @@ export const loginSchema = z.object({
 // CUID validation helper
 // ---------------------------------------------------------------------------
 
-const cuidRegex = /^c[a-z0-9]{24,}$/;
+const cuidRegex = /^[a-zA-Z0-9_-]{2,50}$/;
 
 export const cuid = z.string().regex(cuidRegex, "معرف غير صالح");
 

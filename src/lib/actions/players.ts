@@ -340,18 +340,23 @@ export async function removeFromTeam(teamId: string, playerId: string) {
 
   const user = await requireTeamAccess(teamId);
 
-  await prisma.teamMembership.updateMany({
-    where: { teamId, playerId },
-    data: { status: "REMOVED" },
-  });
+  try {
+    await prisma.teamMembership.updateMany({
+      where: { teamId, playerId },
+      data: { status: "REMOVED" },
+    });
 
-  await auditLog({
-    actorId: user.id,
-    action: "REMOVE_PLAYER_FROM_TEAM",
-    targetId: teamId,
-    metadata: { playerId },
-  });
+    await auditLog({
+      actorId: user.id,
+      action: "REMOVE_PLAYER_FROM_TEAM",
+      targetId: teamId,
+      metadata: { playerId },
+    });
 
-  revalidatePath(`/teams/${teamId}`);
-  revalidatePath("/admin/players");
+    revalidatePath(`/teams/${teamId}`);
+    revalidatePath("/admin/players");
+  } catch (error) {
+    console.error("[removeFromTeam]", error);
+    throw new Error("تعذّر إزالة اللاعب من الفريق");
+  }
 }
