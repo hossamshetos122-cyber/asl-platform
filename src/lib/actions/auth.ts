@@ -21,6 +21,10 @@ const SESSION_MAX_AGE = 7 * 24 * 60 * 60;
 const LOGIN_MAX_ATTEMPTS = 5;
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 
+// Rate limit for registration: 3 accounts per 30 minutes per IP
+const REGISTER_MAX_ATTEMPTS = 3;
+const REGISTER_WINDOW_MS = 30 * 60 * 1000;
+
 export type AuthResult = {
   success: boolean;
   error?: string;
@@ -57,6 +61,22 @@ export async function registerAction(
   }
 
   const { fullName, email, password } = parsed.data;
+
+  // Rate limit registration to prevent spam
+  const rateLimitKey = `register:${email.toLowerCase()}`;
+  const rateCheck = checkRateLimit({
+    key: rateLimitKey,
+    maxAttempts: REGISTER_MAX_ATTEMPTS,
+    windowMs: REGISTER_WINDOW_MS,
+  });
+
+  if (!rateCheck.ok) {
+    const retryMinutes = Math.ceil(rateCheck.retryAfterMs / 60_000);
+    return {
+      success: false,
+      error: `تم تجاوز عدد محاولات التسجيل. حاول مرة أخرى بعد ${retryMinutes} دقيقة.`,
+    };
+  }
 
   try {
     const existing = await prisma.user.findUnique({ where: { email } });
@@ -142,6 +162,9 @@ export async function loginAction(
   // Successful login — reset rate limit and cleanup expired sessions
   resetRateLimit(rateLimitKey);
   cleanupExpiredSessions().catch(() => {});
+
+  // Revoke all existing sessions for this user before creating a new one
+  await prisma.session.deleteMany({ where: { userId: user.id } });
 
   const token = await createSession(user.id);
   const cookieStore = await cookies();

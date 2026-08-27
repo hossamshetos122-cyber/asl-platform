@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { createPlayer, deletePlayer } from "@/lib/actions/players";
+import { createPlayer, deletePlayer, updatePlayer } from "@/lib/actions/players";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { ImageUpload } from "@/components/ui/image-upload";
 
@@ -144,6 +144,60 @@ function PlayerDeleteRow({ playerId }: { playerId: string }) {
   );
 }
 
+function InlineEditForm({ player, onClose }: { player: PlayerRow; onClose: () => void }) {
+  const [photoUrl, setPhotoUrl] = useState<string | null>(player.photoUrl);
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <tr>
+      <td colSpan={5} className="px-4 py-3">
+        <form action={async (formData) => {
+          setError(null);
+          try {
+            if (photoUrl !== undefined) formData.set("photoUrl", photoUrl || "");
+            const res = await updatePlayer(player.id, formData);
+            if (res.success) {
+              onClose();
+              window.location.reload();
+            } else {
+              setError(res.error || "حدث خطأ");
+            }
+          } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : "حدث خطأ");
+          }
+        }} className="rounded-xl border border-gold/20 bg-surface p-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="sm:col-span-2"><ImageUpload name="photoUrl" purpose="player-photo" label="صورة اللاعب" value={photoUrl} onChange={setPhotoUrl} /></div>
+            <div>
+              <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الاسم الكامل</label>
+              <input name="fullName" defaultValue={player.user.fullName} required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold" />
+            </div>
+            <div>
+              <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">المركز</label>
+              <select name="position" defaultValue={player.position} className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold">
+                {POSITION_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">رقم القميص</label>
+              <input type="number" name="jerseyNumber" min={0} max={99} defaultValue={player.jerseyNumber ?? ""} className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold" />
+            </div>
+            <div>
+              <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">رقم الهاتف</label>
+              <input name="phone" type="tel" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold" dir="ltr" placeholder="+20..." />
+            </div>
+          </div>
+          {error && <div className="mt-3 rounded-lg border border-live/30 bg-live/10 px-4 py-2 font-body text-[12px] text-live">{error}</div>}
+          <div className="mt-4 flex items-center gap-3">
+            <button type="submit" className="btn-primary">تحديث</button>
+            <button type="button" onClick={onClose} className="rounded-lg border border-line px-4 py-2 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>
+          </div>
+        </form>
+      </td>
+    </tr>
+  );
+}
+
 export default function PlayersTable({
   players,
   teams,
@@ -151,6 +205,8 @@ export default function PlayersTable({
   players: PlayerRow[];
   teams: TeamOption[];
 }) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+
   if (players.length === 0) {
     return (
       <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
@@ -172,31 +228,38 @@ export default function PlayersTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-line/50">
-          {players.map((player) => (
-            <tr key={player.id} className="transition-colors hover:bg-surface-elevated/50">
-              <td className="px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <ImageDisplay src={player.photoUrl} alt={player.user.fullName} type="player" size="sm" />
-                  <div>
-                    <div className="font-body text-sm font-bold text-text">{player.user.fullName}</div>
-                    <div className="font-body text-[12px] text-text-dimmer" dir="ltr">{player.user.email}</div>
+          {players.map((player) =>
+            editingId === player.id ? (
+              <InlineEditForm key={player.id} player={player} onClose={() => setEditingId(null)} />
+            ) : (
+              <tr key={player.id} className="transition-colors hover:bg-surface-elevated/50">
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <ImageDisplay src={player.photoUrl} alt={player.user.fullName} type="player" size="sm" />
+                    <div>
+                      <div className="font-body text-sm font-bold text-text">{player.user.fullName}</div>
+                      <div className="font-body text-[12px] text-text-dimmer" dir="ltr">{player.user.email}</div>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td className="px-4 py-3 font-body text-sm text-text-dim">
-                {player.memberships[0]?.team.name ?? <span className="text-text-dimmer">بدون فريق</span>}
-              </td>
-              <td className="px-4 py-3">
-                <span className="rounded-md border border-line bg-surface-elevated px-2 py-0.5 font-utility text-[10px] tracking-wider text-text-dim">
-                  {POSITION_LABELS[player.position] ?? player.position}
-                </span>
-              </td>
-              <td className="px-4 py-3 font-num text-sm font-bold text-gold">{player.jerseyNumber ?? "—"}</td>
-              <td className="px-4 py-3">
-                <PlayerDeleteRow playerId={player.id} />
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td className="px-4 py-3 font-body text-sm text-text-dim">
+                  {player.memberships[0]?.team.name ?? <span className="text-text-dimmer">بدون فريق</span>}
+                </td>
+                <td className="px-4 py-3">
+                  <span className="rounded-md border border-line bg-surface-elevated px-2 py-0.5 font-utility text-[10px] tracking-wider text-text-dim">
+                    {POSITION_LABELS[player.position] ?? player.position}
+                  </span>
+                </td>
+                <td className="px-4 py-3 font-num text-sm font-bold text-gold">{player.jerseyNumber ?? "—"}</td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => setEditingId(player.id)} className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-1.5 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">تعديل</button>
+                    <PlayerDeleteRow playerId={player.id} />
+                  </div>
+                </td>
+              </tr>
+            )
+          )}
         </tbody>
       </table>
     </div>

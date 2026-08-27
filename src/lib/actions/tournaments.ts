@@ -168,6 +168,14 @@ export async function deleteTournament(formData: FormData) {
   const idParsed = cuid.safeParse(rawId);
   if (!idParsed.success) throw new Error("معرف البطولة غير صالح");
 
+  // Check for matches to prevent silent data loss
+  const matchCount = await prisma.match.count({ where: { tournamentId: rawId } });
+  if (matchCount > 0) {
+    throw new Error(
+      `لا يمكن حذف البطولة لأنها تحتوي على ${matchCount} مباراة. احذف المباريات أولاً أو غيّر حالة البطولة إلى "ملغاة".`
+    );
+  }
+
   await prisma.tournament.delete({ where: { id: rawId } });
 
   await auditLog({
