@@ -104,7 +104,7 @@ export const createTeamSchema = z.object({
   name: z.string().trim().min(1, "اسم الفريق مطلوب").max(100, "اسم الفريق طويل جداً"),
   shortName: z.string().trim().min(1, "الاسم المختصر مطلوب").max(20, "الاسم المختصر طويل جداً"),
   city: z.string().trim().max(100, "اسم المدينة طويل جداً").default("الإسكندرية"),
-  logoUrl: z.string().max(2000).nullable().optional(),
+  logoUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
 });
 
 export const updateTeamSchema = z.object({
@@ -112,7 +112,7 @@ export const updateTeamSchema = z.object({
   name: z.string().trim().min(1, "اسم الفريق مطلوب").max(100, "اسم الفريق طويل جداً"),
   shortName: z.string().trim().min(1, "الاسم المختصر مطلوب").max(20, "الاسم المختصر طويل جداً"),
   city: z.string().trim().max(100, "اسم المدينة طويل جداً").default("الإسكندرية"),
-  logoUrl: z.string().max(2000).nullable().optional(),
+  logoUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
 });
 
 // ---------------------------------------------------------------------------
@@ -123,7 +123,7 @@ export const createPlayerSchema = z.object({
   teamId: cuid,
   fullName: z.string().trim().min(1, "اسم اللاعب مطلوب").max(100, "اسم اللاعب طويل جداً"),
   phone: z.string().trim().max(20, "رقم الهاتف طويل جداً").nullable().optional(),
-  photoUrl: z.string().max(2000).nullable().optional(),
+  photoUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
   jerseyNumber: z
     .string()
     .optional()
@@ -142,7 +142,7 @@ export const updatePlayerSchema = z.object({
   id: cuid,
   fullName: z.string().trim().min(1, "اسم اللاعب مطلوب").max(100, "اسم اللاعب طويل جداً"),
   phone: z.string().trim().max(20, "رقم الهاتف طويل جداً").nullable().optional(),
-  photoUrl: z.string().max(2000).nullable().optional(),
+  photoUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
   jerseyNumber: z
     .string()
     .optional()
@@ -166,8 +166,8 @@ export const createTournamentSchema = z.object({
   format: TournamentFormat.default("LEAGUE"),
   status: TournamentStatus.default("UPCOMING"),
   startDate: z.string().min(1, "تاريخ البداية مطلوب"),
-  logoUrl: z.string().max(2000).nullable().optional(),
-  coverUrl: z.string().max(2000).nullable().optional(),
+  logoUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
+  coverUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
 });
 
 export const updateTournamentSchema = z.object({
@@ -176,8 +176,8 @@ export const updateTournamentSchema = z.object({
   format: TournamentFormat.default("LEAGUE"),
   status: TournamentStatus.default("UPCOMING"),
   startDate: z.string().min(1, "تاريخ البداية مطلوب"),
-  logoUrl: z.string().max(2000).nullable().optional(),
-  coverUrl: z.string().max(2000).nullable().optional(),
+  logoUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
+  coverUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
 });
 
 // ---------------------------------------------------------------------------
