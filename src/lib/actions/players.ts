@@ -306,7 +306,10 @@ export async function addToTeam(teamId: string, playerId: string) {
   });
 
   if (existing) {
-    if (existing.status === "REMOVED" || existing.status === "PENDING") {
+    if (existing.status === "ACTIVE") {
+      return;
+    }
+    if (existing.status === "REMOVED" || existing.status === "PENDING" || existing.status === "REJECTED") {
       await prisma.teamMembership.update({
         where: { id: existing.id },
         data: { status: "ACTIVE" },

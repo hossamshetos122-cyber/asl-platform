@@ -167,13 +167,17 @@ export async function logoutAction(): Promise<void> {
   const token = cookieStore.get(SESSION_COOKIE)?.value;
 
   if (token) {
-    const user = await import("@/lib/auth").then((m) =>
-      m.validateSession(token),
-    );
-    if (user) {
-      await auditLog({ actorId: user.id, action: "LOGOUT", targetId: user.id });
+    try {
+      const user = await import("@/lib/auth").then((m) =>
+        m.validateSession(token),
+      );
+      if (user) {
+        await auditLog({ actorId: user.id, action: "LOGOUT", targetId: user.id });
+      }
+      await destroySession(token);
+    } catch (e) {
+      console.error("[logoutAction]", e);
     }
-    await destroySession(token);
   }
 
   cookieStore.set(SESSION_COOKIE, "", {

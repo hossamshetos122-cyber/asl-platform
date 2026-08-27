@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { TeamEditForm, TeamDeleteButton } from "./team-owner-actions";
-import { PlayerManager } from "./player-manager";
+import { PlayerManager, RemovePlayerButton } from "./player-manager";
 
 const POSITION_LABELS: Record<string, string> = {
   GOALKEEPER: "حارس مرمى", DEFENDER: "مدافع", MIDFIELDER: "لاعب وسط", FORWARD: "مهاجم",
@@ -66,7 +66,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
 
       <main className="page-container page-padding">
         {/* Owner Actions */}
-        {isOwner && (
+        {(isOwner || isAdmin) && (
           <div className="mb-5 rounded-xl border border-gold/15 bg-surface p-4">
             <h3 className="mb-2.5 font-display text-sm font-black text-gold">إدارة الفريق</h3>
             <TeamEditForm teamId={team.id} initialName={team.name} initialShortName={team.shortCode} initialCity={team.city} initialCrestUrl={team.crestUrl} />
@@ -117,6 +117,11 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
                       <div className="flex h-6 w-6 items-center justify-center rounded bg-surface-elevated font-num text-[10px] font-bold text-gold">{player.jerseyNumber ?? "-"}</div>
                       {player.goals > 0 && <div className="mt-0.5 text-center font-num text-[9px] font-bold text-emerald-400">{player.goals} ه</div>}
                     </div>
+                    {(isOwner || isAdmin) && (
+                      <div className="flex-shrink-0">
+                        <RemovePlayerButton teamId={team.id} playerId={player.id} />
+                      </div>
+                    )}
                   </Link>
                 ))}
               </div>

@@ -67,7 +67,7 @@ const STATUS_OPTIONS = [
 ] as const;
 
 const STATUS_LABELS: Record<string, string> = { UPCOMING: "قادمة", ONGOING: "جارية", COMPLETED: "منتهية", CANCELLED: "ملغاة" };
-const FORMAT_LABELS: Record<string, string> = { LEAGUE: "دوري", KNOCKOUT: "إقصائي", GROUPS_KNOCKOUT: "مجموعات + إقصائي" };
+const FORMAT_LABELS: Record<string, string> = { LEAGUE: "دوري", KNOCKOUT: "إقصائي", GROUPS_KNOCKOUT: "مجموعات + إقصائي", CUP: "كأس", CHAMPIONS_LEAGUE: "دوري الأبطال" };
 
 function InlineCreateForm() {
   const [isAdding, setIsAdding] = useState(false);
@@ -205,6 +205,7 @@ function TeamManager({ tournament, allTeams }: { tournament: TournamentRow; allT
       try {
         await addTeamToTournament(tournament.id, selectedTeamId);
         setSelectedTeamId("");
+        window.location.reload();
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "خطأ غير معروف");
       }
@@ -216,6 +217,7 @@ function TeamManager({ tournament, allTeams }: { tournament: TournamentRow; allT
     startTransition(async () => {
       try {
         await removeTeamFromTournament(tournament.id, teamId);
+        window.location.reload();
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "خطأ غير معروف");
       }

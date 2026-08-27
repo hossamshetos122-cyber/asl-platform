@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 import PlayersTable from "./players-table";
 
 export const metadata = {
@@ -6,6 +7,7 @@ export const metadata = {
 };
 
 export default async function AdminPlayersPage() {
+  await requireAdmin();
   const [players, teams] = await Promise.all([
     prisma.player.findMany({
       orderBy: { createdAt: "desc" },

@@ -272,13 +272,13 @@ export async function getTopScorers(
     const playerById = new Map(players.map((p) => [p.id, p]));
 
     const rows: TopScorerVM[] = grouped
-      .map((g, index) => {
+      .map((g) => {
         const player = playerById.get(g.playerId);
         if (!player) return null;
         const teamName = player.memberships[0]?.team.name ?? "بدون فريق";
         const teamId = player.memberships[0]?.team.id ?? null;
         const row: TopScorerVM = {
-          rank: index + 1,
+          rank: 0,
           playerId: player.id,
           playerName: player.user.fullName,
           photoUrl: player.photoUrl,
@@ -288,7 +288,8 @@ export async function getTopScorers(
         };
         return row;
       })
-      .filter((row): row is TopScorerVM => row !== null);
+      .filter((row): row is TopScorerVM => row !== null)
+      .map((row, index) => ({ ...row, rank: index + 1 }));
 
     return { status: "success", data: rows };
   } catch (error) {

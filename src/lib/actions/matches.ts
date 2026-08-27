@@ -118,7 +118,6 @@ export async function updateScore(
     data: {
       homeScore: parsed.data.homeScore,
       awayScore: parsed.data.awayScore,
-      status: parsed.data.status,
     },
   });
 
@@ -230,6 +229,8 @@ export async function deleteMatch(id: string) {
     where: { id },
     select: { tournamentId: true },
   });
+
+  if (!match) throw new Error("المباراة غير موجودة");
 
   await prisma.match.delete({ where: { id } });
 

@@ -9,7 +9,7 @@ import type { MatchSquadVM } from "@/lib/types";
 
 const STATUS_LABELS: Record<string, string> = { SCHEDULED: "مجدولة", LIVE: "مباشر", HALFTIME: "استراحة", FINISHED: "انتهت", POSTPONED: "مؤجلة", CANCELLED: "ملغاة" };
 const STATUS_CLASSES: Record<string, string> = { SCHEDULED: "badge-muted", LIVE: "badge-live", HALFTIME: "badge-gold", FINISHED: "badge-success", POSTPONED: "badge-muted", CANCELLED: "badge-muted" };
-const EVENT_LABELS: Record<string, string> = { GOAL: "هدف", OWN_GOAL: "هدف عكسي", ASSIST: "تمريرة حاسمة", YELLOW_CARD: "بطاقة صفراء", RED_CARD: "بطاقة حمراء" };
+const EVENT_LABELS: Record<string, string> = { GOAL: "هدف", OWN_GOAL: "هدف عكسي", ASSIST: "تمريرة حاسمة", YELLOW_CARD: "بطاقة صفراء", RED_CARD: "بطاقة حمراء", PENALTY_SCORED: "هدف من ركلة جزاء", PENALTY_MISSED: "ضائع ركلة جزاء", SUBSTITUTION_IN: "دخول", SUBSTITUTION_OUT: "خروج" };
 const STATUS_LABELS_SQUAD: Record<string, string> = { PENDING: "قيد الانتظار", CONFIRMED: "مؤكدة", ABSENT: "غائبة" };
 const STATUS_COLORS_SQUAD: Record<string, string> = { PENDING: "badge-muted", CONFIRMED: "badge-success", ABSENT: "badge-live" };
 const POSITION_LABELS: Record<string, string> = { GOALKEEPER: "حارس مرمى", DEFENDER: "مدافع", MIDFIELDER: "لاعب وسط", FORWARD: "مهاجم" };
@@ -141,7 +141,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
                       <span className="mr-1.5 font-body text-[10px] text-text-dim">{event.teamName}</span>
                     </div>
                   </div>
-                  <span className={event.type === "GOAL" ? "badge-success" : event.type === "RED_CARD" ? "badge-live" : "badge-muted"}>
+                  <span className={event.type === "GOAL" || event.type === "PENALTY_SCORED" ? "badge-success" : event.type === "RED_CARD" || event.type === "PENALTY_MISSED" ? "badge-live" : event.type === "YELLOW_CARD" ? "badge-gold" : "badge-muted"}>
                     {EVENT_LABELS[event.type] ?? event.type}
                   </span>
                 </div>
