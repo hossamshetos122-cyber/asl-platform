@@ -73,6 +73,7 @@ function InlineCreateForm() {
   const [isAdding, setIsAdding] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   if (!isAdding) {
     return (
@@ -84,7 +85,20 @@ function InlineCreateForm() {
   }
 
   return (
-    <form action={async (formData) => { if (logoUrl) formData.set("logoUrl", logoUrl); if (coverUrl) formData.set("coverUrl", coverUrl); await createTournament(formData); setIsAdding(false); setLogoUrl(null); setCoverUrl(null); }} className="rounded-xl border border-gold/20 bg-surface p-5">
+    <form action={async (formData) => {
+      setError(null);
+      try {
+        if (logoUrl) formData.set("logoUrl", logoUrl);
+        if (coverUrl) formData.set("coverUrl", coverUrl);
+        await createTournament(formData);
+        setIsAdding(false);
+        setLogoUrl(null);
+        setCoverUrl(null);
+        window.location.reload();
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "حدث خطأ");
+      }
+    }} className="rounded-xl border border-gold/20 bg-surface p-5">
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2">
 <ImageUpload name="logoUrl" purpose="tournament-logo" label="شعار البطولة" value={logoUrl} onChange={setLogoUrl} />
@@ -111,9 +125,10 @@ function InlineCreateForm() {
         </div>
       </div>
       <div className="mb-4"><ImageUpload name="coverUrl" purpose="tournament-cover" label="صورة الغلاف" value={coverUrl} onChange={setCoverUrl} /></div>
+      {error && <div className="mb-4 rounded-lg border border-live/30 bg-live/10 px-4 py-2 font-body text-[12px] text-live">{error}</div>}
       <div className="flex items-center gap-3">
         <SubmitButton />
-        <button type="button" onClick={() => { setIsAdding(false); setLogoUrl(null); setCoverUrl(null); }} className="rounded-lg border border-line px-4 py-2 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>
+        <button type="button" onClick={() => { setIsAdding(false); setLogoUrl(null); setCoverUrl(null); setError(null); }} className="rounded-lg border border-line px-4 py-2 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>
       </div>
     </form>
   );
@@ -122,11 +137,22 @@ function InlineCreateForm() {
 function EditRow({ tournament, onClose }: { tournament: TournamentRow; onClose: () => void }) {
   const [logoUrl, setLogoUrl] = useState<string | null>(tournament.logoUrl);
   const [coverUrl, setCoverUrl] = useState<string | null>(tournament.coverUrl);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <tr>
       <td colSpan={6} className="px-4 py-3">
-        <form action={async (formData) => { if (logoUrl !== undefined) formData.set("logoUrl", logoUrl || ""); if (coverUrl !== undefined) formData.set("coverUrl", coverUrl || ""); await updateTournament(formData); onClose(); }} className="rounded-xl border border-gold/20 bg-surface p-4">
+        <form action={async (formData) => {
+          setError(null);
+          try {
+            if (logoUrl !== undefined) formData.set("logoUrl", logoUrl || "");
+            if (coverUrl !== undefined) formData.set("coverUrl", coverUrl || "");
+            await updateTournament(formData);
+            onClose();
+          } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : "حدث خطأ");
+          }
+        }} className="rounded-xl border border-gold/20 bg-surface p-4">
           <input type="hidden" name="id" value={tournament.id} />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2"><ImageUpload name="logoUrl" purpose="tournament-logo" label="شعار البطولة" value={logoUrl} onChange={setLogoUrl} /></div>
@@ -152,6 +178,7 @@ function EditRow({ tournament, onClose }: { tournament: TournamentRow; onClose: 
             </div>
           </div>
           <div className="my-4"><ImageUpload name="coverUrl" purpose="tournament-cover" label="صورة الغلاف" value={coverUrl} onChange={setCoverUrl} /></div>
+          {error && <div className="mb-4 rounded-lg border border-live/30 bg-live/10 px-4 py-2 font-body text-[12px] text-live">{error}</div>}
           <div className="flex items-center gap-3">
             <button type="submit" className="btn-primary">تحديث</button>
             <button type="button" onClick={onClose} className="rounded-lg border border-line px-4 py-2 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>
@@ -240,6 +267,26 @@ function TeamManager({ tournament, allTeams }: { tournament: TournamentRow; allT
   );
 }
 
+function TournamentDeleteRow({ tournamentId }: { tournamentId: string }) {
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <div>
+      <form action={async (formData) => {
+        try {
+          await deleteTournament(formData);
+          window.location.reload();
+        } catch (e: unknown) {
+          setError(e instanceof Error ? e.message : "حدث خطأ");
+        }
+      }} className="inline">
+        <input type="hidden" name="id" value={tournamentId} />
+        <DeleteButton />
+      </form>
+      {error && <p className="mt-1 font-body text-[10px] text-live">{error}</p>}
+    </div>
+  );
+}
+
 export default function TournamentsTable({ tournaments, allTeams = [] }: { tournaments: TournamentRow[]; allTeams?: TeamOption[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -288,10 +335,7 @@ export default function TournamentsTable({ tournaments, allTeams = [] }: { tourn
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <button onClick={() => setEditingId(tournament.id)} className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-1.5 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">تعديل</button>
-                      <form action={async (formData) => { await deleteTournament(formData); }} className="inline">
-                        <input type="hidden" name="id" value={tournament.id} />
-                        <DeleteButton />
-                      </form>
+                      <TournamentDeleteRow tournamentId={tournament.id} />
                     </div>
                   </td>
                 </tr>

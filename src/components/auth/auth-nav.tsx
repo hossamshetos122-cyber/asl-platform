@@ -35,6 +35,11 @@ export function AuthNav() {
             التحكم
           </Link>
         )}
+        {user.role === "FAN" && (
+          <Link href="/dashboard" className="rounded-lg border border-gold/20 bg-gold/5 px-3 py-1.5 font-body text-[12px] font-bold text-gold transition-all hover:bg-gold/10">
+            لوحة التحكم
+          </Link>
+        )}
         <div className="h-4 w-px bg-line-strong" />
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gold/10 border border-gold/20">

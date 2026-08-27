@@ -85,7 +85,12 @@ export async function getTeamById(id: string): Promise<Result<TeamDetailVM>> {
 }
 
 export async function getTeamSquadSize(teamId: string): Promise<number> {
-  return prisma.teamMembership.count({
-    where: { teamId, status: "ACTIVE" },
-  });
+  try {
+    return await prisma.teamMembership.count({
+      where: { teamId, status: "ACTIVE" },
+    });
+  } catch (error) {
+    console.error("[getTeamSquadSize]", error);
+    return 0;
+  }
 }

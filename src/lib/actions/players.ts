@@ -178,21 +178,23 @@ export async function updatePlayer(
   if (!player) return { success: false, error: "اللاعب غير موجود" };
 
   try {
-    if (fullName) {
-      await prisma.user.update({
-        where: { id: player.userId },
-        data: { fullName, phone },
-      });
-    }
+    await prisma.$transaction(async (tx) => {
+      if (fullName) {
+        await tx.user.update({
+          where: { id: player.userId },
+          data: { fullName, phone },
+        });
+      }
 
-    const data: Record<string, unknown> = {};
-    if (photoUrl !== undefined) data.photoUrl = photoUrl || null;
-    if (jerseyNumber !== undefined) {
-      data.jerseyNumber = jerseyNumber ? parseInt(jerseyNumber, 10) : null;
-    }
-    if (position) data.position = position;
+      const data: Record<string, unknown> = {};
+      if (photoUrl !== undefined) data.photoUrl = photoUrl || null;
+      if (jerseyNumber !== undefined) {
+        data.jerseyNumber = jerseyNumber ? parseInt(jerseyNumber, 10) : null;
+      }
+      if (position) data.position = position;
 
-    await prisma.player.update({ where: { id }, data });
+      await tx.player.update({ where: { id }, data });
+    });
 
     const membership = await prisma.teamMembership.findFirst({
       where: { playerId: id, status: "ACTIVE" },
@@ -255,7 +257,11 @@ export async function deletePlayer(playerId: string): Promise<PlayerActionResult
 
     await prisma.$transaction(async (tx) => {
       await tx.player.delete({ where: { id: playerId } });
-      await tx.user.delete({ where: { id: player.userId } });
+      try {
+        await tx.user.delete({ where: { id: player.userId } });
+      } catch {
+        // User may have AuditLog FK Restrict — leave orphaned user record
+      }
     });
 
     await auditLog({

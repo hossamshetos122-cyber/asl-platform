@@ -15,8 +15,13 @@ const NAV_ITEMS = [
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const user = await requireAdmin();
-  if (!user) return redirect("/login?redirect=/admin");
+  let user;
+  try {
+    user = await requireAdmin();
+  } catch {
+    redirect("/login?redirect=/admin");
+  }
+  if (!user) redirect("/login?redirect=/admin");
 
   return (
     <div className="flex min-h-screen bg-bg">

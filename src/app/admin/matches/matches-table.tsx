@@ -44,6 +44,7 @@ const STATUS_COLORS: Record<string, string> = { SCHEDULED: "badge-muted", LIVE: 
 
 function InlineCreateForm({ teams, tournaments }: { teams: TeamOption[]; tournaments: TournamentOption[] }) {
   const [isAdding, setIsAdding] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!isAdding) {
     return (
@@ -55,7 +56,16 @@ function InlineCreateForm({ teams, tournaments }: { teams: TeamOption[]; tournam
   }
 
   return (
-    <form action={async (formData) => { await createMatch(formData); setIsAdding(false); }} className="rounded-xl border border-gold/20 bg-surface p-5">
+    <form action={async (formData) => {
+      setError(null);
+      try {
+        await createMatch(formData);
+        setIsAdding(false);
+        window.location.reload();
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "حدث خطأ");
+      }
+    }} className="rounded-xl border border-gold/20 bg-surface p-5">
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">البطولة</label>
@@ -91,9 +101,10 @@ function InlineCreateForm({ teams, tournaments }: { teams: TeamOption[]; tournam
           <input name="round" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-gold" placeholder="الأسبوع 1" />
         </div>
       </div>
+      {error && <div className="mb-4 rounded-lg border border-live/30 bg-live/10 px-4 py-2 font-body text-[12px] text-live">{error}</div>}
       <div className="flex items-center gap-3">
         <SubmitButton />
-        <button type="button" onClick={() => setIsAdding(false)} className="rounded-lg border border-line px-4 py-2 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>
+        <button type="button" onClick={() => { setIsAdding(false); setError(null); }} className="rounded-lg border border-line px-4 py-2 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>
       </div>
     </form>
   );
@@ -112,6 +123,25 @@ function ScoreUpdateForm({ match }: { match: MatchRow }) {
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("ar-EG", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(date);
+}
+
+function MatchDeleteRow({ matchId }: { matchId: string }) {
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <div>
+      <form action={async () => {
+        try {
+          await deleteMatch(matchId);
+          window.location.reload();
+        } catch (e: unknown) {
+          setError(e instanceof Error ? e.message : "حدث خطأ");
+        }
+      }} className="inline">
+        <DeleteButton />
+      </form>
+      {error && <p className="mt-1 font-body text-[10px] text-live">{error}</p>}
+    </div>
+  );
 }
 
 export default function MatchesTable({ matches, teams, tournaments }: { matches: MatchRow[]; teams: TeamOption[]; tournaments: TournamentOption[] }) {
@@ -166,9 +196,7 @@ export default function MatchesTable({ matches, teams, tournaments }: { matches:
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
                   <Link href={`/admin/matches/${match.id}/squads`} className="rounded-lg border border-gold/30 bg-gold/10 px-2.5 py-1 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">القوائم</Link>
-                  <form action={async () => { await deleteMatch(match.id); }} className="inline">
-                    <DeleteButton />
-                  </form>
+                  <MatchDeleteRow matchId={match.id} />
                 </div>
               </td>
             </tr>

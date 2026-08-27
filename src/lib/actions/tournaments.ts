@@ -11,7 +11,7 @@ import { auditLog } from "@/lib/audit";
 // ---------------------------------------------------------------------------
 
 export async function addTeamToTournament(tournamentId: string, teamId: string) {
-  await requireAdmin();
+  const user = await requireAdmin();
 
   const tIdParsed = cuid.safeParse(tournamentId);
   if (!tIdParsed.success) throw new Error("معرف البطولة غير صالح");
@@ -31,6 +31,13 @@ export async function addTeamToTournament(tournamentId: string, teamId: string) 
 
   await prisma.tournamentTeam.create({ data: { tournamentId, teamId } });
 
+  await auditLog({
+    actorId: user.id,
+    action: "ADD_TEAM_TO_TOURNAMENT",
+    targetId: tournamentId,
+    metadata: { teamId, teamName: team.name, tournamentName: tournament.name },
+  });
+
   revalidatePath("/admin");
   revalidatePath("/admin/tournaments");
   revalidatePath(`/tournaments/${tournamentId}`);
@@ -38,7 +45,7 @@ export async function addTeamToTournament(tournamentId: string, teamId: string) 
 }
 
 export async function removeTeamFromTournament(tournamentId: string, teamId: string) {
-  await requireAdmin();
+  const user = await requireAdmin();
 
   const tIdParsed = cuid.safeParse(tournamentId);
   if (!tIdParsed.success) throw new Error("معرف البطولة غير صالح");
@@ -51,6 +58,13 @@ export async function removeTeamFromTournament(tournamentId: string, teamId: str
   if (!entry) throw new Error("الفريق غير مسجّل في هذه البطولة");
 
   await prisma.tournamentTeam.delete({ where: { tournamentId_teamId: { tournamentId, teamId } } });
+
+  await auditLog({
+    actorId: user.id,
+    action: "REMOVE_TEAM_FROM_TOURNAMENT",
+    targetId: tournamentId,
+    metadata: { teamId },
+  });
 
   revalidatePath("/admin");
   revalidatePath("/admin/tournaments");

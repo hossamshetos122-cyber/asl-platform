@@ -125,18 +125,27 @@ export function PlayerManager({
 
 export function RemovePlayerButton({ teamId, playerId }: { teamId: string; playerId: string }) {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+
   return (
-    <form
-      action={async () => {
-        if (!confirm("هل أنت متأكد من إزالة هذا اللاعب؟")) return;
-        await removeFromTeam(teamId, playerId);
-        router.refresh();
-      }}
-      className="inline"
-    >
-      <button type="submit" className="rounded-sm border border-live/30 bg-live/10 px-2 py-1 font-body text-[10px] font-bold text-live transition-colors hover:bg-live/20">
-        إزالة
-      </button>
-    </form>
+    <div className="inline">
+      <form
+        action={async () => {
+          if (!confirm("هل أنت متأكد من إزالة هذا اللاعب؟")) return;
+          try {
+            await removeFromTeam(teamId, playerId);
+            router.refresh();
+          } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : "حدث خطأ أثناء إزالة اللاعب");
+          }
+        }}
+        className="inline"
+      >
+        <button type="submit" className="rounded-sm border border-live/30 bg-live/10 px-2 py-1 font-body text-[10px] font-bold text-live transition-colors hover:bg-live/20">
+          إزالة
+        </button>
+      </form>
+      {error && <p className="mt-1 font-body text-[10px] text-live">{error}</p>}
+    </div>
   );
 }

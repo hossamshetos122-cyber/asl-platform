@@ -58,35 +58,41 @@ export async function registerAction(
 
   const { fullName, email, password } = parsed.data;
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return { success: false, error: "البريد الإلكتروني مسجّل بالفعل" };
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return { success: false, error: "البريد الإلكتروني مسجّل بالفعل" };
+    }
+
+    const passwordHash = await hashPassword(password);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        fullName,
+        role: "FAN",
+      },
+    });
+
+    const token = await createSession(user.id);
+    const cookieStore = await cookies();
+    cookieStore.set(SESSION_COOKIE, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: SESSION_MAX_AGE,
+      path: "/",
+    });
+
+    await auditLog({ actorId: user.id, action: "REGISTER", targetId: user.id });
+
+    redirect("/dashboard");
+  } catch (error) {
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") throw error;
+    console.error("[registerAction]", error);
+    return { success: false, error: "تعذّر إنشاء الحساب. حاول مرة أخرى." };
   }
-
-  const passwordHash = await hashPassword(password);
-
-  const user = await prisma.user.create({
-    data: {
-      email,
-      passwordHash,
-      fullName,
-      role: "FAN",
-    },
-  });
-
-  const token = await createSession(user.id);
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: SESSION_MAX_AGE,
-    path: "/",
-  });
-
-  await auditLog({ actorId: user.id, action: "REGISTER", targetId: user.id });
-
-  redirect("/dashboard");
 }
 
 export async function loginAction(

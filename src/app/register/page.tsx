@@ -37,6 +37,11 @@ function RegisterForm() {
           <input id="password" name="password" type="password" required className="input-field" placeholder="8 أحرف على الأقل" />
           {state.fieldErrors?.password && <p className="mt-1 font-body text-xs text-live">{state.fieldErrors.password}</p>}
         </div>
+        <div>
+          <label htmlFor="confirmPassword" className="mb-1 block font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">تأكيد كلمة المرور</label>
+          <input id="confirmPassword" name="confirmPassword" type="password" required className="input-field" placeholder="أعد إدخال كلمة المرور" />
+          {state.fieldErrors?.confirmPassword && <p className="mt-1 font-body text-xs text-live">{state.fieldErrors.confirmPassword}</p>}
+        </div>
         <button type="submit" disabled={pending} className="btn-primary w-full">
           {pending ? "جارٍ إنشاء الحساب..." : "إنشاء حساب"}
         </button>
