@@ -19,7 +19,15 @@ function crest(name: string): string {
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=d4a843&color=1a1a2e&size=400&bold=true&font-size=0.4`;
 }
 
+export async function GET() {
+  return handleSeed();
+}
+
 export async function POST() {
+  return handleSeed();
+}
+
+async function handleSeed() {
   try {
     const user = await requireAdmin();
 
