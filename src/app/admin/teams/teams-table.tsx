@@ -36,6 +36,7 @@ function DeleteButton() {
 function InlineCreateForm() {
   const [isAdding, setIsAdding] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   if (!isAdding) {
     return (
@@ -54,10 +55,14 @@ function InlineCreateForm() {
   return (
     <form
       action={async (formData) => {
-        if (logoUrl) formData.set("logoUrl", logoUrl);
-        await createTeam({ status: "empty" }, formData);
-        setIsAdding(false);
-        setLogoUrl(null);
+        setError(null);
+        formData.set("logoUrl", logoUrl || "");
+        const res = await createTeam({ status: "empty" }, formData);
+        if (res.status === "success") {
+          window.location.reload();
+        } else if (res.status === "error") {
+          setError(res.message || "حدث خطأ");
+        }
       }}
       className="rounded-xl border border-gold/20 bg-surface p-5"
     >
@@ -97,11 +102,12 @@ function InlineCreateForm() {
           />
         </div>
       </div>
+      {error && <div className="mb-4 rounded-lg border border-live/30 bg-live/10 px-4 py-2 font-body text-[12px] text-live">{error}</div>}
       <div className="flex items-center gap-3">
         <SubmitButton />
         <button
           type="button"
-          onClick={() => { setIsAdding(false); setLogoUrl(null); }}
+          onClick={() => { setIsAdding(false); setLogoUrl(null); setError(null); }}
           className="rounded-lg border border-line px-4 py-2 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text"
         >
           إلغاء
@@ -250,6 +256,7 @@ function TeamDeleteRow({ team, onEdit }: { team: TeamRow; onEdit: () => void }) 
           <form action={async (formData) => {
             try {
               await deleteTeam(formData);
+              window.location.reload();
             } catch (e: unknown) {
               setError(e instanceof Error ? e.message : "حدث خطأ");
             }

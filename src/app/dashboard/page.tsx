@@ -46,7 +46,7 @@ export default async function DashboardPage() {
       <main className="page-container page-padding">
         <div className="mb-5 grid grid-cols-3 gap-2.5">
           <div className="rounded-xl border border-line bg-surface p-4 text-center">
-            <div className="font-num text-xl font-bold text-gold">{user.fullName.charAt(0)}</div>
+            <div className="font-body text-[11px] font-bold text-gold">{user.fullName}</div>
             <div className="font-utility text-[8px] tracking-[0.12em] text-text-dimmer uppercase mt-0.5">الاسم</div>
           </div>
           <div className="rounded-xl border border-line bg-surface p-4 text-center">

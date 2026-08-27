@@ -111,13 +111,27 @@ function InlineCreateForm({ teams, tournaments }: { teams: TeamOption[]; tournam
 }
 
 function ScoreUpdateForm({ match }: { match: MatchRow }) {
+  const [error, setError] = useState<string | null>(null);
   return (
-    <form action={async (formData) => { const home = Number(formData.get("homeScore")); const away = Number(formData.get("awayScore")); await updateScore(match.id, home, away); }} className="inline-flex items-center gap-2">
-      <input type="number" name="homeScore" defaultValue={match.homeScore} min={0} className="w-12 rounded-lg border border-line bg-surface-elevated px-1.5 py-1 text-center font-num text-sm text-text outline-none focus:border-gold" />
-      <span className="font-num text-sm text-gold/50">-</span>
-      <input type="number" name="awayScore" defaultValue={match.awayScore} min={0} className="w-12 rounded-lg border border-line bg-surface-elevated px-1.5 py-1 text-center font-num text-sm text-text outline-none focus:border-gold" />
-      <button type="submit" className="rounded-lg border border-gold/30 bg-gold/10 px-2.5 py-1 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">تحديث</button>
-    </form>
+    <div>
+      <form action={async (formData) => {
+        setError(null);
+        try {
+          const home = Number(formData.get("homeScore"));
+          const away = Number(formData.get("awayScore"));
+          await updateScore(match.id, home, away);
+          window.location.reload();
+        } catch (e: unknown) {
+          setError(e instanceof Error ? e.message : "حدث خطأ");
+        }
+      }} className="inline-flex items-center gap-2">
+        <input type="number" name="homeScore" defaultValue={match.homeScore} min={0} className="w-12 rounded-lg border border-line bg-surface-elevated px-1.5 py-1 text-center font-num text-sm text-text outline-none focus:border-gold" />
+        <span className="font-num text-sm text-gold/50">-</span>
+        <input type="number" name="awayScore" defaultValue={match.awayScore} min={0} className="w-12 rounded-lg border border-line bg-surface-elevated px-1.5 py-1 text-center font-num text-sm text-text outline-none focus:border-gold" />
+        <button type="submit" className="rounded-lg border border-gold/30 bg-gold/10 px-2.5 py-1 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">تحديث</button>
+      </form>
+      {error && <p className="mt-1 font-body text-[10px] text-live">{error}</p>}
+    </div>
   );
 }
 

@@ -70,7 +70,7 @@ function InlineCreateForm({ teams }: { teams: TeamOption[] }) {
     <form
       action={async (formData) => {
         setError(null);
-        if (photoUrl) formData.set("photoUrl", photoUrl);
+        formData.set("photoUrl", photoUrl || "");
         const res = await createPlayer({ success: false }, formData);
         if (res.success) {
           setIsAdding(false);

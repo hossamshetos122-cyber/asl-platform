@@ -149,40 +149,46 @@ export async function loginAction(
     };
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
-    return { success: false, error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return { success: false, error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
+    }
+
+    const valid = await verifyPassword(password, user.passwordHash);
+    if (!valid) {
+      return { success: false, error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
+    }
+
+    // Successful login — reset rate limit and cleanup expired sessions
+    resetRateLimit(rateLimitKey);
+    cleanupExpiredSessions().catch(() => {});
+
+    // Revoke all existing sessions for this user before creating a new one
+    await prisma.session.deleteMany({ where: { userId: user.id } });
+
+    const token = await createSession(user.id);
+    const cookieStore = await cookies();
+    cookieStore.set(SESSION_COOKIE, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: SESSION_MAX_AGE,
+      path: "/",
+    });
+
+    await auditLog({ actorId: user.id, action: "LOGIN", targetId: user.id });
+
+    if (redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")) {
+      redirect(redirectTo);
+    }
+
+    redirect(user.role === "ADMIN" ? "/admin" : "/dashboard");
+  } catch (error) {
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") throw error;
+    console.error("[loginAction]", error);
+    return { success: false, error: "تعذّر تسجيل الدخول. حاول مرة أخرى." };
   }
-
-  const valid = await verifyPassword(password, user.passwordHash);
-  if (!valid) {
-    return { success: false, error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
-  }
-
-  // Successful login — reset rate limit and cleanup expired sessions
-  resetRateLimit(rateLimitKey);
-  cleanupExpiredSessions().catch(() => {});
-
-  // Revoke all existing sessions for this user before creating a new one
-  await prisma.session.deleteMany({ where: { userId: user.id } });
-
-  const token = await createSession(user.id);
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: SESSION_MAX_AGE,
-    path: "/",
-  });
-
-  await auditLog({ actorId: user.id, action: "LOGIN", targetId: user.id });
-
-  if (redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")) {
-    redirect(redirectTo);
-  }
-
-  redirect(user.role === "ADMIN" ? "/admin" : "/dashboard");
 }
 
 export async function logoutAction(): Promise<void> {

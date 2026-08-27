@@ -35,7 +35,7 @@ export function AuthNav() {
             التحكم
           </Link>
         )}
-        {user.role === "FAN" && (
+        {(user.role === "FAN" || user.role === "PLAYER") && (
           <Link href="/dashboard" className="rounded-lg border border-gold/20 bg-gold/5 px-3 py-1.5 font-body text-[12px] font-bold text-gold transition-all hover:bg-gold/10">
             لوحة التحكم
           </Link>

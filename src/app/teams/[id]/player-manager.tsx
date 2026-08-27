@@ -54,15 +54,19 @@ export function PlayerManager({
           setError(null);
           setSuccess(false);
           formData.set("teamId", teamId);
-          if (photoUrl) formData.set("photoUrl", photoUrl);
-          const res = await createPlayer({ success: false }, formData);
-          if (res.success) {
-            setSuccess(true);
-            setShowForm(false);
-            setPhotoUrl(null);
-            router.refresh();
-          } else {
-            setError(res.error || "حدث خطأ");
+          formData.set("photoUrl", photoUrl || "");
+          try {
+            const res = await createPlayer({ success: false }, formData);
+            if (res.success) {
+              setSuccess(true);
+              setShowForm(false);
+              setPhotoUrl(null);
+              router.refresh();
+            } else {
+              setError(res.error || "حدث خطأ");
+            }
+          } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : "حدث خطأ");
           }
         }}
         className="mb-4 rounded-lg border border-line bg-bg-raised p-4 space-y-3"

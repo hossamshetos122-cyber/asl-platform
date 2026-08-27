@@ -18,7 +18,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   let user;
   try {
     user = await requireAdmin();
-  } catch {
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "";
+    if (message.startsWith("[ASL]")) {
+      throw e;
+    }
     redirect("/login?redirect=/admin");
   }
   if (!user) redirect("/login?redirect=/admin");

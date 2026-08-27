@@ -160,7 +160,6 @@ export function ImageUpload({
           <input
             ref={inputRef}
             type="file"
-            name={name}
             accept={accept}
             onChange={handleChange}
             className="hidden"

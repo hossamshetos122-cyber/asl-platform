@@ -43,7 +43,7 @@ export default function NewTeamPage() {
   }, [state, router]);
 
   const handleSubmit = (formData: FormData) => {
-    if (logoUrl) formData.set("logoUrl", logoUrl);
+    formData.set("logoUrl", logoUrl || "");
     formAction(formData);
   };
 

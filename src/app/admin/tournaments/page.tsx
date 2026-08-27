@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth";
 import TournamentsTable from "./tournaments-table";
 
 export const metadata = {
@@ -7,7 +6,6 @@ export const metadata = {
 };
 
 export default async function AdminTournamentsPage() {
-  await requireAdmin();
   const [tournaments, teams] = await Promise.all([
     prisma.tournament.findMany({
       orderBy: { startDate: "desc" },
