@@ -28,6 +28,7 @@ export interface TeamSummaryVM {
   name: string;
   shortCode: string; // 2-letter fallback shown when no crest image exists
   crestUrl: string | null;
+  city?: string;
 }
 
 export interface UpcomingMatchVM {
@@ -37,6 +38,17 @@ export interface UpcomingMatchVM {
   venue: string | null;
   homeTeam: TeamSummaryVM;
   awayTeam: TeamSummaryVM;
+}
+
+export interface LatestResultVM {
+  id: string;
+  tournamentName: string;
+  playedAt: Date;
+  venue: string | null;
+  homeTeam: TeamSummaryVM;
+  awayTeam: TeamSummaryVM;
+  homeScore: number;
+  awayScore: number;
 }
 
 export interface StandingRowVM {
@@ -168,6 +180,7 @@ export interface TeamDetailVM {
   city: string;
   crestUrl: string | null;
   foundedAt: Date | null;
+  ownerId: string | null;
   playerCount: number;
   squadLimit: number;
   players: TeamPlayerVM[];

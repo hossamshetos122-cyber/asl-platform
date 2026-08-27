@@ -1,59 +1,46 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MobileMenu } from "./mobile-menu";
+import { DesktopNavLinks } from "./desktop-nav-links";
 import { AuthNav } from "@/components/auth/auth-nav";
-
-const NAV_LINKS = [
-  { href: "/", label: "الرئيسية" },
-  { href: "/tournaments", label: "البطولات" },
-  { href: "/matches", label: "المباريات" },
-  { href: "/standings", label: "الترتيب" },
-  { href: "/top-scorers", label: "الهدافين" },
-  { href: "/teams", label: "الفرق" },
-] as const;
 
 export function Navbar() {
   return (
-    <nav aria-label="القائمة الرئيسية" className="sticky top-0 z-50 border-b border-line bg-bg/95 backdrop-blur-md">
-      <div className="page-container flex items-center justify-between py-3 sm:py-4">
-        <Link href="/" className="flex items-center gap-3 group">
+    <nav aria-label="القائمة الرئيسية" className="sticky top-0 z-50 bg-bg-deep/95 backdrop-blur-lg border-b border-line-strong">
+      <div className="page-container flex items-center justify-between h-14 sm:h-16">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
           <Image
             src="/images/league-logo.jpg"
             alt="شعار دوري نجوم الإسكندرية"
             width={1280}
             height={698}
-            className="h-10 w-auto sm:h-12 object-contain rounded-lg border border-line transition-transform group-hover:scale-105 flex-shrink-0"
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover border border-gold/20"
             priority
           />
           <div className="leading-tight hidden sm:block">
-            <div className="font-display text-sm sm:text-base font-extrabold text-text leading-tight">
+            <div className="font-display text-[13px] font-black text-text leading-tight group-hover:text-gold transition-colors">
               دوري نجوم الإسكندرية
             </div>
-            <div className="font-utility text-[9px] sm:text-[10px] tracking-[0.15em] text-text-dimmer">
-              ALEXANDRIA AMATEUR LEAGUE
+            <div className="font-utility text-[8px] tracking-[0.18em] text-gold/60 uppercase">
+              Alexandria Amateur League
             </div>
           </div>
         </Link>
 
-        <ul className="hidden items-center gap-1 lg:flex">
-          {NAV_LINKS.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className="rounded-md px-3 py-2 font-body text-[13px] sm:text-[14px] font-bold text-text-dim transition-colors hover:bg-white/[0.04] hover:text-text"
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {/* Nav Links */}
+        <DesktopNavLinks />
 
-        <div className="flex items-center gap-3">
+        {/* Right actions */}
+        <div className="flex items-center gap-2">
           <AuthNav />
           <Link
             href="/teams/new"
-            className="hidden rounded-lg bg-gold px-5 py-2 font-body text-[12px] sm:text-[13px] font-extrabold text-bg transition-all hover:bg-gold-bright hover:shadow-glow-sm sm:inline"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-gold px-4 py-2 font-body text-[12px] font-extrabold text-bg transition-all hover:bg-gold-bright active:scale-[0.98]"
           >
+            <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M8 3v10M3 8h10" />
+            </svg>
             إنشاء فريق
           </Link>
           <MobileMenu />

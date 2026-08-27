@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -8,6 +7,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImageDisplay } from "@/components/ui/image-display";
 
 async function FullTopScorers() {
   const tournamentResult = await getFeaturedTournamentId();
@@ -19,41 +19,43 @@ async function FullTopScorers() {
   if (result.status === "empty") return <EmptyState message="لا يوجد هدافون مسجّلون بعد هذا الموسم." />;
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-line">
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-bg-raised">
-            <th className="table-header text-center w-16">#</th>
-            <th className="table-header text-right">اللاعب</th>
-            <th className="table-header text-right">الفريق</th>
-            <th className="table-header text-center w-20">الأهداف</th>
-          </tr>
-        </thead>
-        <tbody>
-          {result.data.map((scorer) => (
-            <tr key={scorer.playerId} className="transition-colors hover:bg-bg-raised/50">
-              <td className="table-cell text-center">
-                {scorer.photoUrl ? (
-                  <Image src={scorer.photoUrl} alt={scorer.playerName} width={32} height={32} className="h-8 w-8 rounded-full object-cover mx-auto" />
-                ) : (
-                  <span className={scorer.rank === 1 ? "rank-badge-1" : scorer.rank <= 3 ? "rank-badge-top" : "rank-badge-normal"}>
-                    {scorer.rank}
-                  </span>
-                )}
-              </td>
-              <td className="table-cell font-bold text-text">
-                <Link href={`/players/${scorer.playerId}`} className="hover:text-gold transition-colors">
-                  {scorer.playerName}
-                </Link>
-              </td>
-              <td className="table-cell">{scorer.teamName}</td>
-              <td className="table-cell text-center">
-                <span className="font-num text-lg font-bold text-gold">{scorer.goals}</span>
-              </td>
+    <div className="rounded-xl border border-line bg-surface overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-line-strong bg-surface-elevated/40">
+              <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase w-10">#</th>
+              <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">اللاعب</th>
+              <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase hidden sm:table-cell">الفريق</th>
+              <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-gold uppercase">الأهداف</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {result.data.map((scorer) => (
+              <tr key={scorer.playerId} className="border-b border-line/40 transition-colors hover:bg-surface-elevated/30">
+                <td className="px-3 py-2.5 text-center">
+                  <span className={`inline-flex h-6 w-6 items-center justify-center rounded font-num text-[10px] font-bold ${scorer.rank === 1 ? "bg-gold text-bg" : scorer.rank <= 3 ? "border border-gold/25 text-gold" : "text-text-dimmer"}`}>
+                    {String(scorer.rank).padStart(2, "0")}
+                  </span>
+                </td>
+                <td className="px-3 py-2.5">
+                  <Link href={`/players/${scorer.playerId}`} className="flex items-center gap-2 group">
+                    <ImageDisplay src={scorer.photoUrl} alt={scorer.playerName} type="player" size="sm" />
+                    <div>
+                      <span className="font-body text-[12px] font-bold text-text group-hover:text-gold transition-colors block">{scorer.playerName}</span>
+                      <span className="font-utility text-[8px] tracking-wider text-text-dimmer uppercase sm:hidden">{scorer.teamName}</span>
+                    </div>
+                  </Link>
+                </td>
+                <td className="px-3 py-2.5 font-body text-[12px] text-text-dim hidden sm:table-cell">{scorer.teamName}</td>
+                <td className="px-3 py-2.5 text-center">
+                  <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded bg-gold/10 px-1.5 font-num text-[12px] font-bold text-gold">{scorer.goals}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

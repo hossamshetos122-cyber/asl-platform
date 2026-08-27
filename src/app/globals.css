@@ -11,6 +11,10 @@
     scroll-behavior: smooth;
   }
 
+  body {
+    background: #0a0d14;
+  }
+
   :focus-visible {
     outline: 2px solid theme("colors.gold.DEFAULT");
     outline-offset: 2px;
@@ -30,11 +34,11 @@
 
 @layer components {
   .page-container {
-    @apply mx-auto max-w-6xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
   .page-padding {
-    @apply py-10 sm:py-14 lg:py-16;
+    @apply py-8 sm:py-10 lg:py-12;
   }
 
   .section-title {
@@ -42,11 +46,11 @@
   }
 
   .card {
-    @apply rounded-lg border border-line bg-bg-raised transition-all duration-200;
+    @apply rounded-xl border border-line bg-surface;
   }
 
   .card-hover {
-    @apply card hover:border-line-gold hover:bg-bg-raised2 hover:shadow-lg hover:shadow-gold/5;
+    @apply card hover:border-line-gold hover:bg-surface-elevated hover:shadow-card transition-all duration-200;
   }
 
   .badge {
@@ -54,35 +58,35 @@
   }
 
   .badge-gold {
-    @apply badge border-gold/40 bg-gold/10 text-gold;
+    @apply badge border-gold/30 bg-gold/10 text-gold;
   }
 
   .badge-live {
-    @apply badge border-live/40 bg-live/10 text-live;
+    @apply badge border-live/30 bg-live/10 text-live;
   }
 
   .badge-success {
-    @apply badge border-green-500/40 bg-green-500/10 text-green-400;
+    @apply badge border-emerald-500/30 bg-emerald-500/10 text-emerald-400;
   }
 
   .badge-muted {
-    @apply badge border-line bg-bg-raised text-text-dimmer;
+    @apply badge border-line bg-surface text-text-dimmer;
   }
 
   .input-field {
-    @apply w-full rounded-lg border border-line bg-bg-raised px-4 py-3 font-body text-sm text-text outline-none transition-colors focus:border-gold focus:ring-1 focus:ring-gold/30 placeholder:text-text-dimmer;
+    @apply w-full rounded-lg border border-line bg-bg px-4 py-3 font-body text-sm text-text outline-none transition-colors focus:border-gold focus:ring-1 focus:ring-gold/20 placeholder:text-text-dimmer;
   }
 
   .btn-primary {
-    @apply rounded-lg bg-gold px-6 py-3 font-body text-sm font-extrabold text-bg transition-all hover:bg-gold-bright hover:shadow-lg hover:shadow-gold/20 active:scale-[0.98] disabled:opacity-50;
+    @apply rounded-lg bg-gold px-6 py-3 font-body text-sm font-extrabold text-bg transition-all hover:bg-gold-bright hover:shadow-glow active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply rounded-lg border border-line bg-white/[0.03] px-6 py-3 font-body text-sm font-bold text-text transition-all hover:border-line-gold hover:bg-white/[0.06];
+    @apply rounded-lg border border-line bg-surface px-6 py-3 font-body text-sm font-bold text-text transition-all hover:border-line-gold hover:bg-surface-elevated;
   }
 
   .btn-danger {
-    @apply rounded-lg border border-live/30 bg-live/10 px-4 py-2 font-body text-sm font-bold text-live transition-all hover:bg-live/20;
+    @apply rounded-lg border border-live/20 bg-live/5 px-4 py-2 font-body text-sm font-bold text-live transition-all hover:bg-live/10;
   }
 
   .table-header {
@@ -93,32 +97,28 @@
     @apply border-b border-line py-3 sm:py-3.5 font-body text-sm text-text-dim;
   }
 
-  .rank-badge {
-    @apply flex h-6 w-6 items-center justify-center rounded-md border font-utility text-xs font-bold;
-  }
-
-  .rank-badge-1 {
-    @apply rank-badge border-gold bg-gold text-bg;
-  }
-
-  .rank-badge-top {
-    @apply rank-badge border-gold/50 text-gold;
-  }
-
-  .rank-badge-normal {
-    @apply rank-badge border-line text-text-dimmer;
-  }
-
   .stat-number {
     @apply font-num text-3xl sm:text-4xl font-bold text-text;
   }
 
   .stat-label {
-    @apply font-utility text-xs tracking-wider text-text-dimmer;
+    @apply font-utility text-[10px] tracking-[0.15em] text-text-dimmer uppercase;
+  }
+
+  .match-strip {
+    @apply border-b border-line bg-surface hover:bg-surface-elevated transition-colors;
+  }
+
+  .section-divider {
+    @apply border-t border-line;
+  }
+
+  .editorial-section {
+    @apply py-8 sm:py-10;
   }
 }
 
-/* Hero background image */
+/* Hero background */
 .hero-bg {
   background-image: url('/images/hero-bg.jpg');
   background-size: cover;
@@ -129,4 +129,74 @@
   .hero-bg {
     background-position: center 20%;
   }
+}
+
+/* Live score pulse */
+@keyframes score-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.score-live {
+  animation: score-pulse 2s ease-in-out infinite;
+}
+
+/* Subtle entry animations */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out both;
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out both;
+}
+
+/* Staggered children */
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 40ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 80ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 120ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 160ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 280ms; }
+
+/* Card hover lift */
+.premier-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.premier-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.18);
+}
+
+/* Gold underline animation for links */
+.gold-underline {
+  position: relative;
+}
+.gold-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: theme("colors.gold.DEFAULT");
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+.gold-underline:hover::after {
+  transform: scaleX(1);
+}
+
+/* Gradient accent line */
+.gradient-accent {
+  background: linear-gradient(90deg, transparent, rgba(212,168,67,0.25), transparent);
+  height: 1px;
 }

@@ -19,66 +19,91 @@ export async function Hero() {
   const stats = result.status === "success" ? result.data : FALLBACK_STATS;
 
   const statItems: { label: string; value: number }[] = [
-    { label: "فريق مسجّل", value: stats.registeredTeams },
-    { label: "هدف هذا الموسم", value: stats.goalsThisSeason },
-    { label: "بطولة نشطة", value: stats.activeTournaments },
-    { label: "لاعب مسجّل", value: stats.registeredPlayers },
+    { label: "فريق", value: stats.registeredTeams },
+    { label: "هدف", value: stats.goalsThisSeason },
+    { label: "بطولة", value: stats.activeTournaments },
+    { label: "لاعب", value: stats.registeredPlayers },
   ];
 
   return (
-    <section className="relative overflow-hidden">
-      <div className="hero-bg absolute inset-0" />
-      <div className="absolute inset-0 bg-gradient-to-b from-bg/70 via-bg/85 to-bg" />
-      <div className="absolute inset-0 bg-gradient-to-r from-bg/50 to-transparent" />
+    <section className="relative overflow-hidden bg-bg-deep">
+      {/* Background */}
+      <div className="hero-bg absolute inset-0 opacity-30" />
+      <div className="absolute inset-0 bg-gradient-to-b from-bg-deep/60 via-bg-deep/80 to-bg-deep" />
 
-      <div className="page-container relative z-10 pt-16 sm:pt-20 lg:pt-24 pb-12 sm:pb-16 lg:pb-20">
-        <div className="flex flex-col items-center text-center lg:flex-row lg:text-right lg:items-start gap-8 lg:gap-12">
-          <div className="flex-shrink-0">
+      {/* Content */}
+      <div className="page-container relative z-10 pt-10 sm:pt-14 lg:pt-18 pb-10 sm:pb-14">
+        {/* Season tag */}
+        <div className="mb-5 sm:mb-6 flex justify-center lg:justify-start animate-fade-up">
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/5 px-3.5 py-1.5">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-50" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+            </span>
+            <span className="font-utility text-[10px] tracking-[0.18em] text-gold uppercase">الموسم 2024 / 2025</span>
+          </span>
+        </div>
+
+        <div className="flex flex-col items-center text-center lg:flex-row lg:text-right lg:items-start gap-8 lg:gap-14">
+          {/* Desktop Logo */}
+          <div className="flex-shrink-0 hidden lg:block animate-fade-in">
             <Image
               src="/images/league-logo.jpg"
               alt="شعار دوري نجوم الإسكندرية"
               width={1280}
               height={698}
-              className="h-24 w-auto sm:h-32 lg:h-40 object-contain rounded-2xl border-2 border-gold/30 shadow-glow"
+              className="h-32 w-32 xl:h-40 xl:w-40 rounded-full object-cover border-2 border-gold/20 shadow-glow-lg"
               priority
             />
           </div>
 
+          {/* Text */}
           <div className="flex-1 max-w-2xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" />
-              <span className="font-utility text-[10px] sm:text-[11px] tracking-[0.15em] text-gold uppercase">الموسم 2024 / 2025</span>
+            {/* Mobile logo */}
+            <div className="mb-5 flex justify-center lg:hidden animate-fade-in">
+              <Image
+                src="/images/league-logo.jpg"
+                alt="شعار دوري نجوم الإسكندرية"
+                width={1280}
+                height={698}
+                className="h-18 w-18 rounded-full object-cover border-2 border-gold/20 shadow-glow"
+                priority
+              />
             </div>
 
-            <h1 className="mb-4 font-display text-3xl sm:text-4xl lg:text-5xl xl:text-[56px] font-black leading-[1.15] text-text">
-              الملاعب اللي بتلعب فيها
-              <br />
-              <span className="text-gold">بقت دوري حقيقي.</span>
+            <h1 className="mb-4 font-display text-4xl sm:text-5xl lg:text-6xl xl:text-[64px] font-black leading-[1.1] text-text tracking-tight animate-fade-up">
+              <span className="block">دوري نجوم</span>
+              <span className="block text-gold">الإسكندرية</span>
             </h1>
 
-            <p className="mb-8 max-w-lg font-body text-base sm:text-lg leading-relaxed text-text-dim mx-auto lg:mx-0 lg:mr-0">
-              منصة إدارة وتنظيم بطولات كرة القدم للهواة في الإسكندرية. سجّل فريقك،
-              العب في دوري منظم، وتابع كل تفاصيل مبارياتك.
+            <p className="mb-7 max-w-lg font-body text-base sm:text-lg leading-relaxed text-text-dim mx-auto lg:mx-0 animate-fade-up">
+              المنصة الرسمية لإدارة وتنظيم بطولات كرة القدم للهواة في الإسكندرية. سجّل فريقك وتابع كل تفاصيل مبارياتك.
             </p>
 
-            <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-              <Link href="/teams/new" className="btn-primary px-8 py-3.5 text-[15px]">
+            <div className="flex flex-wrap gap-3 justify-center lg:justify-start animate-fade-up">
+              <Link href="/teams/new" className="inline-flex items-center gap-2 rounded-lg bg-gold px-6 py-3 font-body text-sm font-extrabold text-bg transition-all hover:bg-gold-bright hover:shadow-glow active:scale-[0.98]">
+                <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M8 3v10M3 8h10" /></svg>
                 سجّل فريقك الآن
               </Link>
-              <Link href="/tournaments" className="btn-secondary px-8 py-3.5 text-[15px]">
+              <Link href="/tournaments" className="inline-flex items-center gap-2 rounded-lg border border-line-strong bg-surface px-6 py-3 font-body text-sm font-bold text-text transition-all hover:border-line-gold hover:bg-surface-elevated">
                 استكشف البطولات
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-px bg-line rounded-xl overflow-hidden border border-line">
-          {statItems.map((item) => (
-            <div key={item.label} className="bg-bg-raised px-4 sm:px-6 py-5 sm:py-6 text-center">
-              <div className="stat-number mb-1">{formatNumber(item.value)}</div>
-              <div className="stat-label">{item.label}</div>
-            </div>
-          ))}
+        {/* Stats */}
+        <div className="mt-10 sm:mt-14 animate-fade-up">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-line-strong rounded-xl overflow-hidden">
+            {statItems.map((item) => (
+              <div key={item.label} className="bg-surface/80 px-4 sm:px-6 py-4 sm:py-6 text-center">
+                <div className="font-num text-2xl sm:text-3xl lg:text-4xl font-bold text-gold mb-0.5">
+                  {formatNumber(item.value)}
+                </div>
+                <div className="font-utility text-[9px] sm:text-[10px] tracking-[0.15em] text-text-dimmer uppercase">{item.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

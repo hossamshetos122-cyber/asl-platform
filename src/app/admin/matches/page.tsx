@@ -26,21 +26,12 @@ export default async function AdminMatchesPage() {
   ]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-baseline justify-between border-b border-line pb-5">
-        <h1 className="font-display text-2xl font-extrabold text-text">
-          المباريات
-        </h1>
-        <span className="rounded-sm border border-line-gold px-2.5 py-1 font-utility text-[11px] tracking-wide text-gold">
-          {matches.length}
-        </span>
+    <div className="space-y-5">
+      <div className="flex items-center justify-between border-b border-line pb-4">
+        <h1 className="font-display text-xl font-black text-text">المباريات</h1>
+        <span className="badge-gold font-num">{matches.length}</span>
       </div>
-
-      <MatchesTable
-        matches={matches.map((m) => ({ ...m, kickoffAt: m.kickoffAt.toISOString() }))}
-        teams={teams}
-        tournaments={tournaments}
-      />
+      <MatchesTable matches={matches.map((m) => ({ ...m, kickoffAt: m.kickoffAt.toISOString() }))} teams={teams} tournaments={tournaments} />
     </div>
   );
 }

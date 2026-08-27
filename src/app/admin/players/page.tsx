@@ -33,16 +33,11 @@ export default async function AdminPlayersPage() {
   ]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-baseline justify-between border-b border-line pb-5">
-        <h1 className="font-display text-2xl font-extrabold text-text">
-          اللاعبين
-        </h1>
-        <span className="rounded-sm border border-line-gold px-2.5 py-1 font-utility text-[11px] tracking-wide text-gold">
-          {players.length}
-        </span>
+    <div className="space-y-5">
+      <div className="flex items-center justify-between border-b border-line pb-4">
+        <h1 className="font-display text-xl font-black text-text">اللاعبين</h1>
+        <span className="badge-gold font-num">{players.length}</span>
       </div>
-
       <PlayersTable players={players} teams={teams} />
     </div>
   );

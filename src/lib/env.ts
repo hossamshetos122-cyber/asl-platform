@@ -16,12 +16,4 @@ export function validateAuthEnv(): void {
       "In production it must be a PostgreSQL connection string.",
     );
   }
-
-  const secret = process.env.SESSION_SECRET;
-  if (!secret || secret.length < 32) {
-    throw new Error(
-      "[ASL] FATAL: SESSION_SECRET is missing or too short in production. " +
-      "Generate one with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
-    );
-  }
 }

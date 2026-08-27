@@ -1,53 +1,54 @@
-import Image from "next/image";
 import Link from "next/link";
 import { getTopScorers } from "@/lib/data/home";
 import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
+import { ImageDisplay } from "@/components/ui/image-display";
 
 interface TopScorersProps {
   tournamentId: string;
 }
 
 export async function TopScorers({ tournamentId }: TopScorersProps) {
-  const result = await getTopScorers(tournamentId, 5);
+  const result = await getTopScorers(tournamentId, 8);
 
   return (
-    <div className="bg-bg-raised/50 p-5 sm:p-6 rounded-xl">
-      <SectionHeader title="الهدافين" tag="TOP SCORERS" href="/top-scorers" bordered={false} />
+    <div className="rounded-xl border border-line bg-surface overflow-hidden">
+      <div className="px-4 pt-4 pb-0">
+        <SectionHeader title="الهدافين" tag="TOP SCORERS" href="/top-scorers" bordered={false} />
+      </div>
 
-      {result.status === "error" && <ErrorState message={result.message} />}
-      {result.status === "empty" && <EmptyState message="لا يوجد هدافون مسجّلون بعد هذا الموسم." />}
+      {result.status === "error" && <div className="px-4 pb-4"><ErrorState message={result.message} /></div>}
+      {result.status === "empty" && <div className="px-4 pb-4"><EmptyState message="لا يوجد هدافون مسجّلون بعد هذا الموسم." /></div>}
 
       {result.status === "success" && (
-        <ul>
+        <div className="divide-y divide-line/40">
           {result.data.map((scorer) => (
-            <li key={scorer.playerId} className="flex items-center justify-between border-b border-line py-3.5 last:border-none transition-colors hover:bg-bg-raised2/30 rounded-lg px-2 -mx-2">
-              <Link href={`/players/${scorer.playerId}`} className="flex items-center gap-3">
-                <span className={scorer.rank === 1 ? "rank-badge-1" : scorer.rank <= 3 ? "rank-badge-top" : "rank-badge-normal"}>
-                  {String(scorer.rank).padStart(2, "0")}
-                </span>
-                <div className="h-9 w-9 rounded-lg border border-line bg-bg-raised2 flex items-center justify-center overflow-hidden" aria-hidden="true">
-                  {scorer.photoUrl ? (
-                    <Image src={scorer.photoUrl} alt={scorer.playerName} width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
-                  ) : (
-                    <svg className="h-4 w-4 text-text-dimmer" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
-                    </svg>
-                  )}
-                </div>
-                <div>
-                  <div className="font-body text-sm font-bold text-text">{scorer.playerName}</div>
-                  <div className="font-utility text-[10px] sm:text-[11px] text-text-dimmer tracking-wide">{scorer.teamName}</div>
-                </div>
-              </Link>
-              <div className="flex items-center gap-2">
-                <span className="font-num text-xl font-bold text-gold">{scorer.goals}</span>
-                <span className="font-utility text-[9px] text-text-dimmer">هدف</span>
+            <Link
+              key={scorer.playerId}
+              href={`/players/${scorer.playerId}`}
+              className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-elevated/30 group"
+            >
+              <span className={`inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded font-num text-[10px] font-bold ${
+                scorer.rank === 1 ? "bg-gold text-bg" : scorer.rank <= 3 ? "border border-gold/25 text-gold" : "text-text-dimmer"
+              }`}>
+                {String(scorer.rank).padStart(2, "0")}
+              </span>
+
+              <ImageDisplay src={scorer.photoUrl} alt={scorer.playerName} type="player" size="sm" />
+
+              <div className="flex-1 min-w-0">
+                <div className="font-body text-[12px] font-bold text-text group-hover:text-gold transition-colors truncate">{scorer.playerName}</div>
+                <div className="font-utility text-[8px] tracking-[0.1em] text-text-dimmer uppercase truncate">{scorer.teamName}</div>
               </div>
-            </li>
+
+              <div className="flex-shrink-0 text-left">
+                <span className="font-num text-lg font-bold text-gold">{scorer.goals}</span>
+                <span className="block font-utility text-[7px] tracking-wider text-text-dimmer uppercase">هدف</span>
+              </div>
+            </Link>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

@@ -23,8 +23,11 @@ export async function verifyPassword(
   hash: string,
 ): Promise<boolean> {
   const parts = hash.split(":");
-  const salt = parts[0]!;
-  const storedHex = parts[1]!;
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return false;
+  const salt = parts[0];
+  const storedHex = parts[1];
+  // Validate hex format — must be exactly 128 hex chars (64 bytes)
+  if (!/^[0-9a-f]{128}$/i.test(storedHex)) return false;
   const derived = await new Promise<Buffer>((resolve, reject) => {
     crypto.scrypt(password, salt, 64, { cost: 16384 }, (err, buf) => {
       if (err) reject(err);
@@ -82,4 +85,27 @@ export async function requireAdmin(): Promise<User> {
     throw new Error("UNAUTHORIZED");
   }
   return user;
+}
+
+/**
+ * Require any authenticated user (not just admin).
+ * Throws "UNAUTHORIZED" if not logged in.
+ */
+export async function requireUser(): Promise<User> {
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new Error("UNAUTHORIZED");
+  }
+  return user;
+}
+
+/**
+ * Remove all expired sessions from the database.
+ * Call periodically (e.g. on a cron or on login) to prevent buildup.
+ */
+export async function cleanupExpiredSessions(): Promise<number> {
+  const result = await prisma.session.deleteMany({
+    where: { expiresAt: { lt: new Date() } },
+  });
+  return result.count;
 }

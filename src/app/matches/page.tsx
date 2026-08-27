@@ -6,15 +6,11 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TeamBadge } from "@/components/ui/team-badge";
+import { ImageDisplay } from "@/components/ui/image-display";
 import Link from "next/link";
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("ar-EG", { year: "numeric", month: "short", day: "numeric" }).format(date);
-}
-
-function formatKickoff(date: Date): string {
-  return new Intl.DateTimeFormat("ar-EG", { hour: "2-digit", minute: "2-digit" }).format(date);
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -42,44 +38,38 @@ async function MatchesList({ filter }: { filter?: string }) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {Array.from(groupedByDate.entries()).map(([dateLabel, matches]) => (
         <div key={dateLabel}>
-          <h3 className="mb-4 font-display text-sm font-bold text-text-dimmer">{dateLabel}</h3>
+          <div className="mb-2.5 flex items-center gap-2.5">
+            <h3 className="font-utility text-[10px] tracking-[0.18em] text-text-dimmer uppercase">{dateLabel}</h3>
+            <div className="flex-1 h-px bg-line" />
+          </div>
           <div className="space-y-2">
             {matches.map((match) => (
               <Link
                 key={match.id}
                 href={`/matches/${match.id}`}
-                className="card-hover flex items-center justify-between p-4 sm:p-5"
+                className="group flex items-center justify-between rounded-xl border border-line bg-surface px-4 py-3.5 premier-card"
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <TeamBadge team={match.homeTeam} size="sm" />
-                  <div className="min-w-0">
-                    <span className="font-body text-sm font-bold text-text truncate block">{match.homeTeam.name}</span>
-                    <div className="font-utility text-[9px] tracking-wider text-text-dimmer uppercase">HOME</div>
-                  </div>
+                {/* Home */}
+                <div className="flex items-center gap-2.5 min-w-0 flex-1 justify-end">
+                  <span className="font-body text-[12px] sm:text-[13px] font-bold text-text truncate group-hover:text-gold transition-colors">{match.homeTeam.name}</span>
+                  <ImageDisplay src={match.homeTeam.crestUrl} alt={match.homeTeam.name} type="team-logo" size="sm" shortCode={match.homeTeam.shortCode} />
                 </div>
 
-                <div className="flex flex-col items-center gap-1.5 px-4 sm:px-6 flex-shrink-0">
-                  <div className="font-num text-lg sm:text-xl font-bold text-text">
-                    {match.homeScore}
-                    <span className="mx-1.5 font-utility text-sm text-gold">-</span>
-                    {match.awayScore}
+                {/* Score/Status */}
+                <div className="flex flex-col items-center gap-1 px-3 sm:px-5 flex-shrink-0 min-w-[72px]">
+                  <div className="font-num text-base sm:text-lg font-bold text-text tabular-nums">
+                    {match.homeScore}<span className="mx-1 text-text-dimmer">-</span>{match.awayScore}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className={STATUS_CLASSES[match.status] ?? "badge-muted"}>
-                      {STATUS_LABELS[match.status] ?? match.status}
-                    </span>
-                  </div>
+                  <span className={STATUS_CLASSES[match.status] ?? "badge-muted"}>{STATUS_LABELS[match.status] ?? match.status}</span>
                 </div>
 
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="text-left min-w-0">
-                    <span className="font-body text-sm font-bold text-text truncate block">{match.awayTeam.name}</span>
-                    <div className="font-utility text-[9px] tracking-wider text-text-dimmer uppercase">AWAY</div>
-                  </div>
-                  <TeamBadge team={match.awayTeam} size="sm" />
+                {/* Away */}
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <ImageDisplay src={match.awayTeam.crestUrl} alt={match.awayTeam.name} type="team-logo" size="sm" shortCode={match.awayTeam.shortCode} />
+                  <span className="font-body text-[12px] sm:text-[13px] font-bold text-text truncate group-hover:text-gold transition-colors">{match.awayTeam.name}</span>
                 </div>
               </Link>
             ))}

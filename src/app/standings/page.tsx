@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import Image from "next/image";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getFeaturedTournamentId, getStandings } from "@/lib/data/home";
@@ -7,18 +6,8 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImageDisplay } from "@/components/ui/image-display";
 import Link from "next/link";
-
-const COLUMNS = [
-  { key: "played", label: "لعب" },
-  { key: "won", label: "فوز" },
-  { key: "drawn", label: "تعادل" },
-  { key: "lost", label: "خسارة" },
-  { key: "goalsFor", label: "له" },
-  { key: "goalsAgainst", label: "عليه" },
-  { key: "goalDiff", label: "الفرق" },
-  { key: "points", label: "نقاط" },
-] as const;
 
 async function FullStandings() {
   const tournamentResult = await getFeaturedTournamentId();
@@ -30,50 +19,91 @@ async function FullStandings() {
   if (result.status === "empty") return <EmptyState message="لم يتم لعب مباريات كافية لعرض الترتيب بعد." />;
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-line">
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-bg-raised">
-            <th className="table-header text-right pl-4">الفريق</th>
-            {COLUMNS.map((col) => (
-              <th key={col.key} className="table-header text-center">{col.label}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {result.data.map((row) => (
-            <tr key={row.team.id} className="transition-colors hover:bg-bg-raised/50">
-              <td className="table-cell pl-4">
-                <div className="flex items-center gap-2.5">
-                  {row.team.crestUrl ? (
-                    <Image src={row.team.crestUrl} alt={row.team.name} width={24} height={24} className="h-6 w-6 rounded object-contain" />
-                  ) : (
-                    <span className={row.rank === 1 ? "rank-badge-1" : row.rank <= 3 ? "rank-badge-top" : "rank-badge-normal"}>
-                      {row.rank}
-                    </span>
-                  )}
-                  <Link href={`/teams/${row.team.id}`} className="font-bold text-text hover:text-gold transition-colors">
-                    {row.team.name}
-                  </Link>
+    <div>
+      {/* Desktop table */}
+      <div className="hidden sm:block rounded-xl border border-line bg-surface overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-line-strong bg-surface-elevated/40">
+                <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase w-10">#</th>
+                <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">الفريق</th>
+                <th className="px-2.5 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">لعب</th>
+                <th className="px-2.5 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">فوز</th>
+                <th className="px-2.5 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">تعادل</th>
+                <th className="px-2.5 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">خسارة</th>
+                <th className="px-2.5 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">له</th>
+                <th className="px-2.5 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">عليه</th>
+                <th className="px-2.5 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">الفرق</th>
+                <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-gold uppercase">نقاط</th>
+              </tr>
+            </thead>
+            <tbody>
+              {result.data.map((row) => {
+                const gd = row.goalsFor - row.goalsAgainst;
+                return (
+                  <tr key={row.team.id} className={`border-b border-line/40 transition-colors hover:bg-surface-elevated/30 ${row.rank === 1 ? "bg-gold/[0.02]" : ""}`}>
+                    <td className="px-3 py-2.5 text-center">
+                      <span className={`inline-flex h-6 w-6 items-center justify-center rounded font-num text-[10px] font-bold ${row.rank === 1 ? "bg-gold text-bg" : row.rank <= 3 ? "border border-gold/25 text-gold" : "text-text-dimmer"}`}>{row.rank}</span>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <Link href={`/teams/${row.team.id}`} className="flex items-center gap-2 group">
+                        <ImageDisplay src={row.team.crestUrl} alt={row.team.name} type="team-logo" size="xs" shortCode={row.team.shortCode} />
+                        <span className="font-body text-[12px] font-bold text-text group-hover:text-gold transition-colors truncate">{row.team.name}</span>
+                      </Link>
+                    </td>
+                    <td className="px-2.5 py-2.5 text-center font-num text-[12px] text-text-dim">{row.played}</td>
+                    <td className="px-2.5 py-2.5 text-center font-num text-[12px] font-bold text-emerald-400">{row.won}</td>
+                    <td className="px-2.5 py-2.5 text-center font-num text-[12px] text-text-dimmer">{row.drawn}</td>
+                    <td className="px-2.5 py-2.5 text-center font-num text-[12px] text-live/60">{row.lost}</td>
+                    <td className="px-2.5 py-2.5 text-center font-num text-[12px] text-text-dim">{row.goalsFor}</td>
+                    <td className="px-2.5 py-2.5 text-center font-num text-[12px] text-text-dim">{row.goalsAgainst}</td>
+                    <td className="px-2.5 py-2.5 text-center">
+                      <span className={`font-num text-[12px] font-bold ${gd > 0 ? "text-emerald-400" : gd < 0 ? "text-live/70" : "text-text-dim"}`}>
+                        {gd > 0 ? "+" : ""}{gd}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5 text-center">
+                      <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded bg-gold/10 px-1.5 font-num text-[12px] font-bold text-gold">{row.points}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="sm:hidden space-y-2">
+        {result.data.map((row) => {
+          const gd = row.goalsFor - row.goalsAgainst;
+          return (
+            <Link key={row.team.id} href={`/teams/${row.team.id}`} className="block rounded-lg border border-line bg-surface p-3">
+              <div className="flex items-center gap-3">
+                <span className={`inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded font-num text-[11px] font-bold ${row.rank === 1 ? "bg-gold text-bg" : row.rank <= 3 ? "border border-gold/25 text-gold" : "text-text-dimmer"}`}>{row.rank}</span>
+                <ImageDisplay src={row.team.crestUrl} alt={row.team.name} type="team-logo" size="sm" shortCode={row.team.shortCode} />
+                <div className="flex-1 min-w-0">
+                  <div className="font-body text-[13px] font-bold text-text truncate">{row.team.name}</div>
+                  <div className="font-utility text-[8px] tracking-wider text-text-dimmer uppercase">{row.played} مباراة</div>
                 </div>
-              </td>
-              {COLUMNS.map((col) => (
-                <td key={col.key} className="table-cell text-center">
-                  {col.key === "points" ? (
-                    <span className="font-num text-base font-bold text-gold">{row[col.key]}</span>
-                  ) : col.key === "goalDiff" ? (
-                    <span className={row.goalsFor - row.goalsAgainst > 0 ? "text-green-400" : row.goalsFor - row.goalsAgainst < 0 ? "text-live" : "text-text-dim"}>
-                      {row.goalsFor - row.goalsAgainst > 0 ? "+" : ""}{row.goalsFor - row.goalsAgainst}
-                    </span>
-                  ) : (
-                    row[col.key]
-                  )}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                <div className="text-left">
+                  <div className="inline-flex h-7 min-w-[28px] items-center justify-center rounded bg-gold/10 px-2 font-num text-sm font-bold text-gold">{row.points}</div>
+                  <div className="mt-0.5 text-center font-num text-[10px] text-text-dimmer">
+                    {row.won}ف {row.drawn}ت {row.lost}خ
+                  </div>
+                </div>
+              </div>
+              <div className="mt-2 flex items-center justify-between border-t border-line/40 pt-2 font-num text-[11px]">
+                <span className="text-text-dimmer">{row.goalsFor} هـ / {row.goalsAgainst} ع</span>
+                <span className={`font-bold ${gd > 0 ? "text-emerald-400" : gd < 0 ? "text-live/70" : "text-text-dim"}`}>
+                  فرق {gd > 0 ? "+" : ""}{gd}
+                </span>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -17,62 +17,44 @@ export function AuthNav() {
 
   useEffect(() => {
     fetch("/api/auth/me")
-      .then((res) => {
-        if (!res.ok) return null;
-        return res.json();
-      })
-      .then((data) => {
-        setUser(data?.user ?? null);
-      })
-      .catch(() => {
-        setUser(null);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setUser(data?.user ?? null))
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) {
-    return (
-      <div className="hidden h-8 w-24 animate-pulse rounded-sm bg-bg-raised sm:block" />
-    );
+    return <div className="hidden h-8 w-24 animate-pulse rounded-md bg-surface sm:block" />;
   }
 
   if (user) {
     return (
-      <div className="hidden items-center gap-4 sm:flex">
-        <span className="font-body text-sm font-bold text-text-dim">
-          {user.fullName}
-        </span>
-        <form
-          action={async () => {
-            await logoutAction();
-            setUser(null);
-          }}
-        >
-          <button
-            type="submit"
-            className="font-body text-sm font-bold text-text-dimmer transition-colors hover:text-live"
-          >
-            خروج
-          </button>
-        </form>
+      <div className="hidden items-center gap-2.5 sm:flex">
+        {user.role === "ADMIN" && (
+          <Link href="/admin" className="rounded-lg border border-gold/20 bg-gold/5 px-3 py-1.5 font-body text-[12px] font-bold text-gold transition-all hover:bg-gold/10">
+            التحكم
+          </Link>
+        )}
+        <div className="h-4 w-px bg-line-strong" />
+        <div className="flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gold/10 border border-gold/20">
+            <span className="font-display text-[10px] font-bold text-gold">{user.fullName.charAt(0)}</span>
+          </div>
+          <span className="font-body text-[12px] font-bold text-text-dim max-w-[90px] truncate">{user.fullName}</span>
+        </div>
+        <button type="button" onClick={async () => { await logoutAction(); window.location.href = "/"; }} className="font-body text-[12px] font-bold text-text-dimmer transition-colors hover:text-live">
+          خروج
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="hidden items-center gap-4 sm:flex">
-      <Link
-        href="/login"
-        className="font-body text-sm font-bold text-text-dim transition-colors hover:text-text"
-      >
+    <div className="hidden items-center gap-2 sm:flex">
+      <Link href="/login" className="rounded-lg px-3 py-2 font-body text-[12px] font-bold text-text-dim transition-all hover:text-text">
         تسجيل الدخول
       </Link>
-      <Link
-        href="/register"
-        className="rounded-sm bg-gold px-6 py-2.5 font-body text-[13.5px] font-extrabold text-bg transition-colors hover:bg-gold-bright"
-      >
+      <Link href="/register" className="rounded-lg bg-gold px-4 py-2 font-body text-[12px] font-extrabold text-bg transition-all hover:bg-gold-bright">
         إنشاء حساب
       </Link>
     </div>

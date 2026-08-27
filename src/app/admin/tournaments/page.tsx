@@ -6,26 +6,35 @@ export const metadata = {
 };
 
 export default async function AdminTournamentsPage() {
-  const tournaments = await prisma.tournament.findMany({
-    orderBy: { startDate: "desc" },
-    include: {
-      _count: { select: { teams: true } },
-    },
-  });
+  const [tournaments, teams] = await Promise.all([
+    prisma.tournament.findMany({
+      orderBy: { startDate: "desc" },
+      include: {
+        _count: { select: { teams: true } },
+        teams: {
+          include: { team: { select: { id: true, name: true, shortName: true } } },
+        },
+      },
+    }),
+    prisma.team.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-baseline justify-between border-b border-line pb-5">
-        <h1 className="font-display text-2xl font-extrabold text-text">
-          البطولات
-        </h1>
-        <span className="rounded-sm border border-line-gold px-2.5 py-1 font-utility text-[11px] tracking-wide text-gold">
-          {tournaments.length}
-        </span>
+    <div className="space-y-5">
+      <div className="flex items-center justify-between border-b border-line pb-4">
+        <h1 className="font-display text-xl font-black text-text">البطولات</h1>
+        <span className="badge-gold font-num">{tournaments.length}</span>
       </div>
-
       <TournamentsTable
-        tournaments={tournaments.map((t) => ({ ...t, startDate: t.startDate.toISOString() }))}
+        tournaments={tournaments.map((t) => ({
+          ...t,
+          startDate: t.startDate.toISOString(),
+          teams: t.teams.map((te) => ({ id: te.team.id, name: te.team.name, shortName: te.team.shortName })),
+        }))}
+        allTeams={teams}
       />
     </div>
   );

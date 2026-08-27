@@ -2,46 +2,42 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import {
   hashPassword,
   verifyPassword,
   createSession,
   destroySession,
+  cleanupExpiredSessions,
 } from "@/lib/auth";
+import { registerSchema, loginSchema } from "@/lib/validation";
+import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit";
+import { auditLog } from "@/lib/audit";
 
 const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME || "session";
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60;
 
-const registerSchema = z
-  .object({
-    fullName: z
-      .string()
-      .min(2, "الاسم يجب أن يكون حرفين على الأقل")
-      .max(100),
-    email: z.string().email("البريد الإلكتروني غير صالح"),
-    password: z
-      .string()
-      .min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل")
-      .max(128),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "كلمتا المرور غير متطابقتين",
-    path: ["confirmPassword"],
-  });
-
-const loginSchema = z.object({
-  email: z.string().email("البريد الإلكتروني غير صالح"),
-  password: z.string().min(1, "كلمة المرور مطلوبة"),
-});
+// Rate limit: 5 attempts per 15 minutes per IP+email combo
+const LOGIN_MAX_ATTEMPTS = 5;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 
 export type AuthResult = {
   success: boolean;
   error?: string;
   fieldErrors?: Record<string, string>;
 };
+
+function getFieldErrors(schema: ReturnType<typeof loginSchema.safeParse>): Record<string, string> {
+  const fieldErrors: Record<string, string> = {};
+  if (schema.success) return fieldErrors;
+  for (const issue of schema.error.issues) {
+    const field = issue.path[0];
+    if (typeof field === "string") {
+      fieldErrors[field] = issue.message;
+    }
+  }
+  return fieldErrors;
+}
 
 export async function registerAction(
   _prev: AuthResult,
@@ -57,14 +53,7 @@ export async function registerAction(
   const parsed = registerSchema.safeParse(raw);
 
   if (!parsed.success) {
-    const fieldErrors: Record<string, string> = {};
-    for (const issue of parsed.error.issues) {
-      const field = issue.path[0];
-      if (typeof field === "string") {
-        fieldErrors[field] = issue.message;
-      }
-    }
-    return { success: false, error: "تحقق من الحقول", fieldErrors };
+    return { success: false, error: "تحقق من الحقول", fieldErrors: getFieldErrors(parsed) };
   }
 
   const { fullName, email, password } = parsed.data;
@@ -95,13 +84,15 @@ export async function registerAction(
     path: "/",
   });
 
-  const role = user.role;
-  redirect(role === "ADMIN" ? "/admin" : "/");
+  await auditLog({ actorId: user.id, action: "REGISTER", targetId: user.id });
+
+  redirect("/dashboard");
 }
 
 export async function loginAction(
   _prev: AuthResult,
   formData: FormData,
+  redirectTo?: string,
 ): Promise<AuthResult> {
   const raw = {
     email: formData.get("email"),
@@ -111,17 +102,26 @@ export async function loginAction(
   const parsed = loginSchema.safeParse(raw);
 
   if (!parsed.success) {
-    const fieldErrors: Record<string, string> = {};
-    for (const issue of parsed.error.issues) {
-      const field = issue.path[0];
-      if (typeof field === "string") {
-        fieldErrors[field] = issue.message;
-      }
-    }
-    return { success: false, error: "تحقق من الحقول", fieldErrors };
+    return { success: false, error: "تحقق من الحقول", fieldErrors: getFieldErrors(parsed) };
   }
 
   const { email, password } = parsed.data;
+
+  // Rate limit by email (normalized) to prevent brute-force
+  const rateLimitKey = `login:${email.toLowerCase()}`;
+  const rateCheck = checkRateLimit({
+    key: rateLimitKey,
+    maxAttempts: LOGIN_MAX_ATTEMPTS,
+    windowMs: LOGIN_WINDOW_MS,
+  });
+
+  if (!rateCheck.ok) {
+    const retryMinutes = Math.ceil(rateCheck.retryAfterMs / 60_000);
+    return {
+      success: false,
+      error: `تم تجاوز عدد محاولات الدخول. حاول مرة أخرى بعد ${retryMinutes} دقيقة.`,
+    };
+  }
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
@@ -133,6 +133,10 @@ export async function loginAction(
     return { success: false, error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
   }
 
+  // Successful login — reset rate limit and cleanup expired sessions
+  resetRateLimit(rateLimitKey);
+  cleanupExpiredSessions().catch(() => {});
+
   const token = await createSession(user.id);
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, token, {
@@ -143,7 +147,13 @@ export async function loginAction(
     path: "/",
   });
 
-  redirect(user.role === "ADMIN" ? "/admin" : "/");
+  await auditLog({ actorId: user.id, action: "LOGIN", targetId: user.id });
+
+  if (redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")) {
+    redirect(redirectTo);
+  }
+
+  redirect(user.role === "ADMIN" ? "/admin" : "/dashboard");
 }
 
 export async function logoutAction(): Promise<void> {
@@ -151,6 +161,12 @@ export async function logoutAction(): Promise<void> {
   const token = cookieStore.get(SESSION_COOKIE)?.value;
 
   if (token) {
+    const user = await import("@/lib/auth").then((m) =>
+      m.validateSession(token),
+    );
+    if (user) {
+      await auditLog({ actorId: user.id, action: "LOGOUT", targetId: user.id });
+    }
     await destroySession(token);
   }
 

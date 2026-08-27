@@ -16,6 +16,7 @@ export async function getTeams(): Promise<Result<TeamSummaryVM[]>> {
       name: t.name,
       shortCode: t.shortName,
       crestUrl: t.crestUrl,
+      city: t.city,
     }));
 
     return { status: "success", data: vms };
@@ -59,6 +60,7 @@ export async function getTeamById(id: string): Promise<Result<TeamDetailVM>> {
       city: team.city,
       crestUrl: team.crestUrl,
       foundedAt: team.foundedAt,
+      ownerId: team.ownerId,
       playerCount: team.memberships.length,
       squadLimit: 20,
       players: team.memberships.map((m) => ({

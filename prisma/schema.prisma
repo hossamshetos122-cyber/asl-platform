@@ -32,7 +32,8 @@ model User {
   updatedAt     DateTime   @updatedAt
 
   playerProfile Player?
-  managedTeams  Team[]              @relation("TeamManagers")
+  ownedTeams    Team[]           @relation("TeamOwner")
+  managedTeams  Team[]           @relation("TeamManagers")
   organizedTournaments Tournament[] @relation("TournamentOrganizers")
   refereeProfile Referee?
   sessions      Session[]
@@ -67,17 +68,20 @@ model Team {
   crestUrl  String?
   city      String   @default("الإسكندرية")
   foundedAt DateTime?
+  ownerId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  managers   User[]           @relation("TeamManagers")
-  memberships TeamMembership[]
-  homeMatches Match[]         @relation("HomeTeam")
-  awayMatches Match[]         @relation("AwayTeam")
+  owner        User?           @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  managers     User[]          @relation("TeamManagers")
+  memberships  TeamMembership[]
+  homeMatches  Match[]         @relation("HomeTeam")
+  awayMatches  Match[]         @relation("AwayTeam")
   tournamentEntries TournamentTeam[]
-  matchSquads MatchSquad[]
+  matchSquads  MatchSquad[]
 
   @@index([name])
+  @@index([ownerId])
 }
 
 model Player {
@@ -138,6 +142,8 @@ model Tournament {
   name      String
   format    String   @default("LEAGUE") // LEAGUE | KNOCKOUT | GROUPS_KNOCKOUT
   status    String   @default("UPCOMING") // UPCOMING | ONGOING | COMPLETED | CANCELLED
+  logoUrl   String?
+  coverUrl  String?
   startDate DateTime
   endDate   DateTime?
   createdAt DateTime @default(now())

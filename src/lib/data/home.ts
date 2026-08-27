@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type {
   HomeStatsVM,
+  LatestResultVM,
   LiveMatchVM,
   Result,
   StandingRowVM,
@@ -90,6 +91,41 @@ export async function getUpcomingMatches(limit = 3): Promise<Result<UpcomingMatc
   } catch (error) {
     console.error("[getUpcomingMatches]", error);
     return { status: "error", message: "تعذّر تحميل المباريات القادمة." };
+  }
+}
+
+export async function getLatestResults(limit = 3): Promise<Result<LatestResultVM[]>> {
+  try {
+    const matches = await prisma.match.findMany({
+      where: { status: "FINISHED" },
+      orderBy: { kickoffAt: "desc" },
+      take: limit,
+      include: {
+        homeTeam: true,
+        awayTeam: true,
+        tournament: { select: { name: true } },
+      },
+    });
+
+    if (matches.length === 0) {
+      return { status: "empty" };
+    }
+
+    const vms: LatestResultVM[] = matches.map((m) => ({
+      id: m.id,
+      tournamentName: m.tournament.name,
+      playedAt: m.kickoffAt,
+      venue: m.venue,
+      homeTeam: toTeamSummary(m.homeTeam),
+      awayTeam: toTeamSummary(m.awayTeam),
+      homeScore: m.homeScore,
+      awayScore: m.awayScore,
+    }));
+
+    return { status: "success", data: vms };
+  } catch (error) {
+    console.error("[getLatestResults]", error);
+    return { status: "error", message: "تعذّر تحميل آخر النتائج." };
   }
 }
 

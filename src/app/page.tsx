@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/footer";
 import { Hero } from "@/components/home/hero";
 import { LiveMatchBanner } from "@/components/home/live-match-banner";
 import { UpcomingMatches } from "@/components/home/upcoming-matches";
+import { LatestResults } from "@/components/home/latest-results";
 import { StandingsTable } from "@/components/home/standings-table";
 import { TopScorers } from "@/components/home/top-scorers";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -20,7 +21,7 @@ async function FeaturedTournamentPanels() {
   const tournamentId = tournamentResult.data;
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:gap-px lg:grid-cols-[1.4fr_1fr]">
+    <div className="grid grid-cols-1 gap-5 lg:gap-6 lg:grid-cols-[1.3fr_1fr]">
       <StandingsTable tournamentId={tournamentId} />
       <TopScorers tournamentId={tournamentId} />
     </div>
@@ -31,31 +32,23 @@ export default function HomePage() {
   return (
     <>
       <Navbar />
-
-      <Suspense fallback={<Skeleton className="h-[400px] sm:h-[500px]" />}>
+      <Suspense fallback={<Skeleton className="h-[480px] sm:h-[560px] bg-bg-deep" />}>
         <Hero />
       </Suspense>
-
       <Suspense fallback={null}>
         <LiveMatchBanner />
       </Suspense>
-
-      <Suspense
-        fallback={
-          <div className="page-container page-padding">
-            <Skeleton className="h-64 w-full" />
-          </div>
-        }
-      >
+      <Suspense fallback={<div className="page-container editorial-section"><Skeleton className="h-64 w-full" /></div>}>
         <UpcomingMatches />
       </Suspense>
-
-      <section className="page-container page-padding">
+      <Suspense fallback={<div className="page-container editorial-section"><Skeleton className="h-64 w-full" /></div>}>
+        <LatestResults />
+      </Suspense>
+      <section className="page-container editorial-section">
         <Suspense fallback={<Skeleton className="h-96 w-full" />}>
           <FeaturedTournamentPanels />
         </Suspense>
       </section>
-
       <Footer />
     </>
   );

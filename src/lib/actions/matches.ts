@@ -3,36 +3,81 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import {
+  createMatchSchema,
+  updateScoreSchema,
+  addMatchEventSchema,
+  setTeamSquadSchema,
+  setTeamLineupSchema,
+  confirmSquadSchema,
+  cuid,
+} from "@/lib/validation";
+import { auditLog } from "@/lib/audit";
 
 export async function createMatch(formData: FormData) {
-  await requireAdmin();
+  const user = await requireAdmin();
 
-  const tournamentId = String(formData.get("tournamentId") || "");
-  const homeTeamId = String(formData.get("homeTeamId") || "");
-  const awayTeamId = String(formData.get("awayTeamId") || "");
-  const kickoffAtStr = String(formData.get("kickoffAt") || "");
-  const venue = String(formData.get("venue") || "").trim() || null;
-  const round = String(formData.get("round") || "").trim() || null;
-  const status = String(formData.get("status") || "SCHEDULED");
+  const parsed = createMatchSchema.safeParse({
+    tournamentId: formData.get("tournamentId"),
+    homeTeamId: formData.get("homeTeamId"),
+    awayTeamId: formData.get("awayTeamId"),
+    kickoffAt: formData.get("kickoffAt"),
+    venue: formData.get("venue") || undefined,
+    round: formData.get("round") || undefined,
+    status: formData.get("status") || undefined,
+  });
 
-  if (!tournamentId || !homeTeamId || !awayTeamId || !kickoffAtStr) {
-    throw new Error("جميع الحقول المطلوبة يجب ملؤها");
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    throw new Error(first?.message ?? "بيانات غير صالحة");
   }
 
-  if (homeTeamId === awayTeamId) {
-    throw new Error("يجب أن تكون الفريقان مختلفين");
-  }
+  const { tournamentId, homeTeamId, awayTeamId, kickoffAt, venue, round, status } = parsed.data;
 
-  await prisma.match.create({
+  // Verify tournament exists
+  const tournament = await prisma.tournament.findUnique({ where: { id: tournamentId }, select: { id: true } });
+  if (!tournament) throw new Error("البطولة غير موجودة");
+
+  // Verify both teams exist
+  const [homeTeam, awayTeam] = await Promise.all([
+    prisma.team.findUnique({ where: { id: homeTeamId }, select: { id: true } }),
+    prisma.team.findUnique({ where: { id: awayTeamId }, select: { id: true } }),
+  ]);
+  if (!homeTeam) throw new Error("الفريق المضيف غير موجود");
+  if (!awayTeam) throw new Error("الفريق الضيف غير موجود");
+
+  // Verify both teams participate in the tournament
+  const [homeEntry, awayEntry] = await Promise.all([
+    prisma.tournamentTeam.findUnique({
+      where: { tournamentId_teamId: { tournamentId, teamId: homeTeamId } },
+      select: { id: true },
+    }),
+    prisma.tournamentTeam.findUnique({
+      where: { tournamentId_teamId: { tournamentId, teamId: awayTeamId } },
+      select: { id: true },
+    }),
+  ]);
+
+  if (!homeEntry) throw new Error("الفريق المضيف غير مسجّل في هذه البطولة");
+  if (!awayEntry) throw new Error("الفريق الضيف غير مسجّل في هذه البطولة");
+
+  const match = await prisma.match.create({
     data: {
       tournamentId,
       homeTeamId,
       awayTeamId,
-      kickoffAt: new Date(kickoffAtStr),
+      kickoffAt: new Date(kickoffAt),
       venue,
       round,
       status,
     },
+  });
+
+  await auditLog({
+    actorId: user.id,
+    action: "CREATE_MATCH",
+    targetId: match.id,
+    metadata: { tournamentId, homeTeamId, awayTeamId },
   });
 
   revalidatePath("/matches");
@@ -45,30 +90,112 @@ export async function updateScore(
   homeScore: number,
   awayScore: number,
 ) {
-  await requireAdmin();
+  const user = await requireAdmin();
+
+  const parsed = updateScoreSchema.safeParse({
+    matchId: id,
+    homeScore,
+    awayScore,
+  });
+
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    throw new Error(first?.message ?? "بيانات غير صالحة");
+  }
+
+  const match = await prisma.match.findUnique({
+    where: { id: parsed.data.matchId },
+    select: { id: true, status: true },
+  });
+  if (!match) throw new Error("المباراة غير موجودة");
+
+  if (match.status === "CANCELLED") {
+    throw new Error("لا يمكن تحديث نتيجة مباراة ملغاة");
+  }
 
   await prisma.match.update({
-    where: { id },
-    data: { homeScore, awayScore, status: "FINISHED" },
+    where: { id: parsed.data.matchId },
+    data: {
+      homeScore: parsed.data.homeScore,
+      awayScore: parsed.data.awayScore,
+      status: parsed.data.status,
+    },
+  });
+
+  await auditLog({
+    actorId: user.id,
+    action: "UPDATE_SCORE",
+    targetId: parsed.data.matchId,
+    metadata: { homeScore: parsed.data.homeScore, awayScore: parsed.data.awayScore },
   });
 
   revalidatePath("/matches");
-  revalidatePath(`/matches/${id}`);
+  revalidatePath(`/matches/${parsed.data.matchId}`);
   revalidatePath("/standings");
   revalidatePath("/top-scorers");
   revalidatePath("/");
 }
 
 export async function addMatchEvent(matchId: string, formData: FormData) {
-  await requireAdmin();
+  const user = await requireAdmin();
 
-  const playerId = String(formData.get("playerId") || "");
-  const teamId = String(formData.get("teamId") || "");
-  const type = String(formData.get("type") || "");
-  const minuteStr = String(formData.get("minute") || "0");
+  const matchIdParsed = cuid.safeParse(matchId);
+  if (!matchIdParsed.success) throw new Error("معرف المباراة غير صالح");
 
-  if (!playerId || !teamId || !type) {
-    throw new Error("جميع الحقول مطلوبة");
+  const rawType = String(formData.get("type") || "");
+  const rawMinute = String(formData.get("minute") || "0");
+
+  // Pre-validate minute as number before passing to schema
+  const minuteNum = parseInt(rawMinute, 10);
+  if (isNaN(minuteNum) || minuteNum < 0 || minuteNum > 120) {
+    throw new Error("الدقيقة يجب أن تكون بين 0 و 120");
+  }
+
+  const parsed = addMatchEventSchema.safeParse({
+    matchId,
+    playerId: formData.get("playerId"),
+    teamId: formData.get("teamId"),
+    type: rawType,
+    minute: minuteNum,
+  });
+
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    throw new Error(first?.message ?? "بيانات غير صالحة");
+  }
+
+  const { playerId, teamId, type, minute } = parsed.data;
+
+  // Verify match exists
+  const match = await prisma.match.findUnique({
+    where: { id: matchId },
+    select: { id: true, homeTeamId: true, awayTeamId: true, status: true },
+  });
+  if (!match) throw new Error("المباراة غير موجودة");
+
+  if (match.status === "CANCELLED") {
+    throw new Error("لا يمكن إضافة أحداث لمباراة ملغاة");
+  }
+
+  // Verify team belongs to this match
+  if (teamId !== match.homeTeamId && teamId !== match.awayTeamId) {
+    throw new Error("الفريق غير مشارك في هذه المباراة");
+  }
+
+  // Verify player exists
+  const player = await prisma.player.findUnique({
+    where: { id: playerId },
+    select: { id: true },
+  });
+  if (!player) throw new Error("اللاعب غير موجود");
+
+  // Verify player belongs to the specified team via active membership
+  const membership = await prisma.teamMembership.findUnique({
+    where: { teamId_playerId: { teamId, playerId } },
+    select: { status: true },
+  });
+  if (!membership || membership.status !== "ACTIVE") {
+    throw new Error("اللاعب غير مسجّل في هذا الفريق");
   }
 
   await prisma.matchEvent.create({
@@ -77,8 +204,15 @@ export async function addMatchEvent(matchId: string, formData: FormData) {
       playerId,
       teamId,
       type,
-      minute: parseInt(minuteStr, 10) || 0,
+      minute,
     },
+  });
+
+  await auditLog({
+    actorId: user.id,
+    action: "ADD_MATCH_EVENT",
+    targetId: matchId,
+    metadata: { playerId, teamId, type, minute },
   });
 
   revalidatePath(`/matches/${matchId}`);
@@ -87,7 +221,10 @@ export async function addMatchEvent(matchId: string, formData: FormData) {
 }
 
 export async function deleteMatch(id: string) {
-  await requireAdmin();
+  const user = await requireAdmin();
+
+  const idParsed = cuid.safeParse(id);
+  if (!idParsed.success) throw new Error("معرف المباراة غير صالح");
 
   const match = await prisma.match.findUnique({
     where: { id },
@@ -95,6 +232,12 @@ export async function deleteMatch(id: string) {
   });
 
   await prisma.match.delete({ where: { id } });
+
+  await auditLog({
+    actorId: user.id,
+    action: "DELETE_MATCH",
+    targetId: id,
+  });
 
   revalidatePath("/matches");
   revalidatePath("/admin/matches");
@@ -110,32 +253,55 @@ export async function deleteMatch(id: string) {
 // Match squad management
 // ---------------------------------------------------------------------------
 
-export type SetTeamSquadResult = { ok: boolean; error?: string };
+export type SetTeamSquadResult = { ok: boolean; error?: string; squadId?: string };
 
 export async function setTeamSquad(
   matchId: string,
   teamId: string,
   playerIds: string[]
 ): Promise<SetTeamSquadResult> {
-  await requireAdmin();
+  const user = await requireAdmin();
 
-  if (playerIds.length > 20) {
-    return { ok: false, error: "لا يمكن أن يتجاوز عدد لاعبي المباراة 20 لاعبًا." };
+  const parsed = setTeamSquadSchema.safeParse({ matchId, teamId, playerIds });
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    return { ok: false, error: first?.message ?? "بيانات غير صالحة" };
   }
 
-  if (playerIds.length === 0) {
-    return { ok: false, error: "يجب اختيار لاعب واحد على الأقل." };
-  }
-
-  const match = await prisma.match.findUnique({ where: { id: matchId }, select: { id: true } });
+  // Verify match exists
+  const match = await prisma.match.findUnique({
+    where: { id: matchId },
+    select: { id: true, homeTeamId: true, awayTeamId: true },
+  });
   if (!match) return { ok: false, error: "المباراة غير موجودة." };
 
+  // Verify team belongs to this match
+  if (teamId !== match.homeTeamId && teamId !== match.awayTeamId) {
+    return { ok: false, error: "الفريق غير مشارك في هذه المباراة." };
+  }
+
+  // Verify all players exist and belong to this team
   const allPlayers = await prisma.player.findMany({
     where: { id: { in: playerIds } },
     select: { id: true },
   });
   if (allPlayers.length !== playerIds.length) {
     return { ok: false, error: "أحد اللاعبين المختارين غير موجود." };
+  }
+
+  // Check each player has an active membership with this team
+  const memberships = await prisma.teamMembership.findMany({
+    where: {
+      teamId,
+      playerId: { in: playerIds },
+      status: "ACTIVE",
+    },
+    select: { playerId: true },
+  });
+  const validPlayerIds = new Set(memberships.map((m) => m.playerId));
+  const invalidPlayers = playerIds.filter((pid) => !validPlayerIds.has(pid));
+  if (invalidPlayers.length > 0) {
+    return { ok: false, error: "بعض اللاعبين غير مسجّلين في هذا الفريق." };
   }
 
   await prisma.$transaction(async (tx) => {
@@ -183,20 +349,35 @@ export async function setTeamSquad(
     }
   });
 
+  // Fetch the squad ID after transaction (upsert guarantees it exists)
+  const squadRecord = await prisma.matchSquad.findUnique({
+    where: { matchId_teamId: { matchId, teamId } },
+    select: { id: true },
+  });
+
+  await auditLog({
+    actorId: user.id,
+    action: "SET_TEAM_SQUAD",
+    targetId: matchId,
+    metadata: { teamId, playerCount: playerIds.length },
+  });
+
   revalidatePath(`/matches/${matchId}`);
   revalidatePath(`/admin/matches`);
   revalidatePath(`/admin/matches/${matchId}/squads`);
-  return { ok: true };
+  return { ok: true, squadId: squadRecord?.id };
 }
 
 export async function setTeamLineup(
   squadId: string,
   starterIds: string[]
 ): Promise<SetTeamSquadResult> {
-  await requireAdmin();
+  const user = await requireAdmin();
 
-  if (starterIds.length > 11) {
-    return { ok: false, error: "لا يمكن أن يتجاوز عدد لاعبي الأساس 11 لاعبًا." };
+  const parsed = setTeamLineupSchema.safeParse({ squadId, starterIds });
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    return { ok: false, error: first?.message ?? "بيانات غير صالحة" };
   }
 
   const squad = await prisma.matchSquad.findUnique({
@@ -243,6 +424,13 @@ export async function setTeamLineup(
     }
   });
 
+  await auditLog({
+    actorId: user.id,
+    action: "SET_TEAM_LINEUP",
+    targetId: squadId,
+    metadata: { matchId: squad.matchId, starterCount: starterIds.length },
+  });
+
   revalidatePath(`/matches/${squad.matchId}`);
   revalidatePath(`/admin/matches/${squad.matchId}/squads`);
   return { ok: true };
@@ -252,7 +440,13 @@ export async function confirmTeamSquad(
   squadId: string,
   status: "CONFIRMED" | "PENDING" | "ABSENT"
 ): Promise<SetTeamSquadResult> {
-  await requireAdmin();
+  const user = await requireAdmin();
+
+  const parsed = confirmSquadSchema.safeParse({ squadId, status });
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    return { ok: false, error: first?.message ?? "بيانات غير صالحة" };
+  }
 
   const squad = await prisma.matchSquad.findUnique({
     where: { id: squadId },
@@ -262,7 +456,14 @@ export async function confirmTeamSquad(
 
   await prisma.matchSquad.update({
     where: { id: squadId },
-    data: { status },
+    data: { status: parsed.data.status },
+  });
+
+  await auditLog({
+    actorId: user.id,
+    action: "CONFIRM_SQUAD",
+    targetId: squadId,
+    metadata: { matchId: squad.matchId, status: parsed.data.status },
   });
 
   revalidatePath(`/matches/${squad.matchId}`);

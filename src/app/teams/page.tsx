@@ -6,7 +6,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TeamBadge } from "@/components/ui/team-badge";
+import { ImageDisplay } from "@/components/ui/image-display";
 import Link from "next/link";
 
 async function TeamList() {
@@ -16,15 +16,22 @@ async function TeamList() {
   if (result.status === "empty") return <EmptyState message="لا توجد فرق مسجّلة بعد." />;
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {result.data.map((team) => (
-        <Link key={team.id} href={`/teams/${team.id}`} className="card-hover flex items-center gap-4 p-5">
-          <TeamBadge team={team} size="lg" />
-          <div>
-            <h3 className="mb-1 font-display text-base sm:text-lg font-extrabold text-text group-hover:text-gold transition-colors">
-              {team.name}
-            </h3>
-            <span className="font-utility text-[10px] tracking-wider text-text-dimmer uppercase">{team.shortCode}</span>
+        <Link
+          key={team.id}
+          href={`/teams/${team.id}`}
+          className="group rounded-xl border border-line bg-surface p-4 premier-card"
+        >
+          <div className="flex items-center gap-3">
+            <ImageDisplay src={team.crestUrl} alt={`شعار ${team.name}`} type="team-logo" size="lg" shortCode={team.shortCode} />
+            <div className="min-w-0 flex-1">
+              <h3 className="font-display text-sm font-black text-text group-hover:text-gold transition-colors truncate">{team.name}</h3>
+              <div className="mt-1 flex items-center gap-1.5">
+                <span className="rounded bg-surface-elevated px-1.5 py-0.5 font-utility text-[8px] tracking-wider text-text-dimmer uppercase">{team.shortCode}</span>
+                {team.city && <span className="font-body text-[10px] text-text-dimmer">{team.city}</span>}
+              </div>
+            </div>
           </div>
         </Link>
       ))}
