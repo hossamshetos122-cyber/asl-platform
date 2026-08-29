@@ -200,37 +200,38 @@ function EditRow({ team, onClose }: { team: TeamRow; onClose: () => void }) {
 export default function TeamsTable({ teams }: { teams: TeamRow[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  if (teams.length === 0) {
-    return (
-      <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
-        <p className="font-body text-sm text-text-dim">لا توجد فرق بعد. أضف فريق للبدء.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="overflow-x-auto rounded-xl border border-line bg-surface">
-      <table className="w-full text-right">
-        <thead>
-          <tr className="border-b border-line bg-surface-elevated/50">
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الاسم</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">المختصر</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">المدينة</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">اللاعبين</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">إجراءات</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line/50">
-          {teams.map((team) =>
-            editingId === team.id ? (
-              <EditRow key={team.id} team={team} onClose={() => setEditingId(null)} />
-            ) : (
-              <TeamDeleteRow key={team.id} team={team} onEdit={() => setEditingId(team.id)} />
-            )
-          )}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <InlineCreateForm />
+      {teams.length === 0 ? (
+        <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
+          <p className="font-body text-sm text-text-dim">لا توجد فرق بعد. أضف فريق للبدء.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-line bg-surface">
+          <table className="w-full text-right">
+            <thead>
+              <tr className="border-b border-line bg-surface-elevated/50">
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الاسم</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">المختصر</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">المدينة</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">اللاعبين</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line/50">
+              {teams.map((team) =>
+                editingId === team.id ? (
+                  <EditRow key={team.id} team={team} onClose={() => setEditingId(null)} />
+                ) : (
+                  <TeamDeleteRow key={team.id} team={team} onEdit={() => setEditingId(team.id)} />
+                )
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
   );
 }
 

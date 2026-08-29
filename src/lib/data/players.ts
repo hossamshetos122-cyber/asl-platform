@@ -1,5 +1,40 @@
 import { prisma } from "@/lib/prisma";
-import type { Result, PlayerProfileVM } from "@/lib/types";
+import type { Result, PlayerProfileVM, PlayerListItemVM } from "@/lib/types";
+
+export async function getPlayersList(): Promise<Result<PlayerListItemVM[]>> {
+  try {
+    const players = await prisma.player.findMany({
+      orderBy: { user: { fullName: "asc" } },
+      include: {
+        user: { select: { fullName: true } },
+        memberships: {
+          where: { status: "ACTIVE" },
+          include: { team: { select: { id: true, name: true, crestUrl: true } } },
+          take: 1,
+        },
+      },
+    });
+
+    const list = players.map((player) => {
+      const membership = player.memberships[0];
+      return {
+        id: player.id,
+        name: player.user.fullName,
+        photoUrl: player.photoUrl,
+        jerseyNumber: player.jerseyNumber,
+        position: player.position,
+        team: membership
+          ? { id: membership.team.id, name: membership.team.name, crestUrl: membership.team.crestUrl }
+          : null,
+      };
+    });
+
+    return { status: "success", data: list };
+  } catch (error) {
+    console.error("[getPlayersList]", error);
+    return { status: "error", message: "تعذّر تحميل قائمة اللاعبين." };
+  }
+}
 
 export async function getPlayerById(id: string): Promise<Result<PlayerProfileVM>> {
   try {

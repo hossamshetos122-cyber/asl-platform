@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, Fragment } from "react";
 import { useFormStatus } from "react-dom";
 import {
   createTournament,
@@ -292,65 +292,66 @@ function TournamentDeleteRow({ tournamentId }: { tournamentId: string }) {
 export default function TournamentsTable({ tournaments, allTeams = [] }: { tournaments: TournamentRow[]; allTeams?: TeamOption[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  if (tournaments.length === 0) {
-    return (
-      <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
-        <p className="font-body text-sm text-text-dim">لا توجد بطولات بعد. أضف بطولة للبدء.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="overflow-x-auto rounded-xl border border-line bg-surface">
-      <table className="w-full text-right">
-        <thead>
-          <tr className="border-b border-line bg-surface-elevated/50">
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الاسم</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الصيغة</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الحالة</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الفرق</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">تاريخ البدء</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">إجراءات</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line/50">
-          {tournaments.map((tournament) =>
-            editingId === tournament.id ? (
-              <EditRow key={tournament.id} tournament={tournament} onClose={() => setEditingId(null)} />
-            ) : (
-              <>
-                <tr key={tournament.id} className="transition-colors hover:bg-surface-elevated/50">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <ImageDisplay src={tournament.logoUrl} alt={`شعار ${tournament.name}`} type="tournament" size="sm" />
-                      <span className="font-body text-sm font-bold text-text">{tournament.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 font-body text-sm text-text-dim">{FORMAT_LABELS[tournament.format] ?? tournament.format}</td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-md px-2 py-0.5 font-utility text-[10px] tracking-wider ${tournament.status === "ONGOING" ? "badge-gold" : tournament.status === "COMPLETED" ? "badge-success" : tournament.status === "CANCELLED" ? "badge-live" : "badge-muted"}`}>
-                      {STATUS_LABELS[tournament.status] ?? tournament.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-num text-sm font-bold text-text">{tournament._count.teams}</td>
-                  <td className="px-4 py-3 font-body text-sm text-text-dim">{new Intl.DateTimeFormat("ar-EG").format(new Date(tournament.startDate))}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => setEditingId(tournament.id)} className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-1.5 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">تعديل</button>
-                      <TournamentDeleteRow tournamentId={tournament.id} />
-                    </div>
-                  </td>
-                </tr>
-                <tr key={`${tournament.id}-teams`}>
-                  <td colSpan={6}>
-                    <TeamManager tournament={tournament} allTeams={allTeams} />
-                  </td>
-                </tr>
-              </>
-            )
-          )}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <InlineCreateForm />
+      {tournaments.length === 0 ? (
+        <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
+          <p className="font-body text-sm text-text-dim">لا توجد بطولات بعد. أضف بطولة للبدء.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-line bg-surface">
+          <table className="w-full text-right">
+            <thead>
+              <tr className="border-b border-line bg-surface-elevated/50">
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الاسم</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الصيغة</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الحالة</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الفرق</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">تاريخ البدء</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line/50">
+              {tournaments.map((tournament) =>
+                editingId === tournament.id ? (
+                  <EditRow key={tournament.id} tournament={tournament} onClose={() => setEditingId(null)} />
+                ) : (
+                  <Fragment key={tournament.id}>
+                    <tr key={tournament.id} className="transition-colors hover:bg-surface-elevated/50">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <ImageDisplay src={tournament.logoUrl} alt={`شعار ${tournament.name}`} type="tournament" size="sm" />
+                          <span className="font-body text-sm font-bold text-text">{tournament.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 font-body text-sm text-text-dim">{FORMAT_LABELS[tournament.format] ?? tournament.format}</td>
+                      <td className="px-4 py-3">
+                        <span className={`rounded-md px-2 py-0.5 font-utility text-[10px] tracking-wider ${tournament.status === "ONGOING" ? "badge-gold" : tournament.status === "COMPLETED" ? "badge-success" : tournament.status === "CANCELLED" ? "badge-live" : "badge-muted"}`}>
+                          {STATUS_LABELS[tournament.status] ?? tournament.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-num text-sm font-bold text-text">{tournament._count.teams}</td>
+                      <td className="px-4 py-3 font-body text-sm text-text-dim">{new Intl.DateTimeFormat("ar-EG", { timeZone: "UTC" }).format(new Date(tournament.startDate))}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => setEditingId(tournament.id)} className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-1.5 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">تعديل</button>
+                          <TournamentDeleteRow tournamentId={tournament.id} />
+                        </div>
+                      </td>
+                    </tr>
+                    <tr key={`${tournament.id}-teams`}>
+                      <td colSpan={6}>
+                        <TeamManager tournament={tournament} allTeams={allTeams} />
+                      </td>
+                    </tr>
+                  </Fragment>
+                )
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
   );
 }

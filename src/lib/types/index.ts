@@ -210,6 +210,15 @@ export interface PlayerProfileVM {
   matchesPlayed: number;
 }
 
+export interface PlayerListItemVM {
+  id: string;
+  name: string;
+  photoUrl: string | null;
+  jerseyNumber: number | null;
+  position: string;
+  team: { id: string; name: string; crestUrl: string | null } | null;
+}
+
 // --- Full standings / scorers (no limit) ------------------------------------
 
 export type FullStandingRowVM = StandingRowVM;

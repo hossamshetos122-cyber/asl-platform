@@ -207,61 +207,62 @@ export default function PlayersTable({
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  if (players.length === 0) {
-    return (
-      <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
-        <p className="font-body text-sm text-text-dim">لا يوجد لاعبون بعد. أضف لاعب للبدء.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="overflow-x-auto rounded-xl border border-line bg-surface">
-      <table className="w-full text-right">
-        <thead>
-          <tr className="border-b border-line bg-surface-elevated/50">
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الاسم</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الفريق</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">المركز</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">رقم القميص</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">إجراءات</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line/50">
-          {players.map((player) =>
-            editingId === player.id ? (
-              <InlineEditForm key={player.id} player={player} onClose={() => setEditingId(null)} />
-            ) : (
-              <tr key={player.id} className="transition-colors hover:bg-surface-elevated/50">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <ImageDisplay src={player.photoUrl} alt={player.user.fullName} type="player" size="sm" />
-                    <div>
-                      <div className="font-body text-sm font-bold text-text">{player.user.fullName}</div>
-                      <div className="font-body text-[12px] text-text-dimmer" dir="ltr">{player.user.email}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-3 font-body text-sm text-text-dim">
-                  {player.memberships[0]?.team.name ?? <span className="text-text-dimmer">بدون فريق</span>}
-                </td>
-                <td className="px-4 py-3">
-                  <span className="rounded-md border border-line bg-surface-elevated px-2 py-0.5 font-utility text-[10px] tracking-wider text-text-dim">
-                    {POSITION_LABELS[player.position] ?? player.position}
-                  </span>
-                </td>
-                <td className="px-4 py-3 font-num text-sm font-bold text-gold">{player.jerseyNumber ?? "—"}</td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => setEditingId(player.id)} className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-1.5 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">تعديل</button>
-                    <PlayerDeleteRow playerId={player.id} />
-                  </div>
-                </td>
+    <>
+      <InlineCreateForm teams={teams} />
+      {players.length === 0 ? (
+        <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
+          <p className="font-body text-sm text-text-dim">لا يوجد لاعبون بعد. أضف لاعب للبدء.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-line bg-surface">
+          <table className="w-full text-right">
+            <thead>
+              <tr className="border-b border-line bg-surface-elevated/50">
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الاسم</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الفريق</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">المركز</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">رقم القميص</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">إجراءات</th>
               </tr>
-            )
-          )}
-        </tbody>
-      </table>
-    </div>
+            </thead>
+            <tbody className="divide-y divide-line/50">
+              {players.map((player) =>
+                editingId === player.id ? (
+                  <InlineEditForm key={player.id} player={player} onClose={() => setEditingId(null)} />
+                ) : (
+                  <tr key={player.id} className="transition-colors hover:bg-surface-elevated/50">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <ImageDisplay src={player.photoUrl} alt={player.user.fullName} type="player" size="sm" />
+                        <div>
+                          <div className="font-body text-sm font-bold text-text">{player.user.fullName}</div>
+                          <div className="font-body text-[12px] text-text-dimmer" dir="ltr">{player.user.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 font-body text-sm text-text-dim">
+                      {player.memberships[0]?.team.name ?? <span className="text-text-dimmer">بدون فريق</span>}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="rounded-md border border-line bg-surface-elevated px-2 py-0.5 font-utility text-[10px] tracking-wider text-text-dim">
+                        {POSITION_LABELS[player.position] ?? player.position}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-num text-sm font-bold text-gold">{player.jerseyNumber ?? "—"}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => setEditingId(player.id)} className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-1.5 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">تعديل</button>
+                        <PlayerDeleteRow playerId={player.id} />
+                      </div>
+                    </td>
+                  </tr>
+                )
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
   );
 }

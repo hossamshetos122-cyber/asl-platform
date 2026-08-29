@@ -136,7 +136,7 @@ function ScoreUpdateForm({ match }: { match: MatchRow }) {
 }
 
 function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("ar-EG", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(date);
+  return new Intl.DateTimeFormat("ar-EG", { timeZone: "UTC", year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(date);
 }
 
 function MatchDeleteRow({ matchId }: { matchId: string }) {
@@ -159,64 +159,65 @@ function MatchDeleteRow({ matchId }: { matchId: string }) {
 }
 
 export default function MatchesTable({ matches, teams, tournaments }: { matches: MatchRow[]; teams: TeamOption[]; tournaments: TournamentOption[] }) {
-  if (matches.length === 0) {
-    return (
-      <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
-        <p className="font-body text-sm text-text-dim">لا توجد مباريات بعد. أضف مباراة للبدء.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="overflow-x-auto rounded-xl border border-line bg-surface">
-      <table className="w-full text-right">
-        <thead>
-          <tr className="border-b border-line bg-surface-elevated/50">
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">البطولة</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">المباراة</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">النتيجة</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الحالة</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">التاريخ</th>
-            <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">إجراءات</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line/50">
-          {matches.map((match) => (
-            <tr key={match.id} className="transition-colors hover:bg-surface-elevated/50">
-              <td className="px-4 py-3">
-                <span className="font-body text-[12px] text-text-dim">{match.tournament.name}</span>
-              </td>
-              <td className="px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <span className="font-body text-sm font-bold text-text">{match.homeTeam.name}</span>
-                  <span className="font-utility text-[10px] text-text-dimmer">vs</span>
-                  <span className="font-body text-sm font-bold text-text">{match.awayTeam.name}</span>
-                </div>
-                {match.round && <span className="font-body text-[11px] text-text-dimmer">{match.round}</span>}
-              </td>
-              <td className="px-4 py-3">
-                {match.status === "FINISHED" || match.status === "LIVE" || match.status === "HALFTIME" ? (
-                  <ScoreUpdateForm match={match} />
-                ) : (
-                  <span className="font-num text-lg font-bold text-text-dimmer">{match.homeScore} - {match.awayScore}</span>
-                )}
-              </td>
-              <td className="px-4 py-3">
-                <span className={`rounded-md px-2 py-0.5 font-utility text-[10px] tracking-wider ${STATUS_COLORS[match.status] ?? ""}`}>
-                  {STATUS_LABELS[match.status] ?? match.status}
-                </span>
-              </td>
-              <td className="px-4 py-3 font-body text-[12px] text-text-dim">{formatDate(new Date(match.kickoffAt))}</td>
-              <td className="px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <Link href={`/admin/matches/${match.id}/squads`} className="rounded-lg border border-gold/30 bg-gold/10 px-2.5 py-1 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">القوائم</Link>
-                  <MatchDeleteRow matchId={match.id} />
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <InlineCreateForm teams={teams} tournaments={tournaments} />
+      {matches.length === 0 ? (
+        <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
+          <p className="font-body text-sm text-text-dim">لا توجد مباريات بعد. أضف مباراة للبدء.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-line bg-surface">
+          <table className="w-full text-right">
+            <thead>
+              <tr className="border-b border-line bg-surface-elevated/50">
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">البطولة</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">المباراة</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">النتيجة</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الحالة</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">التاريخ</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line/50">
+              {matches.map((match) => (
+                <tr key={match.id} className="transition-colors hover:bg-surface-elevated/50">
+                  <td className="px-4 py-3">
+                    <span className="font-body text-[12px] text-text-dim">{match.tournament.name}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-body text-sm font-bold text-text">{match.homeTeam.name}</span>
+                      <span className="font-utility text-[10px] text-text-dimmer">vs</span>
+                      <span className="font-body text-sm font-bold text-text">{match.awayTeam.name}</span>
+                    </div>
+                    {match.round && <span className="font-body text-[11px] text-text-dimmer">{match.round}</span>}
+                  </td>
+                  <td className="px-4 py-3">
+                    {match.status === "FINISHED" || match.status === "LIVE" || match.status === "HALFTIME" ? (
+                      <ScoreUpdateForm match={match} />
+                    ) : (
+                      <span className="font-num text-lg font-bold text-text-dimmer">{match.homeScore} - {match.awayScore}</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded-md px-2 py-0.5 font-utility text-[10px] tracking-wider ${STATUS_COLORS[match.status] ?? ""}`}>
+                      {STATUS_LABELS[match.status] ?? match.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 font-body text-[12px] text-text-dim">{formatDate(new Date(match.kickoffAt))}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Link href={`/admin/matches/${match.id}/squads`} className="rounded-lg border border-gold/30 bg-gold/10 px-2.5 py-1 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">القوائم</Link>
+                      <MatchDeleteRow matchId={match.id} />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
   );
 }

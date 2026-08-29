@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { href: "/standings", label: "الترتيب" },
   { href: "/top-scorers", label: "الهدافين" },
   { href: "/teams", label: "الفرق" },
+  { href: "/players", label: "اللاعبون" },
 ] as const;
 
 export function DesktopNavLinks() {

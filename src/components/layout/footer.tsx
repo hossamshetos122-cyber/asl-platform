@@ -35,6 +35,7 @@ export function Footer() {
                 { href: "/matches", label: "المباريات" },
                 { href: "/top-scorers", label: "الهدافين" },
                 { href: "/teams", label: "الفرق" },
+                { href: "/players", label: "اللاعبون" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="font-body text-sm text-text-dim transition-colors hover:text-gold gold-underline">
