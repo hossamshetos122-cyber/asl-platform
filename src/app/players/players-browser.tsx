@@ -145,24 +145,40 @@ function PlayerCard({ player }: { player: PlayerListItem }) {
 export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
   const [query, setQuery] = useState("");
   const [position, setPosition] = useState("");
+  const [team, setTeam] = useState("");
+  const [sort, setSort] = useState<"name" | "goals">("name");
+
+  const teamOptions = useMemo(() => {
+    const map = new Map<string, NonNullable<PlayerListItem["team"]>>();
+    players.forEach((p) => {
+      if (p.team && !map.has(p.team.id)) map.set(p.team.id, p.team);
+    });
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name, "ar"));
+  }, [players]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return players.filter((p) => {
+    let list = players.filter((p) => {
       if (position && p.position !== position) return false;
+      if (team && (!p.team || p.team.id !== team)) return false;
       if (!q) return true;
       return (
         p.name.toLowerCase().includes(q) ||
         (p.team && p.team.name.toLowerCase().includes(q))
       );
     });
-  }, [players, query, position]);
+    return [...list].sort((a, b) =>
+      sort === "goals"
+        ? b.goals - a.goals || a.name.localeCompare(b.name, "ar")
+        : a.name.localeCompare(b.name, "ar")
+    );
+  }, [players, query, position, team, sort]);
 
   return (
     <div>
       {/* Filters */}
-      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
+      <div className="mb-5 flex flex-col gap-2.5">
+        <div className="relative">
           <svg
             className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-dimmer"
             viewBox="0 0 24 24"
@@ -182,6 +198,45 @@ export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
             className="w-full rounded-lg border border-line bg-bg py-2 pl-4 pr-9 font-body text-sm text-text outline-none transition-colors placeholder:text-text-faint focus:border-accent"
           />
         </div>
+
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
+          <label className="block">
+            <span className="mb-1 block font-utility text-[10px] font-bold uppercase tracking-wide text-text-dimmer">الفريق</span>
+            <select
+              value={team}
+              onChange={(e) => setTeam(e.target.value)}
+              aria-label="تصفية حسب الفريق"
+              className="w-full cursor-pointer rounded-lg border border-line bg-bg px-3 py-2 font-body text-sm text-text outline-none transition-colors focus:border-accent"
+            >
+              <option value="">كل الفرق</option>
+              {teamOptions.map((t) => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="mb-1 block font-utility text-[10px] font-bold uppercase tracking-wide text-text-dimmer">الترتيب</span>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as "name" | "goals")}
+              aria-label="ترتيب اللاعبين"
+              className="w-full cursor-pointer rounded-lg border border-line bg-bg px-3 py-2 font-body text-sm text-text outline-none transition-colors focus:border-accent"
+            >
+              <option value="name">الاسم أبجديًا</option>
+              <option value="goals">الأكثر أهدافًا</option>
+            </select>
+          </label>
+          <div className="hidden items-end sm:flex">
+            <span className="w-full rounded-lg border border-dashed border-line px-3 py-2 font-body text-[12px] font-bold text-text-dim">
+              {team === ""
+                ? "كل الفرق"
+                : teamOptions.find((t) => t.id === team)?.name ?? "كل الفرق"}
+              {" · "}
+              {sort === "goals" ? "الأكثر أهدافًا" : "الاسم أبجديًا"}
+            </span>
+          </div>
+        </div>
+
         <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => setPosition("")}
