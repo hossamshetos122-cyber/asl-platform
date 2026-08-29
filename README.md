@@ -65,7 +65,9 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@asl.local | admin123 |
+| Admin | (set via `db:rotate:admin`, not committed) | (generated strong password) |
+
+Admin credentials are **not** stored in the repository. Run `npm run db:rotate:admin` after configuring the env vars in your gitignored `.env` (see Step 9 below).
 
 ---
 
@@ -198,20 +200,25 @@ After setting env vars and running migrations:
    - `/tournaments` — All tournaments
 4. Test admin login at `/login` with the seeded credentials (if you ran `db:seed`)
 
-### Step 9: Change the Default Admin Password
+### Step 9: Set the Real Admin Credentials
 
-**Before real use**, change the demo admin password:
+**Before real use**, set a strong admin password and a real admin email. The
+seeded defaults are only for local/demo use.
 
-1. Log in at `/login` with `admin@asl.local` / `admin123`
-2. The admin password change feature should be implemented (or update directly in the database)
-
-To change directly in the database:
+1. Add the following to your local (gitignored) `.env`:
+   - `DATABASE_URL` — your live PostgreSQL connection string
+   - `ROTATE_ADMIN_EMAIL` — your real email address (used to sign in as admin)
+   - `ROTATE_ADMIN_PASSWORD` — a strong password (16+ chars, upper/lower/digits/symbols)
+   - `ROTATE_ORGANIZER_PASSWORD` — a strong password for the organizer account
+2. Run the rotation script:
 
 ```bash
-npx prisma studio
+npm run db:rotate:admin
 ```
 
-Find the admin user in the User table and update the `passwordHash` field.
+This updates the admin user (email + password) and the organizer (password) in
+the database and revokes their existing sessions. The passwords are read from
+`.env` only — they are never committed to the repository.
 
 ---
 

@@ -14,6 +14,7 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:prod": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
+    "db:rotate:admin": "tsx scripts/rotate-admin-credentials.ts",
     "db:studio": "prisma studio",
     "test": "vitest run",
     "test:watch": "vitest"

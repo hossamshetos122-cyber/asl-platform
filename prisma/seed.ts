@@ -14,7 +14,28 @@ async function makeHash(password: string): Promise<string> {
   return `${salt}:${derived.toString("hex")}`;
 }
 
-const SEED_PASSWORD = "admin123";
+function makeStrongPassword(length: number): string {
+  const upper = "ABCDEFGHJKMNPQRSTUVWXYZ";
+  const lower = "abcdefghjkmnpqrstuvwxyz";
+  const digits = "23456789";
+  const symbols = "!@#$%^&*-_=+?";
+  const pools = [upper, lower, digits, symbols];
+  const out: string[] = [];
+  for (let i = 0; i < length; i++) {
+    const pool = pools[i % pools.length] ?? upper;
+    const byte = crypto.randomBytes(1).readUInt8(0);
+    out.push(pool.charAt(byte % pool.length));
+  }
+  return out.join("");
+}
+
+// Admin + organizer credentials. Prefer real values via env; a fresh DB seed
+// otherwise generates random strong passwords and prints them for the operator.
+const SEED_ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? "hossamshetos122@gmail.com";
+const SEED_ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? makeStrongPassword(24);
+const SEED_ORGANIZER_PASSWORD = process.env.SEED_ORGANIZER_PASSWORD ?? makeStrongPassword(24);
+// Demo player accounts share one seed password (printed at seed time).
+const SEED_PLAYER_PASSWORD = process.env.SEED_PLAYER_PASSWORD ?? makeStrongPassword(18);
 
 function avatar(name: string): string {
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a1a2e&color=d4a843&size=200&bold=true`;
@@ -543,16 +564,18 @@ async function createGoalEvents(events: GoalEvent[]) {
 
 async function main(): Promise<void> {
   console.log("Seeding database...");
-  const passwordHash = await makeHash(SEED_PASSWORD);
+  const adminPasswordHash = await makeHash(SEED_ADMIN_PASSWORD);
+  const organizerPasswordHash = await makeHash(SEED_ORGANIZER_PASSWORD);
+  const playerPasswordHash = await makeHash(SEED_PLAYER_PASSWORD);
 
   // --- Admin & organizer users -------------------------------------------
   await prisma.user.upsert({
     where: { id: "user-admin" }, update: {},
-    create: { id: "user-admin", email: "admin@asl.local", passwordHash, fullName: "مدير النظام", role: "ADMIN" },
+    create: { id: "user-admin", email: SEED_ADMIN_EMAIL, passwordHash: adminPasswordHash, fullName: "مدير النظام", role: "ADMIN" },
   });
   await prisma.user.upsert({
     where: { id: "user-organizer" }, update: {},
-    create: { id: "user-organizer", email: "organizer@asl.local", passwordHash, fullName: "منظم البطولة", role: "TOURNAMENT_ORGANIZER" },
+    create: { id: "user-organizer", email: "organizer@asl.local", passwordHash: organizerPasswordHash, fullName: "منظم البطولة", role: "TOURNAMENT_ORGANIZER" },
   });
 
   // --- Teams -------------------------------------------------------------
@@ -567,7 +590,7 @@ async function main(): Promise<void> {
   for (const seed of PLAYER_SEEDS) {
     await prisma.user.upsert({
       where: { id: seed.userId }, update: {},
-      create: { id: seed.userId, email: seed.email, passwordHash, fullName: seed.fullName, role: "PLAYER" },
+      create: { id: seed.userId, email: seed.email, passwordHash: playerPasswordHash, fullName: seed.fullName, role: "PLAYER" },
     });
     await prisma.player.upsert({
       where: { id: seed.id }, update: {},
@@ -905,7 +928,10 @@ async function main(): Promise<void> {
     `  ${totalPlayers} players (with photos)\n` +
     `  ${totalMatches} matches\n` +
     `  ${totalEvents} goal events\n` +
-    `  ${totalSquads} match squads (${totalSquadPlayers} squad players)`,
+    `  ${totalSquads} match squads (${totalSquadPlayers} squad players)` +
+    `\nAdmin email: ${SEED_ADMIN_EMAIL}` +
+    `\nAdmin password: ${SEED_ADMIN_PASSWORD}` +
+    `\n[On a live/production DB, use scripts/rotate-admin-credentials.ts to apply real credentials.]`,
   );
 }
 
