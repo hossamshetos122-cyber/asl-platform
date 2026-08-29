@@ -42,6 +42,13 @@ export default function NewTeamPage() {
     }
   }, [state, router]);
 
+  useEffect(() => {
+    if (authLoaded && !user) {
+      const msg = encodeURIComponent("لازم تسجل دخول الأول عشان تقدر تنشئ فريق");
+      router.replace(`/login?redirect=/teams/new&message=${msg}`);
+    }
+  }, [authLoaded, user, router]);
+
   const handleSubmit = (formData: FormData) => {
     formData.set("logoUrl", logoUrl || "");
     formAction(formData);

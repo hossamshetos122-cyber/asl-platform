@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getHomeStats } from "@/lib/data/home";
+import { getCurrentSeasonLabel } from "@/lib/season";
 import type { HomeStatsVM } from "@/lib/types";
 
 const FALLBACK_STATS: HomeStatsVM = {
@@ -40,7 +41,7 @@ export async function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-50" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
             </span>
-            <span className="font-utility text-[10px] tracking-[0.18em] text-gold uppercase">الموسم 2024 / 2025</span>
+            <span className="font-utility text-[10px] tracking-[0.18em] text-gold uppercase">الموسم {getCurrentSeasonLabel()}</span>
           </span>
         </div>
 
@@ -72,8 +73,7 @@ export async function Hero() {
             </div>
 
             <h1 className="mb-4 font-display text-4xl sm:text-5xl lg:text-6xl xl:text-[64px] font-black leading-[1.1] text-text tracking-tight animate-fade-up">
-              <span className="block">دوري نجوم</span>
-              <span className="block text-gold">الإسكندرية</span>
+              دوري نجوم <span className="text-gold">الإسكندرية</span>
             </h1>
 
             <p className="mb-7 max-w-lg font-body text-base sm:text-lg leading-relaxed text-text-dim mx-auto lg:mx-0 animate-fade-up">

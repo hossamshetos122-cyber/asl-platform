@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
+import { getCurrentCopyrightYear } from "@/lib/season";
 
 export function Footer() {
-  const year = new Date().getFullYear();
+  const year = getCurrentCopyrightYear();
 
   return (
     <footer className="border-t border-line-strong bg-bg-deep">
@@ -22,6 +23,7 @@ export function Footer() {
             <p className="font-body text-xs leading-relaxed text-text-dimmer max-w-xs">
               المنصة الرسمية لإدارة وتنظيم بطولات كرة القدم للهواة في الإسكندرية.
             </p>
+            <p className="mt-3 font-utility text-[9px] tracking-[0.18em] text-gold/50 uppercase">الإسكندرية، مصر · Alexandria, Egypt</p>
           </div>
 
           {/* Quick Links */}
@@ -61,10 +63,22 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Location */}
+          {/* Platform */}
           <div>
-            <h4 className="mb-3 font-utility text-[10px] tracking-[0.2em] uppercase text-text-dimmer">الموقع</h4>
-            <p className="font-body text-sm text-text-dim leading-relaxed">الإسكندرية، مصر</p>
+            <h4 className="mb-3 font-utility text-[10px] tracking-[0.2em] uppercase text-text-dimmer">من نحن</h4>
+            <ul className="space-y-2">
+              {[
+                { href: "/about", label: "عن المنصة" },
+                { href: "/contact", label: "تواصل معنا" },
+                { href: "/privacy", label: "الخصوصية والشروط" },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="font-body text-sm text-text-dim transition-colors hover:text-gold gold-underline">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 

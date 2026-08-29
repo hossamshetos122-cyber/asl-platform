@@ -11,6 +11,7 @@ const initialState: AuthResult = { success: false };
 function LoginForm() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "";
+  const message = searchParams.get("message") || "";
   const [state, formAction, pending] = useActionState(
     (_prev: AuthResult, formData: FormData) => loginAction(_prev, formData, redirect),
     initialState,
@@ -18,6 +19,9 @@ function LoginForm() {
 
   return (
     <div className="rounded-xl border border-line bg-surface p-5 sm:p-6">
+      {message && (
+        <div className="mb-5 rounded-lg border border-gold/30 bg-gold/10 px-3.5 py-2.5 font-body text-sm text-gold">{message}</div>
+      )}
       {state.error && (
         <div className="mb-5 rounded-lg border border-live/20 bg-live/5 px-3.5 py-2.5 font-body text-sm text-live">{state.error}</div>
       )}
