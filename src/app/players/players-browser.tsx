@@ -72,7 +72,7 @@ export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
             onClick={() => setPosition("")}
             className={`rounded-lg border px-3 py-1.5 font-body text-[11px] font-bold transition-colors ${
               position === ""
-                ? "border-accent bg-accent/10 text-accent"
+                ? "border-accent-bright/60 bg-accent/10 text-accent-bright"
                 : "border-line text-text-dim hover:text-text"
             }`}
           >
@@ -84,8 +84,8 @@ export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
               onClick={() => setPosition(position === opt.value ? "" : opt.value)}
               className={`rounded-lg border px-3 py-1.5 font-body text-[11px] font-bold transition-colors ${
                 position === opt.value
-                  ? "border-accent bg-accent/10 text-accent"
-                  : "border-line text-text-dim hover:text-text"
+? "border-accent-bright/60 bg-accent/10 text-accent-bright"
+                : "border-line text-text-dim hover:text-text"
               }`}
             >
               {opt.label}
