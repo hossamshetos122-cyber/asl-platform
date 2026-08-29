@@ -26,7 +26,7 @@ async function TeamList() {
           <div className="flex items-center gap-3">
             <ImageDisplay src={team.crestUrl} alt={`شعار ${team.name}`} type="team-logo" size="lg" shortCode={team.shortCode} />
             <div className="min-w-0 flex-1">
-              <h3 className="font-display text-sm font-black text-text group-hover:text-gold transition-colors truncate">{team.name}</h3>
+              <h3 className="font-display text-sm font-black text-text group-hover:text-accent transition-colors truncate">{team.name}</h3>
               <div className="mt-1 flex items-center gap-1.5">
                 <span className="rounded bg-surface-elevated px-1.5 py-0.5 font-utility text-[8px] tracking-wider text-text-dimmer uppercase">{team.shortCode}</span>
                 {team.city && <span className="font-body text-[10px] text-text-dimmer">{team.city}</span>}

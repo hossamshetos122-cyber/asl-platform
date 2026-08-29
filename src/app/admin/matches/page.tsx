@@ -29,7 +29,7 @@ export default async function AdminMatchesPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between border-b border-line pb-4">
         <h1 className="font-display text-xl font-black text-text">المباريات</h1>
-        <span className="badge-gold font-num">{matches.length}</span>
+        <span className="badge-accent font-num">{matches.length}</span>
       </div>
       <MatchesTable matches={matches.map((m) => ({ ...m, kickoffAt: m.kickoffAt.toISOString() }))} teams={teams} tournaments={tournaments} />
     </div>

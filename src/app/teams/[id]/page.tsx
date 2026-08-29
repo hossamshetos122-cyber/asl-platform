@@ -34,7 +34,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
       <section className="relative overflow-hidden bg-surface border-b border-line">
         <div className="absolute inset-0 bg-gradient-to-b from-surface-elevated/40 to-surface" />
         <div className="page-container relative py-6 sm:py-10">
-          <Link href="/teams" className="mb-5 inline-flex items-center gap-1.5 font-body text-sm font-bold text-gold hover:text-gold-bright transition-colors">
+          <Link href="/teams" className="mb-5 inline-flex items-center gap-1.5 font-body text-sm font-bold text-accent hover:text-accent-bright transition-colors">
             <svg className="h-3.5 w-3.5 rotate-180" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 6h8M7 3l3 3-3 3" /></svg>
             العودة للفرق
           </Link>
@@ -44,7 +44,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             <div className="flex-1 text-center sm:text-right">
               <h1 className="font-display text-2xl sm:text-3xl font-black text-text">{team.name}</h1>
               <div className="mt-2.5 flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
-                <span className="rounded bg-gold/8 border border-gold/15 px-2 py-0.5 font-utility text-[9px] tracking-[0.12em] text-gold uppercase">{team.shortCode}</span>
+                <span className="rounded bg-accent/8 border border-accent/15 px-2 py-0.5 font-utility text-[9px] tracking-[0.12em] text-accent uppercase">{team.shortCode}</span>
                 <span className="rounded bg-surface-elevated border border-line px-2 py-0.5 font-body text-[11px] text-text-dim">{team.city}</span>
                 {team.foundedAt && (
                   <span className="rounded bg-surface-elevated border border-line px-2 py-0.5 font-body text-[11px] text-text-dim">
@@ -55,7 +55,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
               {team.tournaments.length > 0 && (
                 <div className="mt-2.5 flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
                   {team.tournaments.map((t) => (
-                    <Link key={t.id} href={`/tournaments/${t.id}`} className="rounded border border-gold/15 bg-gold/5 px-2 py-0.5 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/10">{t.name}</Link>
+                    <Link key={t.id} href={`/tournaments/${t.id}`} className="rounded border border-accent/15 bg-accent/5 px-2 py-0.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/10">{t.name}</Link>
                   ))}
                 </div>
               )}
@@ -67,8 +67,8 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
       <main className="page-container page-padding">
         {/* Owner Actions */}
         {(isOwner || isAdmin) && (
-          <div className="mb-5 rounded-xl border border-gold/15 bg-surface p-4">
-            <h3 className="mb-2.5 font-display text-sm font-black text-gold">إدارة الفريق</h3>
+          <div className="mb-5 rounded-xl border border-accent/15 bg-surface p-4">
+            <h3 className="mb-2.5 font-display text-sm font-black text-accent">إدارة الفريق</h3>
             <TeamEditForm teamId={team.id} initialName={team.name} initialShortName={team.shortCode} initialCity={team.city} initialCrestUrl={team.crestUrl} />
             <div className="mt-2"><TeamDeleteButton teamId={team.id} /></div>
           </div>
@@ -77,7 +77,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
         {/* Stats */}
         <div className="mb-5 grid grid-cols-3 gap-2">
           <div className="rounded-xl border border-line bg-surface p-3.5 text-center">
-            <div className="font-num text-xl font-bold text-gold">{team.playerCount}</div>
+            <div className="font-num text-xl font-bold text-emerald-500">{team.playerCount}</div>
             <div className="font-utility text-[8px] tracking-[0.12em] text-text-dimmer uppercase mt-0.5">لاعب</div>
           </div>
           <div className="rounded-xl border border-line bg-surface p-3.5 text-center">
@@ -110,11 +110,11 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
                   <Link key={player.id} href={`/players/${player.id}`} className="group flex items-center gap-2.5 rounded-lg border border-line/40 px-3 py-2.5 transition-all hover:bg-surface-elevated hover:border-line">
                     <ImageDisplay src={player.photoUrl} alt={player.name} type="player" size="sm" />
                     <div className="min-w-0 flex-1">
-                      <div className="font-body text-[12px] font-bold text-text truncate group-hover:text-gold transition-colors">{player.name}</div>
+                      <div className="font-body text-[12px] font-bold text-text truncate group-hover:text-accent transition-colors">{player.name}</div>
                       <div className="font-utility text-[8px] tracking-wider text-text-dimmer uppercase">{POSITION_LABELS[player.position] ?? player.position}</div>
                     </div>
                     <div className="flex-shrink-0 text-left">
-                      <div className="flex h-6 w-6 items-center justify-center rounded bg-surface-elevated font-num text-[10px] font-bold text-gold">{player.jerseyNumber ?? "-"}</div>
+                      <div className="flex h-6 w-6 items-center justify-center rounded bg-surface-elevated font-num text-[10px] font-bold text-emerald-500">{player.jerseyNumber ?? "-"}</div>
                       {player.goals > 0 && <div className="mt-0.5 text-center font-num text-[9px] font-bold text-emerald-400">{player.goals} ه</div>}
                     </div>
                     {(isOwner || isAdmin) && (

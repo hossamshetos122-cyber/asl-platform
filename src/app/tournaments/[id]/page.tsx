@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ImageDisplay } from "@/components/ui/image-display";
 
 const STATUS_LABELS: Record<string, string> = { UPCOMING: "قادم", ONGOING: "جاري", COMPLETED: "منتهي", CANCELLED: "ملغى" };
-const STATUS_CLASSES: Record<string, string> = { UPCOMING: "badge-muted", ONGOING: "badge-gold", COMPLETED: "badge-success", CANCELLED: "badge-muted" };
+const STATUS_CLASSES: Record<string, string> = { UPCOMING: "badge-muted", ONGOING: "badge-accent", COMPLETED: "badge-success", CANCELLED: "badge-muted" };
 const FORMAT_LABELS: Record<string, string> = { LEAGUE: "دوري", KNOCKOUT: "كأس", GROUPS_KNOCKOUT: "مجموعات + إقصائي", CUP: "كأس", CHAMPIONS_LEAGUE: "دوري الأبطال" };
 
 function formatDate(date: Date): string {
@@ -33,7 +33,7 @@ export default async function TournamentDetailPage({ params }: TournamentDetailP
       <section className="relative overflow-hidden bg-surface border-b border-line">
         <div className="absolute inset-0 bg-gradient-to-b from-surface-elevated/40 to-surface" />
         <div className="page-container relative py-6 sm:py-10">
-          <Link href="/tournaments" className="mb-5 inline-flex items-center gap-1.5 font-body text-sm font-bold text-gold hover:text-gold-bright transition-colors">
+          <Link href="/tournaments" className="mb-5 inline-flex items-center gap-1.5 font-body text-sm font-bold text-accent hover:text-accent-bright transition-colors">
             <svg className="h-3.5 w-3.5 rotate-180" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 6h8M7 3l3 3-3 3" /></svg>
             العودة للبطولات
           </Link>
@@ -48,7 +48,7 @@ export default async function TournamentDetailPage({ params }: TournamentDetailP
           <div className="flex flex-wrap items-center gap-3 font-body text-[13px] text-text-dim">
             <span>بدأ {formatDate(tournament.startDate)}</span>
             {tournament.endDate && <span>ينتهي {formatDate(tournament.endDate)}</span>}
-            <span className="font-num font-bold text-gold">{tournament.teams.length} فريق مشارك</span>
+            <span className="font-num font-bold text-emerald-500">{tournament.teams.length} فريق مشارك</span>
           </div>
         </div>
       </section>
@@ -64,7 +64,7 @@ export default async function TournamentDetailPage({ params }: TournamentDetailP
                 <Link key={team.id} href={`/teams/${team.id}`} className="group flex items-center gap-2.5 rounded-lg border border-line/40 px-3 py-2.5 transition-all hover:bg-surface-elevated hover:border-line">
                   <ImageDisplay src={team.crestUrl} alt={`شعار ${team.name}`} type="team-logo" size="sm" shortCode={team.shortCode} />
                   <div className="min-w-0">
-                    <div className="font-body text-[12px] font-bold text-text truncate group-hover:text-gold transition-colors">{team.name}</div>
+                    <div className="font-body text-[12px] font-bold text-text truncate group-hover:text-accent transition-colors">{team.name}</div>
                     <div className="font-utility text-[8px] tracking-wider text-text-dimmer uppercase">{team.shortCode}</div>
                   </div>
                 </Link>

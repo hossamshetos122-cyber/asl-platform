@@ -28,10 +28,10 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
         {stats.map((stat) => (
           <Link key={stat.label} href={stat.href} className="group rounded-xl border border-line bg-surface p-4 premier-card">
-            <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-gold/[0.08] border border-gold/15 group-hover:bg-gold/15 transition-colors">
-              <svg className="h-4.5 w-4.5 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d={stat.icon} /></svg>
+            <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-accent/[0.08] border border-accent/15 group-hover:bg-accent/15 transition-colors">
+              <svg className="h-4.5 w-4.5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d={stat.icon} /></svg>
             </div>
-            <div className="font-num text-2xl font-bold text-gold">{stat.value}</div>
+            <div className="font-num text-2xl font-bold text-accent">{stat.value}</div>
             <div className="mt-0.5 font-body text-[12px] text-text-dim">{stat.label}</div>
           </Link>
         ))}
@@ -50,7 +50,7 @@ export default async function AdminDashboard() {
                 <div key={match.id} className="flex items-center justify-between rounded-lg border border-line/40 px-3 py-2.5 transition-colors hover:bg-surface-elevated/30">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="font-body text-[12px] font-bold text-text truncate">{match.homeTeam.name}</span>
-                    <span className="font-num text-[12px] text-gold font-bold mx-1">{match.homeScore} - {match.awayScore}</span>
+                    <span className="font-num text-[12px] text-accent font-bold mx-1">{match.homeScore} - {match.awayScore}</span>
                     <span className="font-body text-[12px] font-bold text-text truncate">{match.awayTeam.name}</span>
                   </div>
                   <span className={match.status === "FINISHED" ? "badge-success" : match.status === "LIVE" ? "badge-live" : "badge-muted"}>

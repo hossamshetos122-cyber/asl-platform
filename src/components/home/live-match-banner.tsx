@@ -33,7 +33,7 @@ export async function LiveMatchBanner() {
             {/* Home */}
             <div className="flex items-center justify-end gap-3">
               <div className="text-right">
-                <div className="font-display text-sm sm:text-lg font-black text-text group-hover:text-gold transition-colors truncate">
+                <div className="font-display text-sm sm:text-lg font-black text-text group-hover:text-accent transition-colors truncate">
                   {match.homeTeam.name}
                 </div>
               </div>
@@ -58,7 +58,7 @@ export async function LiveMatchBanner() {
             <div className="flex items-center gap-3">
               <ImageDisplay src={match.awayTeam.crestUrl} alt={match.awayTeam.name} type="team-logo" size="lg" shortCode={match.awayTeam.shortCode} />
               <div className="text-left">
-                <div className="font-display text-sm sm:text-lg font-black text-text group-hover:text-gold transition-colors truncate">
+                <div className="font-display text-sm sm:text-lg font-black text-text group-hover:text-accent transition-colors truncate">
                   {match.awayTeam.name}
                 </div>
               </div>

@@ -8,7 +8,7 @@ import { ImageUpload } from "@/components/ui/image-upload";
 
 function AddPlayerButton({ onClick }: { onClick: () => void }) {
   return (
-    <button onClick={onClick} className="mb-4 rounded-sm border border-gold/30 bg-gold/10 px-4 py-2 font-body text-[13px] font-bold text-gold transition-colors hover:bg-gold/20">
+    <button onClick={onClick} className="mb-4 rounded-sm border border-accent/30 bg-accent/10 px-4 py-2 font-body text-[13px] font-bold text-accent transition-colors hover:bg-accent/20">
       + إضافة لاعب
     </button>
   );
@@ -17,7 +17,7 @@ function AddPlayerButton({ onClick }: { onClick: () => void }) {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className="rounded-sm bg-gold px-5 py-2 font-body text-[13px] font-extrabold text-bg transition-colors hover:bg-gold-bright disabled:opacity-50">
+    <button type="submit" disabled={pending} className="rounded-sm bg-accent px-5 py-2 font-body text-[13px] font-extrabold text-white transition-colors hover:bg-accent-bright disabled:opacity-50">
       {pending ? "جارِ الحفظ..." : "إضافة اللاعب"}
     </button>
   );

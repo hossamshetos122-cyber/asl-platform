@@ -31,19 +31,19 @@ export function AuthNav() {
     return (
       <div className="hidden items-center gap-2.5 sm:flex">
         {user.role === "ADMIN" && (
-          <Link href="/admin" className="rounded-lg border border-gold/20 bg-gold/5 px-3 py-1.5 font-body text-[12px] font-bold text-gold transition-all hover:bg-gold/10">
+          <Link href="/admin" className="rounded-lg border border-accent/20 bg-accent/5 px-3 py-1.5 font-body text-[12px] font-bold text-accent transition-all hover:bg-accent/10">
             التحكم
           </Link>
         )}
         {(user.role === "FAN" || user.role === "PLAYER") && (
-          <Link href="/dashboard" className="rounded-lg border border-gold/20 bg-gold/5 px-3 py-1.5 font-body text-[12px] font-bold text-gold transition-all hover:bg-gold/10">
+          <Link href="/dashboard" className="rounded-lg border border-accent/20 bg-accent/5 px-3 py-1.5 font-body text-[12px] font-bold text-accent transition-all hover:bg-accent/10">
             لوحة التحكم
           </Link>
         )}
         <div className="h-4 w-px bg-line-strong" />
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gold/10 border border-gold/20">
-            <span className="font-display text-[10px] font-bold text-gold">{user.fullName.charAt(0)}</span>
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 border border-accent/20">
+            <span className="font-display text-[10px] font-bold text-accent">{user.fullName.charAt(0)}</span>
           </div>
           <span className="font-body text-[12px] font-bold text-text-dim max-w-[90px] truncate">{user.fullName}</span>
         </div>
@@ -59,7 +59,7 @@ export function AuthNav() {
       <Link href="/login" className="rounded-lg px-3 py-2 font-body text-[12px] font-bold text-text-dim transition-all hover:text-text">
         تسجيل الدخول
       </Link>
-      <Link href="/register" className="rounded-lg bg-gold px-4 py-2 font-body text-[12px] font-extrabold text-bg transition-all hover:bg-gold-bright">
+      <Link href="/register" className="rounded-lg bg-accent px-4 py-2 font-body text-[12px] font-extrabold text-white transition-all hover:bg-accent-bright">
         إنشاء حساب
       </Link>
     </div>

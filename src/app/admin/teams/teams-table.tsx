@@ -42,7 +42,7 @@ function InlineCreateForm() {
     return (
       <button
         onClick={() => setIsAdding(true)}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-gold/30 bg-gold/10 px-5 py-2.5 font-body text-[12px] font-bold text-gold transition-all hover:bg-gold/20"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-5 py-2.5 font-body text-[12px] font-bold text-accent transition-all hover:bg-accent/20"
       >
         <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <path d="M8 3v10M3 8h10" />
@@ -64,7 +64,7 @@ function InlineCreateForm() {
           setError(res.message || "حدث خطأ");
         }
       }}
-      className="rounded-xl border border-gold/20 bg-surface p-5"
+      className="rounded-xl border border-accent/20 bg-surface p-5"
     >
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-4">
         <ImageUpload
@@ -79,7 +79,7 @@ function InlineCreateForm() {
           <input
             name="name"
             required
-            className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-gold"
+            className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent"
             placeholder="نادي الإسكندرية"
           />
         </div>
@@ -89,7 +89,7 @@ function InlineCreateForm() {
             name="shortName"
             required
             maxLength={5}
-            className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-gold"
+            className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent"
             placeholder="ESK"
           />
         </div>
@@ -97,7 +97,7 @@ function InlineCreateForm() {
           <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">المدينة</label>
           <input
             name="city"
-            className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-gold"
+            className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent"
             placeholder="الإسكندرية"
           />
         </div>
@@ -137,7 +137,7 @@ function EditRow({ team, onClose }: { team: TeamRow; onClose: () => void }) {
               setError(e instanceof Error ? e.message : "حدث خطأ");
             }
           }}
-          className="rounded-xl border border-gold/20 bg-surface p-4"
+          className="rounded-xl border border-accent/20 bg-surface p-4"
         >
           <input type="hidden" name="id" value={team.id} />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
@@ -154,7 +154,7 @@ function EditRow({ team, onClose }: { team: TeamRow; onClose: () => void }) {
                 name="name"
                 defaultValue={team.name}
                 required
-                className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold"
+                className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-accent"
               />
             </div>
             <div>
@@ -164,7 +164,7 @@ function EditRow({ team, onClose }: { team: TeamRow; onClose: () => void }) {
                 defaultValue={team.shortName}
                 required
                 maxLength={5}
-                className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold"
+                className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-accent"
               />
             </div>
             <div>
@@ -172,14 +172,14 @@ function EditRow({ team, onClose }: { team: TeamRow; onClose: () => void }) {
               <input
                 name="city"
                 defaultValue={team.city}
-                className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold"
+                className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-accent"
               />
             </div>
           </div>
           <div className="mt-4 flex items-center gap-3">
             <button
               type="submit"
-              className="rounded-lg bg-gradient-to-b from-gold to-gold-dim px-5 py-2 font-body text-[12px] font-extrabold text-bg transition-all hover:from-gold-bright hover:to-gold"
+              className="rounded-lg bg-gradient-to-b from-accent to-accent-dim px-5 py-2 font-body text-[12px] font-extrabold text-white transition-all hover:from-accent-bright hover:to-accent"
             >
               تحديث
             </button>
@@ -247,13 +247,13 @@ function TeamDeleteRow({ team, onEdit }: { team: TeamRow; onEdit: () => void }) 
         </div>
       </td>
       <td className="px-4 py-3">
-        <span className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-line bg-surface-elevated font-utility text-[10px] font-bold text-gold">{team.shortName}</span>
+        <span className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-line bg-surface-elevated font-utility text-[10px] font-bold text-accent">{team.shortName}</span>
       </td>
       <td className="px-4 py-3 font-body text-sm text-text-dim">{team.city || "—"}</td>
       <td className="px-4 py-3 font-num text-sm font-bold text-text">{team._count.memberships}</td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
-          <button onClick={onEdit} className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-1.5 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">تعديل</button>
+          <button onClick={onEdit} className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">تعديل</button>
           <form action={async (formData) => {
             try {
               await deleteTeam(formData);

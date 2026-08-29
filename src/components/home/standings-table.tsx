@@ -32,15 +32,15 @@ export async function StandingsTable({ tournamentId }: StandingsTableProps) {
                 <th className="px-2 py-2 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">فوز</th>
                 <th className="px-2 py-2 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase hidden sm:table-cell">تعادل</th>
                 <th className="px-2 py-2 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase hidden sm:table-cell">خسارة</th>
-                <th className="px-3 py-2 text-center font-utility text-[9px] tracking-[0.12em] text-gold uppercase">نقاط</th>
+                <th className="px-3 py-2 text-center font-utility text-[9px] tracking-[0.12em] text-accent uppercase">نقاط</th>
               </tr>
             </thead>
             <tbody>
               {result.data.map((row) => (
-                <tr key={row.team.id} className={`border-b border-line/40 transition-colors hover:bg-surface-elevated/30 ${row.rank === 1 ? "bg-gold/[0.02]" : ""}`}>
+                <tr key={row.team.id} className={`border-b border-line/40 transition-colors hover:bg-surface-elevated/30 ${row.rank <= 3 ? "bg-emerald-500/[0.05]" : ""}`}>
                   <td className="px-3 py-2.5 text-center">
                     <span className={`inline-flex h-6 w-6 items-center justify-center rounded font-num text-[10px] font-bold ${
-                      row.rank === 1 ? "bg-gold text-bg" : row.rank <= 3 ? "border border-gold/25 text-gold" : "text-text-dimmer"
+                      row.rank === 1 ? "bg-emerald-500 text-bg" : row.rank <= 3 ? "border border-emerald-500/40 text-emerald-500" : "text-text-dimmer"
                     }`}>
                       {row.rank}
                     </span>
@@ -48,7 +48,7 @@ export async function StandingsTable({ tournamentId }: StandingsTableProps) {
                   <td className="px-3 py-2.5">
                     <Link href={`/teams/${row.team.id}`} className="flex items-center gap-2 group">
                       <ImageDisplay src={row.team.crestUrl} alt={row.team.name} type="team-logo" size="xs" shortCode={row.team.shortCode} />
-                      <span className="font-body text-[12px] font-bold text-text group-hover:text-gold transition-colors truncate">{row.team.name}</span>
+                      <span className="font-body text-[12px] font-bold text-text group-hover:text-accent transition-colors truncate">{row.team.name}</span>
                     </Link>
                   </td>
                   <td className="px-2 py-2.5 text-center font-num text-[12px] text-text-dim">{row.played}</td>
@@ -56,7 +56,7 @@ export async function StandingsTable({ tournamentId }: StandingsTableProps) {
                   <td className="px-2 py-2.5 text-center font-num text-[12px] text-text-dimmer hidden sm:table-cell">{row.drawn}</td>
                   <td className="px-2 py-2.5 text-center font-num text-[12px] text-live/60 hidden sm:table-cell">{row.lost}</td>
                   <td className="px-3 py-2.5 text-center">
-                    <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded bg-gold/10 px-1.5 font-num text-[12px] font-bold text-gold">
+                    <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded bg-emerald-500/10 px-1.5 font-num text-[12px] font-bold text-emerald-500">
                       {row.points}
                     </span>
                   </td>

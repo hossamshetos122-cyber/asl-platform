@@ -26,13 +26,13 @@ export function DesktopNavLinks() {
               href={link.href}
               className={`relative px-3 py-2 font-body text-[13px] font-bold transition-colors rounded-md ${
                 isActive
-                  ? "text-gold"
+                  ? "text-text"
                   : "text-text-dim hover:text-text"
               }`}
             >
               {link.label}
               {isActive && (
-                <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-gold" />
+                <span className="absolute bottom-0 left-3 right-3 h-[3px] rounded-full bg-gradient-to-l from-accent to-purple-bright" />
               )}
             </Link>
           </li>

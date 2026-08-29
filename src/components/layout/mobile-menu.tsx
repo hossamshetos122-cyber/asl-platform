@@ -82,11 +82,11 @@ export function MobileMenu() {
                 alt="شعار الدوري"
                 width={1280}
                 height={698}
-                className="h-9 w-9 rounded-full object-cover border border-gold/20 flex-shrink-0"
+                className="h-9 w-9 rounded-full object-cover border border-accent/20 flex-shrink-0"
               />
               <div>
                 <div className="font-display text-sm font-black text-text">دوري نجوم الإسكندرية</div>
-                <div className="font-utility text-[8px] tracking-[0.18em] text-gold/60 uppercase">Alexandria Amateur League</div>
+                <div className="font-utility text-[8px] tracking-[0.18em] text-accent/60 uppercase">Alexandria Amateur League</div>
               </div>
             </div>
 
@@ -101,7 +101,7 @@ export function MobileMenu() {
                     onClick={() => setOpen(false)}
                     className={`flex items-center rounded-lg px-4 py-3 font-body text-sm font-bold transition-colors ${
                       isActive
-                        ? "bg-gold/8 text-gold border-r-2 border-gold"
+                        ? "bg-accent/10 text-accent-bright border-r-2 border-accent"
                         : "text-text-dim hover:bg-white/[0.03] hover:text-text"
                     }`}
                   >
@@ -118,13 +118,13 @@ export function MobileMenu() {
               {authLoaded && user ? (
                 <>
                   {user.role === "ADMIN" && (
-                    <Link href="/admin" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg px-4 py-3 font-body text-sm font-bold text-gold hover:bg-white/[0.03]">
+                    <Link href="/admin" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg px-4 py-3 font-body text-sm font-bold text-accent hover:bg-white/[0.03]">
                       <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
                       لوحة التحكم
                     </Link>
                   )}
                   {(user.role === "FAN" || user.role === "PLAYER") && (
-                    <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg px-4 py-3 font-body text-sm font-bold text-gold hover:bg-white/[0.03]">
+                    <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg px-4 py-3 font-body text-sm font-bold text-accent hover:bg-white/[0.03]">
                       <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
                       لوحة التحكم
                     </Link>
@@ -139,14 +139,14 @@ export function MobileMenu() {
               ) : authLoaded ? (
                 <>
                   <Link href="/login" onClick={() => setOpen(false)} className="flex items-center rounded-lg px-4 py-3 font-body text-sm font-bold text-text-dim hover:bg-white/[0.03] hover:text-text">تسجيل الدخول</Link>
-                  <Link href="/register" onClick={() => setOpen(false)} className="flex items-center rounded-lg px-4 py-3 font-body text-sm font-bold text-gold hover:bg-white/[0.03]">إنشاء حساب</Link>
+                  <Link href="/register" onClick={() => setOpen(false)} className="flex items-center rounded-lg px-4 py-3 font-body text-sm font-bold text-accent hover:bg-white/[0.03]">إنشاء حساب</Link>
                 </>
               ) : null}
             </div>
 
             {/* CTA */}
             <div className="p-3 border-t border-line">
-              <Link href="/teams/new" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 rounded-lg bg-gold px-6 py-3 font-body text-sm font-extrabold text-bg transition-all hover:bg-gold-bright">
+              <Link href="/teams/new" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 rounded-lg bg-accent px-6 py-3 font-body text-sm font-extrabold text-white transition-all hover:bg-accent-bright">
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M8 3v10M3 8h10" /></svg>
                 إنشاء فريق
               </Link>

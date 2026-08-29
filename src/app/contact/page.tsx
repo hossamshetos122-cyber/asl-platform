@@ -40,9 +40,9 @@ export default function ContactPage() {
               },
             ].map((item) => (
               <div key={item.label} className="rounded-xl border border-line bg-surface p-4">
-                <div className="mb-1 font-utility text-[9px] tracking-[0.15em] text-gold uppercase">{item.label}</div>
+                <div className="mb-1 font-utility text-[9px] tracking-[0.15em] text-accent uppercase">{item.label}</div>
                 {item.href ? (
-                  <a href={item.href} className="font-body text-sm font-bold text-text transition-colors hover:text-gold gold-underline">
+                  <a href={item.href} className="font-body text-sm font-bold text-text transition-colors hover:text-accent accent-underline">
                     {item.value}
                   </a>
                 ) : (

@@ -37,7 +37,7 @@ export default function AboutPage() {
                 { title: "البطولات", body: "دوريات وكؤوس منظمة، بنظام النقاط ومراحل خروج المغلوب." },
               ].map((item) => (
                 <div key={item.title} className="rounded-lg border border-line/40 bg-surface-elevated p-4">
-                  <h3 className="mb-1.5 font-body text-sm font-bold text-gold">{item.title}</h3>
+                  <h3 className="mb-1.5 font-body text-sm font-bold text-accent">{item.title}</h3>
                   <p className="font-body text-xs leading-relaxed text-text-dim">{item.body}</p>
                 </div>
               ))}

@@ -77,7 +77,7 @@ function InlineCreateForm() {
 
   if (!isAdding) {
     return (
-      <button onClick={() => setIsAdding(true)} className="inline-flex items-center gap-1.5 rounded-lg border border-gold/30 bg-gold/10 px-5 py-2.5 font-body text-[12px] font-bold text-gold transition-all hover:bg-gold/20">
+      <button onClick={() => setIsAdding(true)} className="inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-5 py-2.5 font-body text-[12px] font-bold text-accent transition-all hover:bg-accent/20">
         <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M8 3v10M3 8h10" /></svg>
         إضافة بطولة
       </button>
@@ -98,30 +98,30 @@ function InlineCreateForm() {
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "حدث خطأ");
       }
-    }} className="rounded-xl border border-gold/20 bg-surface p-5">
+    }} className="rounded-xl border border-accent/20 bg-surface p-5">
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2">
 <ImageUpload name="logoUrl" purpose="tournament-logo" label="شعار البطولة" value={logoUrl} onChange={setLogoUrl} />
         </div>
         <div>
           <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">اسم البطولة</label>
-          <input name="name" required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-gold" placeholder="دوري الإسكندرية" />
+          <input name="name" required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent" placeholder="دوري الإسكندرية" />
         </div>
         <div>
           <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الصيغة</label>
-          <select name="format" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-gold">
+          <select name="format" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent">
             {FORMAT_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
         </div>
         <div>
           <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الحالة</label>
-          <select name="status" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-gold">
+          <select name="status" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent">
             {STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
         </div>
         <div>
           <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">تاريخ البدء</label>
-          <input type="date" name="startDate" required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-gold" />
+          <input type="date" name="startDate" required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent" />
         </div>
       </div>
       <div className="mb-4"><ImageUpload name="coverUrl" purpose="tournament-cover" label="صورة الغلاف" value={coverUrl} onChange={setCoverUrl} /></div>
@@ -152,29 +152,29 @@ function EditRow({ tournament, onClose }: { tournament: TournamentRow; onClose: 
           } catch (e: unknown) {
             setError(e instanceof Error ? e.message : "حدث خطأ");
           }
-        }} className="rounded-xl border border-gold/20 bg-surface p-4">
+        }} className="rounded-xl border border-accent/20 bg-surface p-4">
           <input type="hidden" name="id" value={tournament.id} />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2"><ImageUpload name="logoUrl" purpose="tournament-logo" label="شعار البطولة" value={logoUrl} onChange={setLogoUrl} /></div>
             <div>
               <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">اسم البطولة</label>
-              <input name="name" defaultValue={tournament.name} required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold" />
+              <input name="name" defaultValue={tournament.name} required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-accent" />
             </div>
             <div>
               <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الصيغة</label>
-              <select name="format" defaultValue={tournament.format} className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold">
+              <select name="format" defaultValue={tournament.format} className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-accent">
                 {FORMAT_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
               </select>
             </div>
             <div>
               <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الحالة</label>
-              <select name="status" defaultValue={tournament.status} className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold">
+              <select name="status" defaultValue={tournament.status} className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-accent">
                 {STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
               </select>
             </div>
             <div>
               <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">تاريخ البدء</label>
-              <input type="date" name="startDate" defaultValue={new Date(tournament.startDate).toISOString().split("T")[0]} required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-gold" />
+              <input type="date" name="startDate" defaultValue={new Date(tournament.startDate).toISOString().split("T")[0]} required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-accent" />
             </div>
           </div>
           <div className="my-4"><ImageUpload name="coverUrl" purpose="tournament-cover" label="صورة الغلاف" value={coverUrl} onChange={setCoverUrl} /></div>
@@ -226,7 +226,7 @@ function TeamManager({ tournament, allTeams }: { tournament: TournamentRow; allT
 
   return (
     <div className="border-t border-line/50 bg-surface-elevated/30 px-4 py-3">
-      <button onClick={() => setIsExpanded(!isExpanded)} className="flex items-center gap-2 font-body text-xs font-bold text-gold transition-colors hover:text-gold-bright">
+      <button onClick={() => setIsExpanded(!isExpanded)} className="flex items-center gap-2 font-body text-xs font-bold text-accent transition-colors hover:text-accent-bright">
         <svg className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-90" : ""}`} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <path d="M4 2l4 4-4 4" />
         </svg>
@@ -238,7 +238,7 @@ function TeamManager({ tournament, allTeams }: { tournament: TournamentRow; allT
           {tournament.teams.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {tournament.teams.map((team) => (
-                <span key={team.id} className="inline-flex items-center gap-1.5 rounded-lg border border-gold/20 bg-gold/[0.04] px-2.5 py-1">
+                <span key={team.id} className="inline-flex items-center gap-1.5 rounded-lg border border-accent/20 bg-accent/[0.04] px-2.5 py-1">
                   <span className="font-body text-xs font-bold text-text">{team.name}</span>
                   <button onClick={() => handleRemove(team.id)} disabled={isPending} className="flex h-4 w-4 items-center justify-center rounded-full text-text-dimmer transition-colors hover:bg-live/20 hover:text-live">
                     <svg className="h-2.5 w-2.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 3l6 6M9 3l-6 6" /></svg>
@@ -250,7 +250,7 @@ function TeamManager({ tournament, allTeams }: { tournament: TournamentRow; allT
 
           {availableTeams.length > 0 ? (
             <div className="flex items-center gap-2">
-              <select value={selectedTeamId} onChange={(e) => { setSelectedTeamId(e.target.value); setError(null); }} className="flex-1 rounded-lg border border-line bg-bg px-3 py-2 font-body text-xs text-text outline-none transition-colors focus:border-gold">
+              <select value={selectedTeamId} onChange={(e) => { setSelectedTeamId(e.target.value); setError(null); }} className="flex-1 rounded-lg border border-line bg-bg px-3 py-2 font-body text-xs text-text outline-none transition-colors focus:border-accent">
                 <option value="">اختر فريقاً للإضافة</option>
                 {availableTeams.map((t) => (<option key={t.id} value={t.id}>{t.name}</option>))}
               </select>
@@ -327,7 +327,7 @@ export default function TournamentsTable({ tournaments, allTeams = [] }: { tourn
                       </td>
                       <td className="px-4 py-3 font-body text-sm text-text-dim">{FORMAT_LABELS[tournament.format] ?? tournament.format}</td>
                       <td className="px-4 py-3">
-                        <span className={`rounded-md px-2 py-0.5 font-utility text-[10px] tracking-wider ${tournament.status === "ONGOING" ? "badge-gold" : tournament.status === "COMPLETED" ? "badge-success" : tournament.status === "CANCELLED" ? "badge-live" : "badge-muted"}`}>
+                        <span className={`rounded-md px-2 py-0.5 font-utility text-[10px] tracking-wider ${tournament.status === "ONGOING" ? "badge-accent" : tournament.status === "COMPLETED" ? "badge-success" : tournament.status === "CANCELLED" ? "badge-live" : "badge-muted"}`}>
                           {STATUS_LABELS[tournament.status] ?? tournament.status}
                         </span>
                       </td>
@@ -335,7 +335,7 @@ export default function TournamentsTable({ tournaments, allTeams = [] }: { tourn
                       <td className="px-4 py-3 font-body text-sm text-text-dim">{new Intl.DateTimeFormat("ar-EG", { timeZone: "UTC" }).format(new Date(tournament.startDate))}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <button onClick={() => setEditingId(tournament.id)} className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-1.5 font-body text-[11px] font-bold text-gold transition-colors hover:bg-gold/20">تعديل</button>
+                          <button onClick={() => setEditingId(tournament.id)} className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">تعديل</button>
                           <TournamentDeleteRow tournamentId={tournament.id} />
                         </div>
                       </td>

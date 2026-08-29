@@ -113,7 +113,7 @@ export function ImageUpload({
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
-              className="rounded-sm bg-gold px-3 py-1.5 font-body text-xs font-bold text-bg transition-colors hover:bg-gold-bright"
+              className="rounded-sm bg-accent px-3 py-1.5 font-body text-xs font-bold text-white transition-colors hover:bg-accent-bright"
             >
               تغيير
             </button>
@@ -140,12 +140,12 @@ export function ImageUpload({
           onDrop={handleDrop}
           onClick={() => inputRef.current?.click()}
           className={`flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors ${
-            dragOver ? "border-gold bg-gold/5" : "border-line hover:border-gold/50 hover:bg-white/[0.02]"
+            dragOver ? "border-accent bg-accent/5" : "border-line hover:border-accent/50 hover:bg-white/[0.02]"
           }`}
         >
           {uploading ? (
             <div className="flex flex-col items-center gap-2">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" />
               <span className="font-body text-xs text-text-dim">جارِ الرفع...</span>
             </div>
           ) : (

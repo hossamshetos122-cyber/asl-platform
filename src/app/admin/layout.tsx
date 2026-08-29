@@ -32,7 +32,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex lg:w-56 lg:flex-col lg:border-l lg:border-line lg:bg-surface">
         <div className="flex h-14 items-center gap-2.5 border-b border-line px-4">
-          <Image src="/images/league-logo.jpg" alt="شعار الدوري" width={1280} height={698} className="h-8 w-8 rounded-full object-cover border border-gold/20" />
+          <Image src="/images/league-logo.jpg" alt="شعار الدوري" width={1280} height={698} className="h-8 w-8 rounded-full object-cover border border-accent/20" />
           <span className="font-display text-sm font-black text-text">لوحة التحكم</span>
         </div>
         <nav className="flex-1 space-y-0.5 p-2.5">
@@ -51,7 +51,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* Mobile header */}
       <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-surface/95 backdrop-blur px-4 lg:hidden">
         <div className="flex items-center gap-2.5">
-          <Image src="/images/league-logo.jpg" alt="شعار الدوري" width={1280} height={698} className="h-8 w-8 rounded-full object-cover border border-gold/20" />
+          <Image src="/images/league-logo.jpg" alt="شعار الدوري" width={1280} height={698} className="h-8 w-8 rounded-full object-cover border border-accent/20" />
           <span className="font-display text-sm font-black text-text">لوحة التحكم</span>
         </div>
         <LogoutButton className="rounded-lg px-2.5 py-1.5 font-body text-[11px] font-bold text-text-dim hover:bg-surface-elevated transition-colors">

@@ -36,7 +36,7 @@ export default async function AdminPlayersPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between border-b border-line pb-4">
         <h1 className="font-display text-xl font-black text-text">اللاعبين</h1>
-        <span className="badge-gold font-num">{players.length}</span>
+        <span className="badge-accent font-num">{players.length}</span>
       </div>
       <PlayersTable players={players} teams={teams} />
     </div>

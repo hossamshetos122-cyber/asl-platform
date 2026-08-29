@@ -64,7 +64,7 @@ export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="ابحث عن لاعب أو فريق..."
-            className="w-full rounded-lg border border-line bg-bg py-2 pl-4 pr-9 font-body text-sm text-text outline-none transition-colors placeholder:text-text-faint focus:border-gold"
+            className="w-full rounded-lg border border-line bg-bg py-2 pl-4 pr-9 font-body text-sm text-text outline-none transition-colors placeholder:text-text-faint focus:border-accent"
           />
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -72,7 +72,7 @@ export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
             onClick={() => setPosition("")}
             className={`rounded-lg border px-3 py-1.5 font-body text-[11px] font-bold transition-colors ${
               position === ""
-                ? "border-gold bg-gold/10 text-gold"
+                ? "border-accent bg-accent/10 text-accent"
                 : "border-line text-text-dim hover:text-text"
             }`}
           >
@@ -84,7 +84,7 @@ export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
               onClick={() => setPosition(position === opt.value ? "" : opt.value)}
               className={`rounded-lg border px-3 py-1.5 font-body text-[11px] font-bold transition-colors ${
                 position === opt.value
-                  ? "border-gold bg-gold/10 text-gold"
+                  ? "border-accent bg-accent/10 text-accent"
                   : "border-line text-text-dim hover:text-text"
               }`}
             >
@@ -106,17 +106,17 @@ export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
             <Link
               key={player.id}
               href={`/players/${player.id}`}
-              className="group rounded-xl border border-line bg-surface p-4 premier-card"
+              className="group rounded-xl border border-line bg-surface p-4 premier-card hover:border-accent/40"
             >
               <div className="flex items-center gap-3">
                 <ImageDisplay src={player.photoUrl} alt={`صورة ${player.name}`} type="player" size="lg" />
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-display text-sm font-black text-text group-hover:text-gold transition-colors truncate">
+                  <h3 className="font-display text-sm font-black text-text group-hover:text-accent transition-colors truncate">
                     {player.name}
                   </h3>
                   <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                     {player.jerseyNumber != null && (
-                      <span className="inline-flex h-5 items-center rounded bg-gold/15 px-1.5 font-num text-[11px] font-black text-gold">
+                      <span className="inline-flex h-5 items-center rounded bg-emerald-500/15 px-1.5 font-num text-[11px] font-black text-emerald-500">
                         {player.jerseyNumber}
                       </span>
                     )}

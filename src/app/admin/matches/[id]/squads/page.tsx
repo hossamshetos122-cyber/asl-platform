@@ -22,7 +22,7 @@ export default async function MatchSquadsPage({ params }: PageProps) {
     <div>
       <Link
         href="/admin/matches"
-        className="mb-4 inline-flex items-center gap-1 font-body text-sm text-gold hover:text-gold-bright transition-colors"
+        className="mb-4 inline-flex items-center gap-1 font-body text-sm text-accent hover:text-accent-bright transition-colors"
       >
         <svg className="h-3 w-3 rotate-180" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <path d="M2 6h8M7 3l3 3-3 3" />

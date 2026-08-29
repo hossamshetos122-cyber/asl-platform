@@ -34,7 +34,7 @@ export default function PrivacyPage() {
                 "يمكنك طلب حذف حسابك وبياناته بالتواصل معنا عبر صفحة «تواصل معنا».",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2 font-body text-sm text-text-dim">
-                  <svg className="mt-1 h-3.5 w-3.5 flex-shrink-0 text-gold" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="mt-1 h-3.5 w-3.5 flex-shrink-0 text-accent" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M2.5 8.5l3.5 3.5 7-8" />
                   </svg>
                   {item}

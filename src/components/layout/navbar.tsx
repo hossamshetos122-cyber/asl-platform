@@ -6,7 +6,7 @@ import { AuthNav } from "@/components/auth/auth-nav";
 
 export function Navbar() {
   return (
-    <nav aria-label="القائمة الرئيسية" className="sticky top-0 z-50 bg-bg-deep/95 backdrop-blur-lg border-b border-line-strong">
+    <nav aria-label="القائمة الرئيسية" className="sticky top-0 z-50 bg-[#1C0430]/90 backdrop-blur-lg border-b border-white/10">
       <div className="page-container flex items-center justify-between h-14 sm:h-16">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
@@ -15,14 +15,14 @@ export function Navbar() {
             alt="شعار دوري نجوم الإسكندرية"
             width={1280}
             height={698}
-            className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover border border-gold/20"
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover border-2 border-accent/40 shadow-glow-sm"
             priority
           />
           <div className="leading-tight hidden sm:block">
-            <div className="font-display text-[13px] font-black text-text leading-tight group-hover:text-gold transition-colors">
+            <div className="font-display text-[13px] font-black text-text leading-tight group-hover:text-accent-bright transition-colors">
               دوري نجوم الإسكندرية
             </div>
-            <div className="font-utility text-[8px] tracking-[0.18em] text-gold/60 uppercase">
+            <div className="font-utility text-[8px] tracking-[0.18em] text-text-dim uppercase">
               Alexandria Amateur League
             </div>
           </div>
@@ -36,7 +36,7 @@ export function Navbar() {
           <AuthNav />
           <Link
             href="/teams/new"
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-gold px-4 py-2 font-body text-[12px] font-extrabold text-bg transition-all hover:bg-gold-bright active:scale-[0.98]"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 font-body text-[12px] font-extrabold text-white transition-all hover:bg-accent-bright active:scale-[0.98]"
           >
             <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <path d="M8 3v10M3 8h10" />

@@ -17,7 +17,7 @@ export default async function AdminTeamsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between border-b border-line pb-4">
         <h1 className="font-display text-xl font-black text-text">الفرق</h1>
-        <span className="badge-gold font-num">{teams.length}</span>
+        <span className="badge-accent font-num">{teams.length}</span>
       </div>
       <TeamsTable teams={teams} />
     </div>

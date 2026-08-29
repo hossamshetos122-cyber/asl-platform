@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 
 const STATUS_LABELS: Record<string, string> = { UPCOMING: "قادم", ONGOING: "جاري", COMPLETED: "منتهي", CANCELLED: "ملغى" };
-const STATUS_CLASSES: Record<string, string> = { UPCOMING: "badge-muted", ONGOING: "badge-gold", COMPLETED: "badge-success", CANCELLED: "badge-muted" };
+const STATUS_CLASSES: Record<string, string> = { UPCOMING: "badge-muted", ONGOING: "badge-accent", COMPLETED: "badge-success", CANCELLED: "badge-muted" };
 const FORMAT_LABELS: Record<string, string> = { LEAGUE: "دوري", KNOCKOUT: "كأس", GROUPS_KNOCKOUT: "مجموعات + إقصائي", CUP: "كأس", CHAMPIONS_LEAGUE: "دوري الأبطال" };
 
 function formatDate(date: Date): string {
@@ -30,10 +30,10 @@ async function TournamentList() {
             <span className={STATUS_CLASSES[tournament.status] ?? "badge-muted"}>{STATUS_LABELS[tournament.status] ?? tournament.status}</span>
             <span className="rounded bg-surface-elevated border border-line px-1.5 py-0.5 font-utility text-[8px] tracking-wider text-text-dimmer uppercase">{FORMAT_LABELS[tournament.format] ?? tournament.format}</span>
           </div>
-          <h3 className="mb-2.5 font-display text-sm sm:text-base font-black text-text group-hover:text-gold transition-colors leading-tight">{tournament.name}</h3>
+          <h3 className="mb-2.5 font-display text-sm sm:text-base font-black text-text group-hover:text-accent transition-colors leading-tight">{tournament.name}</h3>
           <div className="flex items-center justify-between font-body text-[11px] text-text-dimmer">
             <span>{formatDate(tournament.startDate)}</span>
-            <span className="font-num font-bold text-gold">{tournament.teamCount} فريق</span>
+            <span className="font-num font-bold text-emerald-500">{tournament.teamCount} فريق</span>
           </div>
         </Link>
       ))}

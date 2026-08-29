@@ -67,13 +67,13 @@ export default function NewTeamPage() {
       <div className="min-h-screen bg-bg flex items-center justify-center px-4">
         <div className="w-full max-w-md text-center">
           <div className="relative mb-5 mx-auto">
-            <div className="absolute inset-0 rounded-full bg-gold/20 blur-xl" />
+            <div className="absolute inset-0 rounded-full bg-accent/20 blur-xl" />
             <Image
               src="/images/league-logo.jpg"
               alt="شعار الدوري"
               width={1280}
               height={698}
-              className="relative h-16 w-16 mx-auto rounded-full object-cover border-2 border-gold/30 shadow-glow-lg"
+              className="relative h-16 w-16 mx-auto rounded-full object-cover border-2 border-accent/30 shadow-glow-lg"
             />
           </div>
           <h1 className="font-display text-2xl font-black text-text mb-4">إنشاء فريق</h1>
@@ -91,13 +91,13 @@ export default function NewTeamPage() {
       <div className="w-full max-w-lg">
         <div className="mb-8 flex flex-col items-center">
           <div className="relative mb-5">
-            <div className="absolute inset-0 rounded-full bg-gold/20 blur-xl" />
+            <div className="absolute inset-0 rounded-full bg-accent/20 blur-xl" />
             <Image
               src="/images/league-logo.jpg"
               alt="شعار الدوري"
               width={1280}
               height={698}
-              className="relative h-16 w-16 rounded-full object-cover border-2 border-gold/30 shadow-glow-lg"
+              className="relative h-16 w-16 rounded-full object-cover border-2 border-accent/30 shadow-glow-lg"
             />
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-black text-text">إنشاء فريق</h1>

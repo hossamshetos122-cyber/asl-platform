@@ -27,14 +27,14 @@ async function FullTopScorers() {
               <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase w-10">#</th>
               <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">اللاعب</th>
               <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase hidden sm:table-cell">الفريق</th>
-              <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-gold uppercase">الأهداف</th>
+              <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-emerald-500 uppercase">الأهداف</th>
             </tr>
           </thead>
           <tbody>
             {result.data.map((scorer) => (
               <tr key={scorer.playerId} className="border-b border-line/40 transition-colors hover:bg-surface-elevated/30">
                 <td className="px-3 py-2.5 text-center">
-                  <span className={`inline-flex h-6 w-6 items-center justify-center rounded font-num text-[10px] font-bold ${scorer.rank === 1 ? "bg-gold text-bg" : scorer.rank <= 3 ? "border border-gold/25 text-gold" : "text-text-dimmer"}`}>
+                  <span className={`inline-flex h-6 w-6 items-center justify-center rounded font-num text-[10px] font-bold ${scorer.rank === 1 ? "bg-emerald-500 text-bg" : scorer.rank <= 3 ? "border border-emerald-500/40 text-emerald-500" : "text-text-dimmer"}`}>
                     {String(scorer.rank).padStart(2, "0")}
                   </span>
                 </td>
@@ -42,14 +42,14 @@ async function FullTopScorers() {
                   <Link href={`/players/${scorer.playerId}`} className="flex items-center gap-2 group">
                     <ImageDisplay src={scorer.photoUrl} alt={scorer.playerName} type="player" size="sm" />
                     <div>
-                      <span className="font-body text-[12px] font-bold text-text group-hover:text-gold transition-colors block">{scorer.playerName}</span>
+                      <span className="font-body text-[12px] font-bold text-text group-hover:text-accent transition-colors block">{scorer.playerName}</span>
                       <span className="font-utility text-[8px] tracking-wider text-text-dimmer uppercase sm:hidden">{scorer.teamName}</span>
                     </div>
                   </Link>
                 </td>
                 <td className="px-3 py-2.5 font-body text-[12px] text-text-dim hidden sm:table-cell">{scorer.teamName}</td>
                 <td className="px-3 py-2.5 text-center">
-                  <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded bg-gold/10 px-1.5 font-num text-[12px] font-bold text-gold">{scorer.goals}</span>
+                  <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded bg-emerald-500/10 px-1.5 font-num text-[12px] font-bold text-emerald-500">{scorer.goals}</span>
                 </td>
               </tr>
             ))}

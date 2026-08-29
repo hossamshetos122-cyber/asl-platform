@@ -26,16 +26,16 @@ const SIZE_MAP = {
 
 function TeamLogoFallback({ shortCode, size }: { shortCode?: string; size: string }) {
   return (
-    <div className={`${size} flex items-center justify-center rounded-2xl border border-line bg-gradient-to-br from-gold/20 to-bg-raised2`}>
-      <span className="font-display font-bold text-gold">{shortCode || "FK"}</span>
+    <div className={`${size} flex items-center justify-center rounded-2xl border border-accent/25 bg-gradient-to-br from-[#37003C] to-purple-bright/30`}>
+      <span className="font-display font-black text-accent-bright">{shortCode || "FK"}</span>
     </div>
   );
 }
 
 function PlayerFallback({ size }: { size: string }) {
   return (
-    <div className={`${size} flex items-center justify-center rounded-xl border border-line bg-gradient-to-br from-bg-raised2 to-bg`}>
-      <svg className="h-1/2 w-1/2 text-text-dimmer" viewBox="0 0 24 24" fill="currentColor" opacity="0.4">
+    <div className={`${size} flex items-center justify-center rounded-xl border border-accent/20 bg-gradient-to-br from-[#37003C] to-surface-raised2`}>
+      <svg className="h-1/2 w-1/2 text-accent" viewBox="0 0 24 24" fill="currentColor" opacity="0.55">
         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
       </svg>
     </div>
@@ -44,8 +44,8 @@ function PlayerFallback({ size }: { size: string }) {
 
 function TournamentFallback({ size }: { size: string }) {
   return (
-    <div className={`${size} flex items-center justify-center rounded-xl border border-line bg-gradient-to-br from-gold/10 to-bg-raised2`}>
-      <svg className="h-1/2 w-1/2 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.4">
+    <div className={`${size} flex items-center justify-center rounded-xl border border-accent/20 bg-gradient-to-br from-[#37003C] to-surface-raised2`}>
+      <svg className="h-1/2 w-1/2 text-accent-bright" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.55">
         <path d="M6 9H4.5a2.5 2.5 0 010-5H6m12 5h1.5a2.5 2.5 0 000-5H18M4 22h16M10 22V8a2 2 0 012-2h0a2 2 0 012 2v14" />
       </svg>
     </div>
@@ -54,14 +54,14 @@ function TournamentFallback({ size }: { size: string }) {
 
 function CoverFallback({ size }: { size: string }) {
   return (
-    <div className={`${size} flex items-center justify-center rounded-xl border border-line bg-gradient-to-br from-gold/5 via-bg-raised2 to-bg`}>
+    <div className={`${size} flex items-center justify-center rounded-xl border border-accent/15 bg-gradient-to-br from-[#37003C] via-purple to-bg`}>
       <div className="text-center">
-        <svg className="mx-auto h-8 w-8 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.3">
+        <svg className="mx-auto h-8 w-8 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.35">
           <rect x="3" y="3" width="18" height="18" rx="2" />
           <circle cx="8.5" cy="8.5" r="1.5" />
           <path d="M21 15l-5-5L5 21" />
         </svg>
-        <span className="mt-1 block font-utility text-[8px] tracking-wider text-text-dimmer">ASL</span>
+        <span className="mt-1 block font-utility text-[8px] tracking-wider text-text-dim">ASL</span>
       </div>
     </div>
   );
@@ -76,8 +76,8 @@ function AvatarFallback({ name, size }: { name: string; size: string }) {
     .toUpperCase();
 
   return (
-    <div className={`${size} flex items-center justify-center rounded-full border border-line bg-gradient-to-br from-gold/20 to-bg-raised2`}>
-      <span className="font-display font-bold text-gold">{initials || "?"}</span>
+    <div className={`${size} flex items-center justify-center rounded-full border border-accent/25 bg-gradient-to-br from-[#37003C] to-purple-bright/30`}>
+      <span className="font-display font-black text-accent-bright">{initials || "?"}</span>
     </div>
   );
 }

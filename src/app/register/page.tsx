@@ -48,7 +48,7 @@ function RegisterForm() {
       </form>
       <p className="mt-5 text-center font-body text-xs text-text-dimmer">
         لديك حساب بالفعل؟{" "}
-        <Link href="/login" className="font-bold text-gold hover:text-gold-bright transition-colors">سجّل دخولك</Link>
+        <Link href="/login" className="font-bold text-accent hover:text-accent-bright transition-colors">سجّل دخولك</Link>
       </p>
     </div>
   );
@@ -61,7 +61,7 @@ function RegisterFallback() {
         <div className="h-10 animate-pulse rounded-lg bg-surface-elevated" />
         <div className="h-10 animate-pulse rounded-lg bg-surface-elevated" />
         <div className="h-10 animate-pulse rounded-lg bg-surface-elevated" />
-        <div className="h-10 animate-pulse rounded-lg bg-gold/15" />
+        <div className="h-10 animate-pulse rounded-lg bg-accent/15" />
       </div>
     </div>
   );
@@ -72,7 +72,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-bg flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center">
-          <Image src="/images/league-logo.jpg" alt="شعار الدوري" width={1280} height={698} className="relative h-16 w-16 rounded-full object-cover border border-gold/20 shadow-glow mb-4" />
+          <Image src="/images/league-logo.jpg" alt="شعار الدوري" width={1280} height={698} className="relative h-16 w-16 rounded-full object-cover border border-accent/20 shadow-glow mb-4" />
           <h1 className="font-display text-2xl sm:text-3xl font-black text-text">إنشاء حساب جديد</h1>
           <p className="mt-1.5 font-body text-sm text-text-dim">أنشئ حسابك للبدء.</p>
         </div>

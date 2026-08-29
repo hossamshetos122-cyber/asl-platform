@@ -83,7 +83,7 @@ export function SquadManager({ matchId, side, team, initialSquad, roster }: Squa
 
       <div className="mb-4 grid grid-cols-3 gap-2 text-center">
         <div className="rounded-lg border border-line bg-surface-elevated/50 p-3">
-          <div className="font-num text-xl font-bold text-gold">{squadSize}<span className="text-xs text-text-dim">/20</span></div>
+          <div className="font-num text-xl font-bold text-accent">{squadSize}<span className="text-xs text-text-dim">/20</span></div>
           <div className="font-utility text-[9px] tracking-wider text-text-dimmer uppercase">قائمة المباراة</div>
         </div>
         <div className="rounded-lg border border-line bg-surface-elevated/50 p-3">
@@ -126,7 +126,7 @@ export function SquadManager({ matchId, side, team, initialSquad, roster }: Squa
               const inSquad = selectedIds.has(player.id);
               const isStarter = starterIds.has(player.id);
               return (
-                <tr key={player.id} className={`border-b border-line/50 ${inSquad ? "bg-gold/[0.03]" : ""} hover:bg-surface-elevated/50 transition-colors`}>
+                <tr key={player.id} className={`border-b border-line/50 ${inSquad ? "bg-accent/[0.03]" : ""} hover:bg-surface-elevated/50 transition-colors`}>
                   <td className="px-3 py-2 font-num text-text-dim">{player.jerseyNumber ?? idx + 1}</td>
                   <td className="px-3 py-2">
                     <div className="flex items-center gap-2">
@@ -136,7 +136,7 @@ export function SquadManager({ matchId, side, team, initialSquad, roster }: Squa
                   </td>
                   <td className="px-3 py-2 font-body text-text-dim">{POSITION_LABELS[player.position] ?? player.position}</td>
                   <td className="px-3 py-2 text-center">
-                    <button onClick={() => togglePlayer(player.id)} className={`mx-auto flex h-6 w-6 items-center justify-center rounded border transition-colors ${inSquad ? "border-gold bg-gold text-bg" : "border-line bg-transparent text-text-dim hover:border-gold/50"}`}>
+                    <button onClick={() => togglePlayer(player.id)} className={`mx-auto flex h-6 w-6 items-center justify-center rounded border transition-colors ${inSquad ? "border-accent bg-accent text-white" : "border-line bg-transparent text-text-dim hover:border-accent/50"}`}>
                       {inSquad && <svg className="h-3.5 w-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2.5 6l2.5 2.5 4.5-5" /></svg>}
                     </button>
                   </td>

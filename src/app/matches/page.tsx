@@ -19,7 +19,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_CLASSES: Record<string, string> = {
-  SCHEDULED: "badge-muted", LIVE: "badge-live", HALFTIME: "badge-gold",
+  SCHEDULED: "badge-muted", LIVE: "badge-live", HALFTIME: "badge-accent",
   FINISHED: "badge-success", POSTPONED: "badge-muted", CANCELLED: "badge-muted",
 };
 
@@ -54,7 +54,7 @@ async function MatchesList({ filter }: { filter?: string }) {
               >
                 {/* Home */}
                 <div className="flex items-center gap-2.5 min-w-0 flex-1 justify-end">
-                  <span className="font-body text-[12px] sm:text-[13px] font-bold text-text truncate group-hover:text-gold transition-colors">{match.homeTeam.name}</span>
+                  <span className="font-body text-[12px] sm:text-[13px] font-bold text-text truncate group-hover:text-accent transition-colors">{match.homeTeam.name}</span>
                   <ImageDisplay src={match.homeTeam.crestUrl} alt={match.homeTeam.name} type="team-logo" size="sm" shortCode={match.homeTeam.shortCode} />
                 </div>
 
@@ -69,7 +69,7 @@ async function MatchesList({ filter }: { filter?: string }) {
                 {/* Away */}
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <ImageDisplay src={match.awayTeam.crestUrl} alt={match.awayTeam.name} type="team-logo" size="sm" shortCode={match.awayTeam.shortCode} />
-                  <span className="font-body text-[12px] sm:text-[13px] font-bold text-text truncate group-hover:text-gold transition-colors">{match.awayTeam.name}</span>
+                  <span className="font-body text-[12px] sm:text-[13px] font-bold text-text truncate group-hover:text-accent transition-colors">{match.awayTeam.name}</span>
                 </div>
               </Link>
             ))}

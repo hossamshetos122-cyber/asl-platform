@@ -50,7 +50,7 @@ export function MatchCard({
         ) : isResult ? (
           <span className="font-utility text-[9px] tracking-wider text-emerald-400/70 uppercase">انتهت</span>
         ) : kickoffTime ? (
-          <span className="font-num text-[11px] font-bold text-gold">{kickoffTime}</span>
+          <span className="font-num text-[11px] font-bold text-accent">{kickoffTime}</span>
         ) : null}
       </div>
 
@@ -59,13 +59,13 @@ export function MatchCard({
         {/* Home */}
         <div className="flex items-center gap-3 py-2">
           <div className="flex items-center gap-2.5 min-w-0 flex-1 justify-end">
-            <span className="font-body text-[13px] font-bold text-text truncate group-hover:text-gold transition-colors">
+            <span className="font-body text-[13px] font-bold text-text truncate group-hover:text-accent transition-colors">
               {homeTeam.name}
             </span>
             <ImageDisplay src={homeTeam.crestUrl} alt={homeTeam.name} type="team-logo" size="sm" shortCode={homeTeam.shortCode} />
           </div>
           {isResult && homeScore !== undefined && (
-            <span className={`font-num text-xl font-bold tabular-nums min-w-[24px] text-center ${homeScore > awayScore! ? "text-gold" : "text-text-dim"}`}>
+            <span className={`font-num text-xl font-bold tabular-nums min-w-[24px] text-center ${homeScore > awayScore! ? "text-accent" : "text-text-dim"}`}>
               {homeScore}
             </span>
           )}
@@ -73,7 +73,7 @@ export function MatchCard({
 
         {/* VS / Score divider */}
         <div className="flex items-center gap-2 py-0.5">
-          <div className="flex-1 h-px bg-line group-hover:bg-gold/15 transition-colors" />
+          <div className="flex-1 h-px bg-line group-hover:bg-accent/15 transition-colors" />
           <div className="px-2.5 py-0.5 rounded bg-surface-elevated border border-line">
             {isResult ? (
               <span className="font-num text-[11px] font-bold text-text-dimmer">{homeScore} - {awayScore}</span>
@@ -81,19 +81,19 @@ export function MatchCard({
               <span className="font-utility text-[9px] tracking-wider text-text-dimmer uppercase">vs</span>
             )}
           </div>
-          <div className="flex-1 h-px bg-line group-hover:bg-gold/15 transition-colors" />
+          <div className="flex-1 h-px bg-line group-hover:bg-accent/15 transition-colors" />
         </div>
 
         {/* Away */}
         <div className="flex items-center gap-3 py-2">
           <div className="flex items-center gap-2.5 min-w-0 flex-1 justify-end">
-            <span className="font-body text-[13px] font-bold text-text truncate group-hover:text-gold transition-colors">
+            <span className="font-body text-[13px] font-bold text-text truncate group-hover:text-accent transition-colors">
               {awayTeam.name}
             </span>
             <ImageDisplay src={awayTeam.crestUrl} alt={awayTeam.name} type="team-logo" size="sm" shortCode={awayTeam.shortCode} />
           </div>
           {isResult && awayScore !== undefined && (
-            <span className={`font-num text-xl font-bold tabular-nums min-w-[24px] text-center ${awayScore > homeScore! ? "text-gold" : "text-text-dim"}`}>
+            <span className={`font-num text-xl font-bold tabular-nums min-w-[24px] text-center ${awayScore > homeScore! ? "text-accent" : "text-text-dim"}`}>
               {awayScore}
             </span>
           )}
