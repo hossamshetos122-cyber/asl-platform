@@ -6,6 +6,16 @@
 // password. This script is the only place a real (strong, random) admin
 // password is pushed to a production/remote database.
 //
+// Behavior:
+//   1. If a user already exists with ROTATE_ADMIN_EMAIL, that account is
+//      promoted to ADMIN and given the new password (it is the site owner's
+//      real registered account). Otherwise the synthetic seed admin
+//      (id=user-admin) is updated with that email and password.
+//   2. The legacy synthetic seed admin (id=user-admin / admin@asl.local) is
+//      demoted to FAN and given a random password so stale credentials die.
+//   3. The organizer account (id=user-organizer) gets its new password.
+//   4. All existing sessions for the rotated accounts are revoked.
+//
 // Required environment variables (put them in your gitignored .env, NOT in
 // committed files):
 //   DATABASE_URL              - live PostgreSQL connection string
@@ -110,32 +120,60 @@ async function main(): Promise<void> {
   }
 
   try {
-    // --- Find admin ---------------------------------------------------
-    const admin = await prisma.user.findFirst({
-      where: { id: "user-admin" },
-    });
-    if (!admin) {
-      console.error("[rotate] Admin user (id=user-admin) not found in this database.");
-      await prisma.$disconnect();
-      process.exit(1);
+    // --- 1) Promote the real admin account (matched by email) ---------
+    // If a real user already registered with ROTATE_ADMIN_EMAIL, promote
+    // THAT account to ADMIN (it is the site owner's real account). Do not try
+    // to re-assign that email onto the synthetic seed admin — it would hit the
+    // unique constraint and fail.
+    let admin = await prisma.user.findFirst({ where: { email } });
+    if (admin) {
+      const adminHash = await hashPassword(adminPassword);
+      const updated = await prisma.user.update({
+        where: { id: admin.id },
+        data: { role: "ADMIN", passwordHash: adminHash },
+      });
+      if (!(await verifyPassword(adminPassword, updated.passwordHash))) {
+        throw new Error("Admin password verification failed after update.");
+      }
+      console.log(`[rotate] Admin promoted -> ${updated.email} (${updated.fullName}) [password rotated, role=ADMIN]`);
+    } else {
+      // Fall back to the synthetic seed admin (fresh DBs have no real user yet).
+      admin = await prisma.user.findFirst({ where: { id: "user-admin" } });
+      if (!admin) {
+        console.error("[rotate] No user with email ROTATE_ADMIN_EMAIL and no (id=user-admin) found in this database.");
+        await prisma.$disconnect();
+        process.exit(1);
+      }
+      const adminHash = await hashPassword(adminPassword);
+      const updated = await prisma.user.update({
+        where: { id: admin.id },
+        data: { email, passwordHash: adminHash, role: "ADMIN" },
+      });
+      if (!(await verifyPassword(adminPassword, updated.passwordHash))) {
+        throw new Error("Admin password verification failed after update.");
+      }
+      console.log(`[rotate] Admin updated -> ${updated.email} (password rotated)`);
     }
 
-    // --- Rotate admin email + password --------------------------------
-    const adminHash = await hashPassword(adminPassword);
-    await prisma.user.update({
-      where: { id: admin.id },
-      data: { email, passwordHash: adminHash },
-    });
-    const adminCheck = await prisma.user.findUnique({ where: { id: admin.id } });
-    if (!adminCheck || !(await verifyPassword(adminPassword, adminCheck.passwordHash))) {
-      throw new Error("Admin password verification failed after update.");
+    // --- 2) Lock down the synthetic seed admin (if it still exists) ---
+    // The real promoted account above is now the only ADMIN. Demote the old
+    // seed admin (admin@asl.local) to FAN and give it a random password so no
+    // stale credentials can be used against it.
+    if (admin.id !== "user-admin") {
+      const legacy = await prisma.user.findFirst({ where: { id: "user-admin" } });
+      if (legacy) {
+        const randomPassword = crypto.randomBytes(24).toString("base64url");
+        const legacyHash = await hashPassword(randomPassword);
+        await prisma.user.update({
+          where: { id: legacy.id },
+          data: { role: "FAN", passwordHash: legacyHash },
+        });
+        console.log(`[rotate] Legacy seed admin (${legacy.email}) demoted to FAN and locked (random password).`);
+      }
     }
-    console.log(`[rotate] Admin updated  -> ${adminCheck.email} (password rotated)`);
 
-    // --- Rotate organizer password ------------------------------------
-    const organizer = await prisma.user.findFirst({
-      where: { id: "user-organizer" },
-    });
+    // --- 3) Rotate organizer password ---------------------------------
+    const organizer = await prisma.user.findFirst({ where: { id: "user-organizer" } });
     if (organizer) {
       const organizerHash = await hashPassword(organizerPassword);
       await prisma.user.update({
@@ -151,8 +189,11 @@ async function main(): Promise<void> {
       console.log("[rotate] Organizer (id=user-organizer) not found — skipped.");
     }
 
-    // --- Revoke existing sessions so old tokens die -------------------
+    // --- 4) Revoke existing sessions so old tokens die -----------------
     await prisma.session.deleteMany({ where: { userId: admin.id } });
+    if (admin.id !== "user-admin") {
+      await prisma.session.deleteMany({ where: { userId: "user-admin" } });
+    }
     if (organizer) await prisma.session.deleteMany({ where: { userId: organizer.id } });
 
     console.log("[rotate] Done. Existing sessions were revoked for the rotated accounts.");
