@@ -11,6 +11,7 @@ interface PlayerListItem {
   jerseyNumber: number | null;
   position: string;
   team: { id: string; name: string; crestUrl: string | null } | null;
+  goals: number;
 }
 
 const POSITION_LABELS: Record<string, string> = {
@@ -26,6 +27,120 @@ const POSITION_OPTIONS = [
   { value: "MIDFIELDER", label: "لاعب وسط" },
   { value: "FORWARD", label: "مهاجم" },
 ];
+
+interface RoleStyle {
+  hex: string;
+  hexDim: string;
+  soft: string;
+  label: string;
+}
+
+const ROLE_STYLES: Record<string, RoleStyle> = {
+  GOALKEEPER: {
+    hex: "#4AA8FF",
+    hexDim: "rgba(74,168,255,0.16)",
+    soft: "rgba(74,168,255,0.12)",
+    label: "حارس مرمى",
+  },
+  DEFENDER: {
+    hex: "#00FF87",
+    hexDim: "rgba(0,255,135,0.16)",
+    soft: "rgba(0,255,135,0.12)",
+    label: "مدافع",
+  },
+  MIDFIELDER: {
+    hex: "#FFB23E",
+    hexDim: "rgba(255,178,62,0.18)",
+    soft: "rgba(255,178,62,0.12)",
+    label: "لاعب وسط",
+  },
+  FORWARD: {
+    hex: "#FF2E77",
+    hexDim: "rgba(255,46,119,0.16)",
+    soft: "rgba(255,46,119,0.12)",
+    label: "مهاجم",
+  },
+};
+
+const ROLE_DEFAULT: RoleStyle = {
+  hex: "#963CFF",
+  hexDim: "rgba(150,60,255,0.16)",
+  soft: "rgba(150,60,255,0.12)",
+  label: "لاعب",
+};
+
+function roleStyle(position: string): RoleStyle {
+  return ROLE_STYLES[position] ?? ROLE_DEFAULT;
+}
+
+function PlayerCard({ player }: { player: PlayerListItem }) {
+  const role = roleStyle(player.position);
+  return (
+    <Link
+      href={`/players/${player.id}`}
+      className="group flex flex-col overflow-hidden rounded-2xl border bg-surface premier-card transition-colors"
+      style={{ borderColor: role.hexDim }}
+    >
+      {/* Photo band */}
+      <div className="relative h-28 sm:h-32 overflow-hidden" style={{ background: `radial-gradient(130% 160% at 50% -20%, ${role.soft}, rgba(42,13,72,0) 65%), linear-gradient(180deg, ${role.hexDim}, #1E0734 78%)` }}>
+        {player.jerseyNumber != null && (
+          <span className="pointer-events-none absolute left-1 -bottom-2 select-none font-num text-[68px] font-black leading-none text-white/5" dir="ltr">
+            {player.jerseyNumber}
+          </span>
+        )}
+        {player.team?.crestUrl && (
+          <div className="absolute right-2 top-2">
+            <ImageDisplay src={player.team.crestUrl} alt={`شعار ${player.team.name}`} type="team-logo" size="xs" shortCode={player.team.name.substring(0, 2)} />
+          </div>
+        )}
+        <div className="absolute inset-0 flex items-center justify-center pb-1.5">
+          <div className="rounded-full p-[3px]" style={{ background: `linear-gradient(135deg, ${role.hex}, rgba(255,255,255,0.15) 55%, ${role.hex})`, boxShadow: `0 6px 20px ${role.hex}22` }}>
+            <ImageDisplay
+              src={player.photoUrl}
+              alt={`صورة ${player.name}`}
+              type="avatar"
+              size="lg"
+              className="rounded-full bg-surface-elevated"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Info */}
+      <div className="flex flex-1 flex-col gap-1.5 p-2.5">
+        <div className="flex items-start justify-between gap-1.5">
+          <h3 className="font-display text-[13px] sm:text-sm font-black text-text group-hover:text-accent-bright transition-colors truncate">
+            {player.name}
+          </h3>
+          {player.jerseyNumber != null && (
+            <span className="inline-flex h-5 flex-shrink-0 items-center rounded px-1.5 font-num text-[11px] font-black" style={{ backgroundColor: role.soft, color: role.hex }}>
+              {player.jerseyNumber}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="inline-flex items-center rounded px-1.5 py-0.5 font-utility text-[9px] font-bold tracking-wide uppercase" style={{ backgroundColor: role.soft, color: role.hex }}>
+            {role.label}
+          </span>
+          <span className="inline-flex h-5 items-center gap-1 rounded bg-emerald-500/10 px-1.5 font-num text-[11px] font-black text-emerald-500" title="الأهداف">
+            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+            {player.goals}
+          </span>
+        </div>
+
+        {player.team ? (
+          <div className="mt-auto flex items-center gap-1.5 pt-0.5 text-text-dim">
+            <ImageDisplay src={player.team.crestUrl} alt={`شعار ${player.team.name}`} type="team-logo" size="xs" shortCode={player.team.name.substring(0, 2)} />
+            <span className="truncate font-body text-[11px]">{player.team.name}</span>
+          </div>
+        ) : (
+          <p className="mt-auto font-body text-[11px] text-text-faint">بدون فريق</p>
+        )}
+      </div>
+    </Link>
+  );
+}
 
 export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
   const [query, setQuery] = useState("");
@@ -82,10 +197,10 @@ export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
             <button
               key={opt.value}
               onClick={() => setPosition(position === opt.value ? "" : opt.value)}
-className={`rounded-lg border px-3 py-2 font-body text-[12px] font-bold transition-colors ${
+              className={`rounded-lg border px-3 py-2 font-body text-[12px] font-bold transition-colors ${
                 position === opt.value
                   ? "border-accent-bright/60 bg-accent/10 text-accent-bright"
-                : "border-line text-text-dim hover:text-text"
+                  : "border-line text-text-dim hover:text-text"
               }`}
             >
               {opt.label}
@@ -101,40 +216,9 @@ className={`rounded-lg border px-3 py-2 font-body text-[12px] font-bold transiti
           <p className="font-body text-sm text-text-dim">لا توجد نتائج مطابقة.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((player) => (
-            <Link
-              key={player.id}
-              href={`/players/${player.id}`}
-              className="group rounded-xl border border-line bg-surface p-4 premier-card hover:border-accent/40"
-            >
-              <div className="flex items-center gap-3">
-                <ImageDisplay src={player.photoUrl} alt={`صورة ${player.name}`} type="player" size="lg" />
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-display text-sm font-black text-text group-hover:text-accent transition-colors truncate">
-                    {player.name}
-                  </h3>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                    {player.jerseyNumber != null && (
-                      <span className="inline-flex h-5 items-center rounded bg-emerald-500/15 px-1.5 font-num text-[11px] font-black text-emerald-500">
-                        {player.jerseyNumber}
-                      </span>
-                    )}
-                    <span className="rounded bg-surface-elevated px-1.5 py-0.5 font-utility text-[8px] tracking-wider text-text-dimmer uppercase">
-                      {POSITION_LABELS[player.position] ?? player.position}
-                    </span>
-                  </div>
-                  {player.team ? (
-                    <div className="mt-1.5 flex items-center gap-1.5 text-text-dim">
-                      <ImageDisplay src={player.team.crestUrl} alt={`شعار ${player.team.name}`} type="team-logo" size="xs" shortCode={player.team.name.substring(0, 2)} />
-                      <span className="truncate font-body text-[11px]">{player.team.name}</span>
-                    </div>
-                  ) : (
-                    <p className="mt-1.5 font-body text-[11px] text-text-faint">بدون فريق</p>
-                  )}
-                </div>
-              </div>
-            </Link>
+            <PlayerCard key={player.id} player={player} />
           ))}
         </div>
       )}

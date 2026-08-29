@@ -12,6 +12,7 @@ export async function getPlayersList(): Promise<Result<PlayerListItemVM[]>> {
           include: { team: { select: { id: true, name: true, crestUrl: true } } },
           take: 1,
         },
+        matchEvents: { where: { type: { in: ["GOAL", "PENALTY_SCORED"] } }, select: { id: true } },
       },
     });
 
@@ -26,6 +27,7 @@ export async function getPlayersList(): Promise<Result<PlayerListItemVM[]>> {
         team: membership
           ? { id: membership.team.id, name: membership.team.name, crestUrl: membership.team.crestUrl }
           : null,
+        goals: player.matchEvents.length,
       };
     });
 

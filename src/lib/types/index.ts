@@ -217,6 +217,7 @@ export interface PlayerListItemVM {
   jerseyNumber: number | null;
   position: string;
   team: { id: string; name: string; crestUrl: string | null } | null;
+  goals: number;
 }
 
 // --- Full standings / scorers (no limit) ------------------------------------
