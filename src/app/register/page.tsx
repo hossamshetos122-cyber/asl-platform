@@ -48,7 +48,7 @@ function RegisterForm() {
       </form>
       <p className="mt-5 text-center font-body text-xs text-text-dimmer">
         لديك حساب بالفعل؟{" "}
-        <Link href="/login" className="font-bold text-accent hover:text-accent-bright transition-colors">سجّل دخولك</Link>
+        <Link href="/login" className="inline-block py-2.5 font-bold text-accent hover:text-accent-bright transition-colors">سجّل دخولك</Link>
       </p>
     </div>
   );

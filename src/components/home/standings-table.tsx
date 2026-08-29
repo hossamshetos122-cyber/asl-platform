@@ -46,7 +46,7 @@ export async function StandingsTable({ tournamentId }: StandingsTableProps) {
                     </span>
                   </td>
                   <td className="px-3 py-2.5">
-                    <Link href={`/teams/${row.team.id}`} className="flex items-center gap-2 group">
+                    <Link href={`/teams/${row.team.id}`} className="flex items-center gap-2 group py-1.5 -my-1.5">
                       <ImageDisplay src={row.team.crestUrl} alt={row.team.name} type="team-logo" size="xs" shortCode={row.team.shortCode} />
                       <span className="font-body text-[12px] font-bold text-text group-hover:text-accent transition-colors truncate">{row.team.name}</span>
                     </Link>

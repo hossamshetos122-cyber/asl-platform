@@ -47,7 +47,7 @@ async function FullStandings() {
                       <span className={`inline-flex h-6 w-6 items-center justify-center rounded font-num text-[10px] font-bold ${row.rank === 1 ? "bg-emerald-500 text-bg" : row.rank <= 3 ? "border border-emerald-500/40 text-emerald-500" : "text-text-dimmer"}`}>{row.rank}</span>
                     </td>
                     <td className="px-3 py-2.5">
-                      <Link href={`/teams/${row.team.id}`} className="flex items-center gap-2 group">
+                      <Link href={`/teams/${row.team.id}`} className="flex items-center gap-2 group py-1.5 -my-1.5">
                         <ImageDisplay src={row.team.crestUrl} alt={row.team.name} type="team-logo" size="xs" shortCode={row.team.shortCode} />
                         <span className="font-body text-[12px] font-bold text-text group-hover:text-accent transition-colors truncate">{row.team.name}</span>
                       </Link>

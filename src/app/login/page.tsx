@@ -42,7 +42,7 @@ function LoginForm() {
       </form>
       <p className="mt-5 text-center font-body text-xs text-text-dimmer">
         ليس لديك حساب؟{" "}
-        <Link href="/register" className="font-bold text-accent hover:text-accent-bright transition-colors">أنشئ حساباً جديداً</Link>
+        <Link href="/register" className="inline-block py-2.5 font-bold text-accent hover:text-accent-bright transition-colors">أنشئ حساباً جديداً</Link>
       </p>
     </div>
   );

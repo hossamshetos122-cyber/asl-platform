@@ -39,7 +39,7 @@ async function FullTopScorers() {
                   </span>
                 </td>
                 <td className="px-3 py-2.5">
-                  <Link href={`/players/${scorer.playerId}`} className="flex items-center gap-2 group">
+                  <Link href={`/players/${scorer.playerId}`} className="flex items-center gap-2 group py-1.5 -my-1.5">
                     <ImageDisplay src={scorer.photoUrl} alt={scorer.playerName} type="player" size="sm" />
                     <div>
                       <span className="font-body text-[12px] font-bold text-text group-hover:text-accent transition-colors block">{scorer.playerName}</span>

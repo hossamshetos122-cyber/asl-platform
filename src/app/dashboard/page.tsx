@@ -30,7 +30,7 @@ export default async function DashboardPage() {
 
       <section className="relative overflow-hidden bg-surface border-b border-line">
         <div className="absolute inset-0 bg-gradient-to-b from-surface-elevated/50 to-surface" />
-        <div className="page-container relative py-8 sm:py-10">
+        <div className="page-container relative pt-10 sm:pt-14 pb-8 sm:pb-10">
           <div className="flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 border border-accent/25">
               <span className="font-display text-xl font-black text-accent">{user.fullName.charAt(0)}</span>

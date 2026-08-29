@@ -24,7 +24,7 @@ export function SectionHeader({
         </span>
       </h2>
       {href && (
-        <Link href={href} className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 font-body text-[11px] font-bold text-accent-bright transition-colors hover:bg-accent/10 accent-underline">
+        <Link href={href} className="inline-flex items-center gap-1 rounded-md px-3 py-2 font-body text-[12px] font-bold text-accent-bright transition-colors hover:bg-accent/10 accent-underline">
           {linkLabel}
           <svg className="h-2.5 w-2.5 rotate-180" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <path d="M2 6h8M7 3l3 3-3 3" />

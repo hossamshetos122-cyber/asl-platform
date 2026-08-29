@@ -70,7 +70,7 @@ export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
         <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => setPosition("")}
-            className={`rounded-lg border px-3 py-1.5 font-body text-[11px] font-bold transition-colors ${
+            className={`rounded-lg border px-3 py-2 font-body text-[12px] font-bold transition-colors ${
               position === ""
                 ? "border-accent-bright/60 bg-accent/10 text-accent-bright"
                 : "border-line text-text-dim hover:text-text"
@@ -82,9 +82,9 @@ export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
             <button
               key={opt.value}
               onClick={() => setPosition(position === opt.value ? "" : opt.value)}
-              className={`rounded-lg border px-3 py-1.5 font-body text-[11px] font-bold transition-colors ${
+className={`rounded-lg border px-3 py-2 font-body text-[12px] font-bold transition-colors ${
                 position === opt.value
-? "border-accent-bright/60 bg-accent/10 text-accent-bright"
+                  ? "border-accent-bright/60 bg-accent/10 text-accent-bright"
                 : "border-line text-text-dim hover:text-text"
               }`}
             >

@@ -28,8 +28,8 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
       {/* Hero */}
       <section className="relative overflow-hidden bg-surface border-b border-line">
         <div className="absolute inset-0 bg-gradient-to-b from-surface-elevated/40 to-surface" />
-        <div className="page-container relative py-6 sm:py-10">
-          <Link href="/teams" className="mb-5 inline-flex items-center gap-1.5 font-body text-sm font-bold text-accent hover:text-accent-bright transition-colors">
+        <div className="page-container relative pt-10 sm:pt-14 pb-6 sm:pb-10">
+          <Link href="/teams" className="mb-5 inline-flex items-center gap-1.5 py-2 -my-2 font-body text-sm font-bold text-accent hover:text-accent-bright transition-colors">
             <svg className="h-3.5 w-3.5 rotate-180" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 6h8M7 3l3 3-3 3" /></svg>
             العودة للفرق
           </Link>

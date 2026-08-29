@@ -29,7 +29,7 @@ export function Footer() {
           {/* Quick Links */}
           <div>
             <h4 className="mb-3 font-utility text-[10px] tracking-[0.2em] uppercase text-text-dimmer">روابط سريعة</h4>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {[
                 { href: "/standings", label: "جدول الترتيب" },
                 { href: "/matches", label: "المباريات" },
@@ -38,7 +38,7 @@ export function Footer() {
                 { href: "/players", label: "اللاعبون" },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="font-body text-sm text-text-dim transition-colors hover:text-accent accent-underline">
+                  <Link href={link.href} className="inline-block py-2 font-body text-sm text-text-dim transition-colors hover:text-accent accent-underline">
                     {link.label}
                   </Link>
                 </li>
@@ -49,14 +49,14 @@ export function Footer() {
           {/* Competitions */}
           <div>
             <h4 className="mb-3 font-utility text-[10px] tracking-[0.2em] uppercase text-text-dimmer">البطولات</h4>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {[
                 { href: "/tournaments", label: "جميع البطولات" },
                 { href: "/register", label: "إنشاء حساب" },
                 { href: "/login", label: "تسجيل الدخول" },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="font-body text-sm text-text-dim transition-colors hover:text-accent accent-underline">
+                  <Link href={link.href} className="inline-block py-2 font-body text-sm text-text-dim transition-colors hover:text-accent accent-underline">
                     {link.label}
                   </Link>
                 </li>
@@ -67,14 +67,14 @@ export function Footer() {
           {/* Platform */}
           <div>
             <h4 className="mb-3 font-utility text-[10px] tracking-[0.2em] uppercase text-text-dimmer">من نحن</h4>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {[
                 { href: "/about", label: "عن المنصة" },
                 { href: "/contact", label: "تواصل معنا" },
                 { href: "/privacy", label: "الخصوصية والشروط" },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="font-body text-sm text-text-dim transition-colors hover:text-accent accent-underline">
+                  <Link href={link.href} className="inline-block py-2 font-body text-sm text-text-dim transition-colors hover:text-accent accent-underline">
                     {link.label}
                   </Link>
                 </li>

@@ -86,7 +86,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
     <>
       <Navbar />
       <main className="page-container page-padding">
-        <Link href="/matches" className="mb-5 inline-flex items-center gap-1.5 font-body text-sm font-bold text-accent hover:text-accent-bright transition-colors">
+        <Link href="/matches" className="mb-5 inline-flex items-center gap-1.5 py-2 -my-2 font-body text-sm font-bold text-accent hover:text-accent-bright transition-colors">
           <svg className="h-3.5 w-3.5 rotate-180" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 6h8M7 3l3 3-3 3" /></svg>
           العودة للمباريات
         </Link>
