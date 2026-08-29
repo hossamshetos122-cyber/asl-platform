@@ -13,6 +13,8 @@ export const metadata = {
   description: "استعرض لاعبي فرق دوري نجوم الإسكندرية للهواة.",
 };
 
+export const dynamic = "force-dynamic";
+
 async function PlayerList() {
   const result = await getPlayersList();
 
