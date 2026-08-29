@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -71,9 +72,10 @@ export function MobileMenu() {
         </svg>
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
+      {open &&
+        createPortal(
+          <div className="fixed inset-0 z-40 lg:hidden">
+            <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
           <nav className="absolute right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-surface border-l border-line-strong overflow-y-auto">
             {/* Header */}
             <div className="flex items-center gap-3 border-b border-line p-4">
@@ -152,8 +154,9 @@ export function MobileMenu() {
               </Link>
             </div>
           </nav>
-        </div>
-      )}
+        </div>,
+          document.body
+        )}
     </>
   );
 }
