@@ -1,10 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
-import { createMatch, updateScore, setMatchResult, updateMatchSchedule, deleteMatch } from "@/lib/actions/matches";
+import { createMatch, setMatchResult, setMatchResultWithGoals, updateMatchSchedule, deleteMatch } from "@/lib/actions/matches";
 import { formatMatchDateTime } from "@/lib/dates";
+
+export interface GoalPlayerOption {
+  id: string;
+  name: string;
+  jerseyNumber: number | null;
+}
+
+export interface GoalEventLite {
+  playerId: string;
+  teamId: string;
+}
 
 interface MatchRow {
   id: string;
@@ -14,6 +25,8 @@ interface MatchRow {
   round: string | null;
   homeScore: number;
   awayScore: number;
+  homeTeamId: string;
+  awayTeamId: string;
   homeTeam: { name: string; shortName: string };
   awayTeam: { name: string; shortName: string };
   tournament: { name: string; id: string };
@@ -126,35 +139,153 @@ function InlineCreateForm({ teams, tournaments }: { teams: TeamOption[]; tournam
   );
 }
 
-function ScoreUpdateForm({ match }: { match: MatchRow }) {
+function playerLabel(p: GoalPlayerOption): string {
+  return p.jerseyNumber !== null ? `${p.name} — ${p.jerseyNumber}` : p.name;
+}
+
+function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existingAway, onClose }: {
+  match: MatchRow;
+  homePlayers: GoalPlayerOption[];
+  awayPlayers: GoalPlayerOption[];
+  existingHome: string[];
+  existingAway: string[];
+  onClose: () => void;
+}) {
+  const [homeScore, setHomeScore] = useState<number>(match.homeScore);
+  const [awayScore, setAwayScore] = useState<number>(match.awayScore);
+  const [homeSel, setHomeSel] = useState<string[]>(() =>
+    Array.from({ length: Math.max(match.homeScore, 0) }, (_, i) => existingHome[i] ?? "")
+  );
+  const [awaySel, setAwaySel] = useState<string[]>(() =>
+    Array.from({ length: Math.max(match.awayScore, 0) }, (_, i) => existingAway[i] ?? "")
+  );
   const [error, setError] = useState<string | null>(null);
-  const canRecord = match.status === "SCHEDULED" || match.status === "POSTPONED";
-  const label = canRecord ? "حفظ وإنهاء" : "تحديث";
+  const [saving, setSaving] = useState(false);
+
+  const resize = (list: string[], n: number, setter: (v: string[]) => void) => {
+    if (n === list.length) return;
+    if (n > list.length) setter([...list, ...Array.from({ length: n - list.length }, () => "")]);
+    else setter(list.slice(0, n));
+  };
+
+  useEffect(() => resize(homeSel, homeScore, setHomeSel), [homeScore]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => resize(awaySel, awayScore, setAwaySel), [awayScore]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const canSaveWithGoals =
+    (homeScore === 0 || homeSel.every((s) => s !== "")) &&
+    (awayScore === 0 || awaySel.every((s) => s !== ""));
+
+  async function save(withGoals: boolean) {
+    setSaving(true);
+    setError(null);
+    try {
+      if (withGoals) {
+        await setMatchResultWithGoals(match.id, homeScore, awayScore, homeSel, awaySel);
+      } else {
+        await setMatchResult(match.id, homeScore, awayScore);
+      }
+      window.location.reload();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "حدث خطأ");
+      setSaving(false);
+    }
+  }
+
+  const homeList = homePlayers;
+  const awayList = awayPlayers;
 
   return (
-    <div>
-      <form action={async (formData) => {
-        setError(null);
-        try {
-          const home = Number(formData.get("homeScore"));
-          const away = Number(formData.get("awayScore"));
-          if (canRecord) {
-            await setMatchResult(match.id, home, away);
-          } else {
-            await updateScore(match.id, home, away);
-          }
-          window.location.reload();
-        } catch (e: unknown) {
-          setError(e instanceof Error ? e.message : "حدث خطأ");
-        }
-      }} className="inline-flex items-center gap-2">
-        <input type="number" name="homeScore" defaultValue={match.homeScore} min={0} className="w-12 rounded-lg border border-line bg-surface-elevated px-1.5 py-1 text-center font-num text-sm text-text outline-none focus:border-accent" />
-        <span className="font-num text-sm text-accent/50">-</span>
-        <input type="number" name="awayScore" defaultValue={match.awayScore} min={0} className="w-12 rounded-lg border border-line bg-surface-elevated px-1.5 py-1 text-center font-num text-sm text-text outline-none focus:border-accent" />
-        <button type="submit" className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">{label}</button>
-      </form>
-      {error && <p className="mt-1 font-body text-[10px] text-live">{error}</p>}
+    <div className="rounded-xl border border-accent/20 bg-surface p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <p className="font-body text-[13px] font-bold text-text">
+          تسجيل نتيجة {match.homeTeam.name} - {match.awayTeam.name}
+        </p>
+        <button onClick={onClose} className="font-body text-[11px] font-bold text-text-dim transition-colors hover:text-text">إغلاق</button>
+      </div>
+
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="flex items-center gap-3 rounded-lg border border-line bg-surface-elevated/50 px-3 py-2.5">
+          <label className="whitespace-nowrap font-body text-[12px] font-bold text-text">{match.homeTeam.name}</label>
+          <input type="number" value={homeScore} min={0} max={30} onChange={(e) => setHomeScore(Math.max(0, parseInt(e.target.value || "0", 10) || 0))} className="w-16 rounded-lg border border-line bg-bg px-2 py-1.5 text-center font-num text-lg font-bold text-text outline-none focus:border-accent" />
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border border-line bg-surface-elevated/50 px-3 py-2.5">
+          <label className="whitespace-nowrap font-body text-[12px] font-bold text-text">{match.awayTeam.name}</label>
+          <input type="number" value={awayScore} min={0} max={30} onChange={(e) => setAwayScore(Math.max(0, parseInt(e.target.value || "0", 10) || 0))} className="w-16 rounded-lg border border-line bg-bg px-2 py-1.5 text-center font-num text-lg font-bold text-text outline-none focus:border-accent" />
+        </div>
+      </div>
+
+      {homeScore > 0 && (
+        <div className="mb-4">
+          <p className="mb-2 font-body text-[12px] font-bold text-accent">أهداف {match.homeTeam.name} ({homeScore})</p>
+          {homeList.length === 0 ? (
+            <p className="rounded-lg border border-line bg-surface-elevated/40 px-3 py-2 font-body text-[11px] text-text-dim">
+              لا يوجد لاعبون مسجّلون في {match.homeTeam.name} — أضف لاعبين من صفحة إدارة اللاعبين أو فعّل القوائم في صفحة المباراة.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {homeSel.map((sel, idx) => (
+                <select key={idx} value={sel} onChange={(e) => {
+                  const next = [...homeSel];
+                  next[idx] = e.target.value;
+                  setHomeSel(next);
+                }} className="rounded-lg border border-line bg-bg px-2.5 py-2 font-body text-[12px] text-text outline-none focus:border-accent">
+                  <option value="">الهدف {idx + 1}: اختر اللاعب</option>
+                  {homeList.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
+                </select>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {awayScore > 0 && (
+        <div className="mb-4">
+          <p className="mb-2 font-body text-[12px] font-bold text-accent">أهداف {match.awayTeam.name} ({awayScore})</p>
+          {awayList.length === 0 ? (
+            <p className="rounded-lg border border-line bg-surface-elevated/40 px-3 py-2 font-body text-[11px] text-text-dim">
+              لا يوجد لاعبون مسجّلون في {match.awayTeam.name} — أضف لاعبين من صفحة إدارة اللاعبين أو فعّل القوائم في صفحة المباراة.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {awaySel.map((sel, idx) => (
+                <select key={idx} value={sel} onChange={(e) => {
+                  const next = [...awaySel];
+                  next[idx] = e.target.value;
+                  setAwaySel(next);
+                }} className="rounded-lg border border-line bg-bg px-2.5 py-2 font-body text-[12px] text-text outline-none focus:border-accent">
+                  <option value="">الهدف {idx + 1}: اختر اللاعب</option>
+                  {awayList.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
+                </select>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {error && <p className="mb-3 rounded-lg border border-live/30 bg-live/10 px-3 py-2 font-body text-[12px] text-live">{error}</p>}
+
+      <div className="flex flex-wrap items-center gap-2.5">
+        <button onClick={() => save(true)} disabled={saving || !canSaveWithGoals} className="btn-primary text-[12px]">
+          {saving ? "جارِ الحفظ..." : "حفظ النتيجة والأهداف"}
+        </button>
+        <button onClick={() => save(false)} disabled={saving} className="rounded-lg border border-line px-3 py-1.5 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">
+          حفظ النتيجة فقط
+        </button>
+        <button onClick={onClose} disabled={saving} className="rounded-lg border border-line px-3 py-1.5 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>
+      </div>
+      <p className="mt-2 font-body text-[10px] text-text-dimmer">الأهداف تُحتسب تلقائياً في جدول الهدافين وصفحة اللاعب. إذا غيرت النتيجة لاحقاً، حُدد اللاعبون مرة أخرى وستُستبدل الأهداف السابقة.</p>
     </div>
+  );
+}
+
+function GoalEntryButton({ match, isOpen, onClick }: { match: MatchRow; isOpen: boolean; onClick: () => void }) {
+  const label = match.status === "SCHEDULED" || match.status === "POSTPONED"
+    ? "إدخال النتيجة والأهداف"
+    : "تحديث النتيجة والأهداف";
+  return (
+    <button onClick={onClick} className={`rounded-lg border px-2.5 py-1 font-body text-[11px] font-bold transition-colors ${isOpen ? "border-accent/50 bg-accent/20 text-accent-bright" : "border-accent/30 bg-accent/10 text-accent hover:bg-accent/20"}`}>
+      {label}
+    </button>
   );
 }
 
@@ -227,13 +358,20 @@ function MatchDeleteRow({ matchId }: { matchId: string }) {
   );
 }
 
-function MatchRowItem({ match, editingSchedule, setEditingSchedule }: {
+function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, setGoalRowId, playersByTeam, goalEventsByMatch }: {
   match: MatchRow;
   editingSchedule: string | null;
   setEditingSchedule: (id: string | null) => void;
+  goalRowId: string | null;
+  setGoalRowId: (id: string | null) => void;
+  playersByTeam: Record<string, GoalPlayerOption[]>;
+  goalEventsByMatch: Record<string, GoalEventLite[]>;
 }) {
   const overdue = isOverdueMatch(match);
-  const showScoreForm = match.status !== "CANCELLED";
+  const goalsOpen = goalRowId === match.id;
+  const existingGoals = goalEventsByMatch[match.id] ?? [];
+  const existingHome = existingGoals.filter((g) => g.teamId === match.homeTeamId).map((g) => g.playerId);
+  const existingAway = existingGoals.filter((g) => g.teamId === match.awayTeamId).map((g) => g.playerId);
 
   return (
     <>
@@ -258,11 +396,7 @@ function MatchRowItem({ match, editingSchedule, setEditingSchedule }: {
             {match.round && <span className="font-body text-[11px] text-text-dimmer">{match.round}</span>}
           </td>
           <td className="px-4 py-3">
-            {showScoreForm ? (
-              <ScoreUpdateForm match={match} />
-            ) : (
-              <span className="font-num text-lg font-bold text-text-dimmer">{match.homeScore} - {match.awayScore}</span>
-            )}
+            <span className="font-num text-lg font-bold text-text">{match.homeScore} - {match.awayScore}</span>
           </td>
           <td className="px-4 py-3">
             <span className={`rounded-md px-2 py-0.5 font-utility text-[10px] tracking-wider ${STATUS_COLORS[match.status] ?? ""}`}>
@@ -272,10 +406,27 @@ function MatchRowItem({ match, editingSchedule, setEditingSchedule }: {
           <td className="px-4 py-3 font-body text-[12px] text-text-dim">{formatDate(new Date(match.kickoffAt))}</td>
           <td className="px-4 py-3">
             <div className="flex items-center gap-2">
-              <button onClick={() => setEditingSchedule(match.id)} className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">الموعد</button>
+              {match.status !== "CANCELLED" && (
+                <GoalEntryButton match={match} isOpen={goalsOpen} onClick={() => setGoalRowId(goalsOpen ? null : match.id)} />
+              )}
+              <button onClick={() => { setEditingSchedule(match.id); setGoalRowId(null); }} className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">الموعد</button>
               <Link href={`/admin/matches/${match.id}/squads`} className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">القوائم</Link>
               <MatchDeleteRow matchId={match.id} />
             </div>
+          </td>
+        </tr>
+      )}
+      {goalsOpen && (
+        <tr className="bg-surface-elevated/40">
+          <td colSpan={6} className="px-4 py-3">
+            <GoalAssignPanel
+              match={match}
+              homePlayers={playersByTeam[match.homeTeamId] ?? []}
+              awayPlayers={playersByTeam[match.awayTeamId] ?? []}
+              existingHome={existingHome}
+              existingAway={existingAway}
+              onClose={() => setGoalRowId(null)}
+            />
           </td>
         </tr>
       )}
@@ -283,8 +434,15 @@ function MatchRowItem({ match, editingSchedule, setEditingSchedule }: {
   );
 }
 
-export default function MatchesTable({ matches, teams, tournaments }: { matches: MatchRow[]; teams: TeamOption[]; tournaments: TournamentOption[] }) {
+export default function MatchesTable({ matches, teams, tournaments, playersByTeam = {}, goalEventsByMatch = {} }: {
+  matches: MatchRow[];
+  teams: TeamOption[];
+  tournaments: TournamentOption[];
+  playersByTeam?: Record<string, GoalPlayerOption[]>;
+  goalEventsByMatch?: Record<string, GoalEventLite[]>;
+}) {
   const [editingSchedule, setEditingSchedule] = useState<string | null>(null);
+  const [goalRowId, setGoalRowId] = useState<string | null>(null);
   const overdueCount = matches.filter(isOverdueMatch).length;
 
   return (
@@ -296,7 +454,7 @@ export default function MatchesTable({ matches, teams, tournaments }: { matches:
           <div>
             <p className="font-body text-[13px] font-bold text-live">مباريات متأخرة بدون نتيجة</p>
             <p className="mt-0.5 font-body text-[12px] text-live/80">
-              سجّل النتيجة (اكتبها واضغط &quot;حفظ وإنهاء&quot;) أو أرجئها من زر &quot;الموعد&quot;.
+              سجّل النتيجة (اكتبها واضغط &quot;حفظ النتيجة والأهداف&quot;) أو أرجئها من زر &quot;الموعد&quot;.
             </p>
           </div>
         </div>
@@ -325,6 +483,10 @@ export default function MatchesTable({ matches, teams, tournaments }: { matches:
                   match={match}
                   editingSchedule={editingSchedule}
                   setEditingSchedule={setEditingSchedule}
+                  goalRowId={goalRowId}
+                  setGoalRowId={setGoalRowId}
+                  playersByTeam={playersByTeam}
+                  goalEventsByMatch={goalEventsByMatch}
                 />
               ))}
             </tbody>

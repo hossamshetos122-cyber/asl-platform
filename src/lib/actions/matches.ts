@@ -188,6 +188,129 @@ export async function setMatchResult(id: string, homeScore: number, awayScore: n
 
 const SCHEDULE_STATUSES = ["SCHEDULED", "POSTPONED", "CANCELLED"] as const;
 
+const GOAL_TYPE = "GOAL";
+
+const playerIdToken = /^[a-zA-Z0-9_-]{2,50}$/;
+
+export async function setMatchResultWithGoals(
+  id: string,
+  homeScore: number,
+  awayScore: number,
+  homeGoalPlayerIds: string[],
+  awayGoalPlayerIds: string[],
+) {
+  const user = await requireAdmin();
+
+  const parsed = updateScoreSchema.safeParse({
+    matchId: id,
+    homeScore,
+    awayScore,
+    status: "FINISHED",
+  });
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    throw new Error(first?.message ?? "بيانات غير صالحة");
+  }
+
+  const matchId = parsed.data.matchId;
+
+  const match = await prisma.match.findUnique({
+    where: { id: matchId },
+    select: { id: true, status: true, homeTeamId: true, awayTeamId: true },
+  });
+  if (!match) throw new Error("المباراة غير موجودة");
+  if (match.status === "CANCELLED") throw new Error("لا يمكن إنهاء مباراة ملغاة");
+
+  const homeGoalIds = Array.isArray(homeGoalPlayerIds) ? homeGoalPlayerIds : [];
+  const awayGoalIds = Array.isArray(awayGoalPlayerIds) ? awayGoalPlayerIds : [];
+
+  if (homeGoalIds.length !== parsed.data.homeScore) {
+    throw new Error(`حدّد لاعباً لكل هدف من أهداف الفريق المضيف (${parsed.data.homeScore} أهداف) أو اضغط «حفظ النتيجة فقط»`);
+  }
+  if (awayGoalIds.length !== parsed.data.awayScore) {
+    throw new Error("حدّد لاعباً لكل هدف من أهداف الفريق الضيف أو اضغط «حفظ النتيجة فقط»");
+  }
+
+  const allIds = [...homeGoalIds, ...awayGoalIds];
+  if (allIds.some((pid) => typeof pid !== "string" || !playerIdToken.test(pid))) {
+    throw new Error("اختيار اللاعب غير صالح");
+  }
+
+  if (allIds.length > 0) {
+    const players = await prisma.player.findMany({
+      where: { id: { in: allIds } },
+      select: { id: true },
+    });
+    if (players.length !== allIds.length) throw new Error("أحد اللاعبين غير موجود");
+
+    const memberships = await prisma.teamMembership.findMany({
+      where: { playerId: { in: allIds }, status: "ACTIVE" },
+      select: { playerId: true, teamId: true },
+    });
+    const membershipByPlayer = new Map(memberships.map((m) => [m.playerId, m.teamId]));
+    for (const pid of homeGoalIds) {
+      if (membershipByPlayer.get(pid) !== match.homeTeamId) throw new Error("أحد اللاعبين المختارين ليس من الفريق المضيف");
+    }
+    for (const pid of awayGoalIds) {
+      if (membershipByPlayer.get(pid) !== match.awayTeamId) throw new Error("أحد اللاعبين المختارين ليس من الفريق الضيف");
+    }
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.match.update({
+      where: { id: matchId },
+      data: {
+        homeScore: parsed.data.homeScore,
+        awayScore: parsed.data.awayScore,
+        status: "FINISHED",
+      },
+    });
+
+    await tx.matchEvent.deleteMany({ where: { matchId, type: GOAL_TYPE } });
+
+    if (allIds.length > 0) {
+      await tx.matchEvent.createMany({
+        data: [
+          ...homeGoalIds.map((playerId) => ({
+            matchId,
+            playerId,
+            teamId: match.homeTeamId,
+            type: GOAL_TYPE,
+            minute: 0,
+          })),
+          ...awayGoalIds.map((playerId) => ({
+            matchId,
+            playerId,
+            teamId: match.awayTeamId,
+            type: GOAL_TYPE,
+            minute: 0,
+          })),
+        ],
+      });
+    }
+  });
+
+  await auditLog({
+    actorId: user.id,
+    action: "SET_MATCH_RESULT",
+    targetId: matchId,
+    metadata: {
+      homeScore: parsed.data.homeScore,
+      awayScore: parsed.data.awayScore,
+      homeGoalPlayerIds,
+      awayGoalPlayerIds,
+    },
+  });
+
+  revalidatePath("/matches");
+  revalidatePath(`/matches/${matchId}`);
+  revalidatePath("/standings");
+  revalidatePath("/top-scorers");
+  revalidatePath("/admin");
+  revalidatePath("/admin/matches");
+  revalidatePath("/");
+}
+
 export async function updateMatchSchedule(
   id: string,
   kickoffAt: string,

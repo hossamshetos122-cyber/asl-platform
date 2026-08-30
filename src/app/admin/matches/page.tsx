@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import MatchesTable from "./matches-table";
+import MatchesTable, { type GoalPlayerOption, type GoalEventLite } from "./matches-table";
 
 export const metadata = {
   title: "إدارة المباريات | لوحة التحكم",
@@ -25,13 +25,67 @@ export default async function AdminMatchesPage() {
     }),
   ]);
 
+  const matchIds = matches.map((m) => m.id);
+
+  const [memberships, goalEvents] = await Promise.all([
+    prisma.teamMembership.findMany({
+      where: { status: "ACTIVE" },
+      select: {
+        teamId: true,
+        player: {
+          select: {
+            id: true,
+            jerseyNumber: true,
+            user: { select: { fullName: true } },
+          },
+        },
+      },
+    }),
+    prisma.matchEvent.findMany({
+      where: { matchId: { in: matchIds }, type: "GOAL" },
+      select: { matchId: true, playerId: true, teamId: true },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
+
+  const playersByTeam: Record<string, GoalPlayerOption[]> = {};
+  for (const mb of memberships) {
+    const list = (playersByTeam[mb.teamId] ??= []);
+    list.push({
+      id: mb.player.id,
+      name: mb.player.user.fullName,
+      jerseyNumber: mb.player.jerseyNumber,
+    });
+  }
+  for (const list of Object.values(playersByTeam)) {
+    list.sort(
+      (a, b) =>
+        (a.jerseyNumber ?? 999) - (b.jerseyNumber ?? 999) ||
+        a.name.localeCompare(b.name, "ar")
+    );
+  }
+
+  const goalEventsByMatch: Record<string, GoalEventLite[]> = {};
+  for (const ev of goalEvents) {
+    (goalEventsByMatch[ev.matchId] ??= []).push({
+      playerId: ev.playerId,
+      teamId: ev.teamId,
+    });
+  }
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between border-b border-line pb-4">
         <h1 className="font-display text-xl font-black text-text">المباريات</h1>
         <span className="badge-accent font-num">{matches.length}</span>
       </div>
-      <MatchesTable matches={matches.map((m) => ({ ...m, kickoffAt: m.kickoffAt.toISOString() }))} teams={teams} tournaments={tournaments} />
+      <MatchesTable
+        matches={matches.map((m) => ({ ...m, kickoffAt: m.kickoffAt.toISOString() }))}
+        teams={teams}
+        tournaments={tournaments}
+        playersByTeam={playersByTeam}
+        goalEventsByMatch={goalEventsByMatch}
+      />
     </div>
   );
 }
