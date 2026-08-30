@@ -10,6 +10,7 @@ interface PlayerRow {
   id: string;
   jerseyNumber: number | null;
   position: string;
+  dateOfBirth: Date | null;
   photoUrl: string | null;
   user: { fullName: string; email: string };
   memberships: { team: { name: string } }[];
@@ -49,6 +50,16 @@ const POSITION_OPTIONS = [
 const POSITION_LABELS: Record<string, string> = Object.fromEntries(
   POSITION_OPTIONS.map((o) => [o.value, o.label])
 );
+
+function formatDateInput(date: Date | null): string {
+  if (!date) return "";
+  return new Date(date).toISOString().split("T")[0] ?? "";
+}
+
+function formatBirthdate(date: Date | null): string {
+  if (!date) return "—";
+  return new Intl.DateTimeFormat("ar-EG", { year: "numeric", month: "numeric", day: "numeric" }).format(new Date(date));
+}
 
 function InlineCreateForm({ teams }: { teams: TeamOption[] }) {
   const [isAdding, setIsAdding] = useState(false);
@@ -101,6 +112,10 @@ function InlineCreateForm({ teams }: { teams: TeamOption[] }) {
           <input type="number" name="jerseyNumber" min={0} max={99} className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent" placeholder="10" />
         </div>
         <div>
+          <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">تاريخ الميلاد</label>
+          <input type="date" name="dateOfBirth" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent" />
+        </div>
+        <div>
           <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الفريق</label>
           <select name="teamId" required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent">
             <option value="">اختر الفريق</option>
@@ -150,7 +165,7 @@ function InlineEditForm({ player, onClose }: { player: PlayerRow; onClose: () =>
 
   return (
     <tr>
-      <td colSpan={5} className="px-4 py-3">
+      <td colSpan={6} className="px-4 py-3">
         <form action={async (formData) => {
           setError(null);
           try {
@@ -181,6 +196,10 @@ function InlineEditForm({ player, onClose }: { player: PlayerRow; onClose: () =>
             <div>
               <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">رقم القميص</label>
               <input type="number" name="jerseyNumber" min={0} max={99} defaultValue={player.jerseyNumber ?? ""} className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-accent" />
+            </div>
+            <div>
+              <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">تاريخ الميلاد</label>
+              <input type="date" name="dateOfBirth" defaultValue={formatDateInput(player.dateOfBirth)} className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-accent" />
             </div>
             <div>
               <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">رقم الهاتف</label>
@@ -223,6 +242,7 @@ export default function PlayersTable({
                 <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الفريق</th>
                 <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">المركز</th>
                 <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">رقم القميص</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">تاريخ الميلاد</th>
                 <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">إجراءات</th>
               </tr>
             </thead>
@@ -250,6 +270,7 @@ export default function PlayersTable({
                       </span>
                     </td>
                     <td className="px-4 py-3 font-num text-sm font-bold text-accent">{player.jerseyNumber ?? "—"}</td>
+                    <td className="px-4 py-3 font-body text-sm text-text-dim">{formatBirthdate(player.dateOfBirth)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <button onClick={() => setEditingId(player.id)} className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">تعديل</button>

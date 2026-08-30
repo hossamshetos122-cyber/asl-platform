@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import {
   createMatchSchema,
   updateScoreSchema,
+  updateMatchScheduleSchema,
   addMatchEventSchema,
   setTeamSquadSchema,
   setTeamLineupSchema,
@@ -133,6 +134,116 @@ export async function updateScore(
   revalidatePath("/standings");
   revalidatePath("/top-scorers");
   revalidatePath("/");
+}
+
+export async function setMatchResult(id: string, homeScore: number, awayScore: number) {
+  const user = await requireAdmin();
+
+  const parsed = updateScoreSchema.safeParse({
+    matchId: id,
+    homeScore,
+    awayScore,
+    status: "FINISHED",
+  });
+
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    throw new Error(first?.message ?? "بيانات غير صالحة");
+  }
+
+  const match = await prisma.match.findUnique({
+    where: { id: parsed.data.matchId },
+    select: { id: true, status: true },
+  });
+  if (!match) throw new Error("المباراة غير موجودة");
+
+  if (match.status === "CANCELLED") {
+    throw new Error("لا يمكن إنهاء مباراة ملغاة");
+  }
+
+  await prisma.match.update({
+    where: { id: parsed.data.matchId },
+    data: {
+      homeScore: parsed.data.homeScore,
+      awayScore: parsed.data.awayScore,
+      status: "FINISHED",
+    },
+  });
+
+  await auditLog({
+    actorId: user.id,
+    action: "SET_MATCH_RESULT",
+    targetId: parsed.data.matchId,
+    metadata: { homeScore: parsed.data.homeScore, awayScore: parsed.data.awayScore },
+  });
+
+  revalidatePath("/matches");
+  revalidatePath(`/matches/${parsed.data.matchId}`);
+  revalidatePath("/standings");
+  revalidatePath("/top-scorers");
+  revalidatePath("/admin");
+  revalidatePath("/admin/matches");
+  revalidatePath("/");
+}
+
+const SCHEDULE_STATUSES = ["SCHEDULED", "POSTPONED", "CANCELLED"] as const;
+
+export async function updateMatchSchedule(
+  id: string,
+  kickoffAt: string,
+  venue?: string | null,
+  status?: string,
+) {
+  const user = await requireAdmin();
+
+  const parsed = updateMatchScheduleSchema.safeParse({
+    matchId: id,
+    kickoffAt,
+    venue: venue || undefined,
+    status: status || undefined,
+  });
+
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    throw new Error(first?.message ?? "بيانات غير صالحة");
+  }
+
+  if (parsed.data.status && !SCHEDULE_STATUSES.includes(parsed.data.status as (typeof SCHEDULE_STATUSES)[number])) {
+    throw new Error("حالة المباراة غير صالحة لهذه العملية");
+  }
+
+  const kickoffDate = new Date(parsed.data.kickoffAt);
+  if (isNaN(kickoffDate.getTime())) throw new Error("موعد المباراة غير صالح");
+
+  const match = await prisma.match.findUnique({
+    where: { id: parsed.data.matchId },
+    select: { id: true, tournamentId: true },
+  });
+  if (!match) throw new Error("المباراة غير موجودة");
+
+  await prisma.match.update({
+    where: { id: parsed.data.matchId },
+    data: {
+      kickoffAt: kickoffDate,
+      ...(parsed.data.venue !== undefined ? { venue: parsed.data.venue || null } : {}),
+      ...(parsed.data.status ? { status: parsed.data.status } : {}),
+    },
+  });
+
+  await auditLog({
+    actorId: user.id,
+    action: "UPDATE_MATCH_SCHEDULE",
+    targetId: parsed.data.matchId,
+    metadata: { kickoffAt, venue: parsed.data.venue, status: parsed.data.status },
+  });
+
+  revalidatePath("/matches");
+  revalidatePath(`/matches/${parsed.data.matchId}`);
+  revalidatePath("/admin/matches");
+  revalidatePath("/");
+  if (match) {
+    revalidatePath(`/tournaments/${match.tournamentId}`);
+  }
 }
 
 export async function addMatchEvent(matchId: string, formData: FormData) {

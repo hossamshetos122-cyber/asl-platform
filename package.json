@@ -17,7 +17,9 @@
     "db:rotate:admin": "tsx scripts/rotate-admin-credentials.ts",
     "db:studio": "prisma studio",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "qa:live": "node scripts/qa/verify-live.cjs",
+    "qa:full": "node scripts/qa/verify-phase3.cjs"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
@@ -41,7 +43,9 @@
     "tailwindcss": "^3.4.4",
     "tsx": "^4.16.2",
     "typescript": "^5.5.3",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "jsdom": "^26.0.0",
+    "puppeteer-core": "^25.9.0"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -8,6 +8,7 @@ import {
   deleteTournament,
   addTeamToTournament,
   removeTeamFromTournament,
+  makeFeaturedTournament,
 } from "@/lib/actions/tournaments";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { ImageUpload } from "@/components/ui/image-upload";
@@ -270,6 +271,47 @@ function TeamManager({ tournament, allTeams }: { tournament: TournamentRow; allT
   );
 }
 
+function FeaturedButton({ tournament }: { tournament: TournamentRow }) {
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  if (tournament.status === "ONGOING") {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1 font-body text-[11px] font-bold text-accent">
+        <svg className="h-3 w-3" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.9 4.1 4.5.5-3.3 3 0.9 4.4L8 10.8 4 13l0.9-4.4-3.3-3 4.5-.5L8 1z" /></svg>
+        المميزة حاليًا
+      </span>
+    );
+  }
+
+  if (tournament.status === "COMPLETED" || tournament.status === "CANCELLED") {
+    return null;
+  }
+
+  return (
+    <div>
+      <button
+        onClick={() => {
+          setError(null);
+          startTransition(async () => {
+            try {
+              await makeFeaturedTournament(tournament.id);
+              window.location.reload();
+            } catch (e: unknown) {
+              setError(e instanceof Error ? e.message : "خطأ غير معروف");
+            }
+          });
+        }}
+        disabled={isPending}
+        className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20"
+      >
+        {isPending ? "..." : "اجعلها المميزة"}
+      </button>
+      {error && <p className="mt-1 font-body text-[10px] text-live">{error}</p>}
+    </div>
+  );
+}
+
 function TournamentDeleteRow({ tournamentId }: { tournamentId: string }) {
   const [error, setError] = useState<string | null>(null);
   return (
@@ -336,6 +378,7 @@ export default function TournamentsTable({ tournaments, allTeams = [] }: { tourn
                       <td className="px-4 py-3 font-body text-sm text-text-dim">{formatLongDate(new Date(tournament.startDate))}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
+                          <FeaturedButton tournament={tournament} />
                           <button onClick={() => setEditingId(tournament.id)} className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">تعديل</button>
                           <TournamentDeleteRow tournamentId={tournament.id} />
                         </div>

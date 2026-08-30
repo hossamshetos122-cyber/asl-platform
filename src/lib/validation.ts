@@ -119,6 +119,20 @@ export const updateTeamSchema = z.object({
 // Player schemas
 // ---------------------------------------------------------------------------
 
+export const dateOfBirthField = z
+  .string()
+  .trim()
+  .max(10, "تاريخ الميلاد غير صالح")
+  .optional()
+  .refine(
+    (val) => {
+      if (!val || val === "") return true;
+      const d = new Date(val + "T00:00:00.000Z");
+      return !isNaN(d.getTime());
+    },
+    "تاريخ الميلاد غير صالح",
+  );
+
 export const createPlayerSchema = z.object({
   teamId: cuid,
   fullName: z.string().trim().min(1, "اسم اللاعب مطلوب").max(100, "اسم اللاعب طويل جداً"),
@@ -136,6 +150,7 @@ export const createPlayerSchema = z.object({
       "رقم القميص يجب أن يكون بين 0 و 99",
     ),
   position: PlayerPosition.default("MIDFIELDER"),
+  dateOfBirth: dateOfBirthField,
 });
 
 export const updatePlayerSchema = z.object({
@@ -155,6 +170,7 @@ export const updatePlayerSchema = z.object({
       "رقم القميص يجب أن يكون بين 0 و 99",
     ),
   position: PlayerPosition.optional(),
+  dateOfBirth: dateOfBirthField,
 });
 
 // ---------------------------------------------------------------------------
@@ -214,6 +230,13 @@ export const updateScoreSchema = z.object({
     .min(0, "النتيجة لا يمكن أن تكون سالبة")
     .max(MAX_SCORE, `النتيجة لا يمكن أن تتجاوز ${MAX_SCORE}`),
   status: MatchStatus.default("FINISHED"),
+});
+
+export const updateMatchScheduleSchema = z.object({
+  matchId: cuid,
+  kickoffAt: z.string().min(1, "موعد المباراة مطلوب"),
+  venue: z.string().trim().max(200, "اسم الملعب طويل جداً").nullable().optional(),
+  status: MatchStatus.optional(),
 });
 
 // ---------------------------------------------------------------------------

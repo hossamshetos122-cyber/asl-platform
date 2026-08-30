@@ -2,6 +2,19 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminDashboard() {
+  const overdueMatches = await prisma.match.findMany({
+    where: {
+      status: { in: ["SCHEDULED", "POSTPONED"] },
+      kickoffAt: { lt: new Date() },
+    },
+    orderBy: { kickoffAt: "asc" },
+    include: {
+      homeTeam: { select: { name: true } },
+      awayTeam: { select: { name: true } },
+      tournament: { select: { name: true } },
+    },
+  });
+
   const [teamCount, playerCount, matchCount, tournamentCount, recentMatches] = await Promise.all([
     prisma.team.count(),
     prisma.player.count(),
@@ -24,6 +37,37 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-5">
       <h1 className="font-display text-xl font-black text-text">لوحة التحكم</h1>
+
+      {overdueMatches.length > 0 ? (
+        <div className="rounded-xl border border-live/30 bg-live/10 p-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-live/20 font-num text-sm font-bold text-live">{overdueMatches.length}</span>
+            <div>
+              <h2 className="font-body text-[13px] font-bold text-live">مباريات فات موعدها بدون نتيجة</h2>
+              <p className="font-body text-[12px] text-live/80">سجّل نتيجتها من صفحة المباريات (اضغط &quot;حفظ وإنهاء&quot;) أو أرجئها من زر &quot;الموعد&quot;.</p>
+            </div>
+            <Link href="/admin/matches" className="mr-auto shrink-0 rounded-lg border border-live/40 bg-live/15 px-3 py-1.5 font-body text-[11px] font-bold text-live transition-colors hover:bg-live/25">عرض المباريات</Link>
+          </div>
+          <div className="mt-3 space-y-1.5">
+            {overdueMatches.map((match) => (
+              <Link key={match.id} href="/admin/matches" className="flex items-center justify-between rounded-lg border border-live/20 bg-surface/60 px-3 py-2 transition-colors hover:bg-surface">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-body text-[12px] font-bold text-text truncate">{match.homeTeam.name}</span>
+                  <span className="font-num text-[12px] text-text-dimmer">-</span>
+                  <span className="font-body text-[12px] font-bold text-text truncate">{match.awayTeam.name}</span>
+                  <span className="font-body text-[10px] text-text-dimmer truncate hidden sm:inline">({match.tournament.name})</span>
+                </div>
+                <span className="font-body text-[11px] text-text-dimmer whitespace-nowrap">{match.kickoffAt.toLocaleDateString("ar-EG")}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.07] px-4 py-3">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 font-num text-[12px] font-bold text-emerald-500">0</span>
+          <p className="font-body text-[12px] font-bold text-emerald-500">لا توجد مباريات متأخرة بدون نتيجة. كل المواعيد تحت السيطرة.</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
         {stats.map((stat) => (

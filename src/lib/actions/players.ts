@@ -76,6 +76,7 @@ export async function createPlayer(
     photoUrl: formData.get("photoUrl") || undefined,
     jerseyNumber: formData.get("jerseyNumber") || undefined,
     position: formData.get("position") || undefined,
+    dateOfBirth: formData.get("dateOfBirth") || undefined,
   });
 
   if (!parsed.success) {
@@ -83,7 +84,9 @@ export async function createPlayer(
     return { success: false, error: first?.message ?? "بيانات غير صالحة" };
   }
 
-  const { teamId, fullName, phone, photoUrl, jerseyNumber, position } = parsed.data;
+  const { teamId, fullName, phone, photoUrl, jerseyNumber, position, dateOfBirth } = parsed.data;
+
+  const dateOfBirthDate = dateOfBirth ? new Date(dateOfBirth + "T00:00:00.000Z") : null;
 
   const user = await requireTeamAccess(teamId);
 
@@ -108,6 +111,7 @@ export async function createPlayer(
           photoUrl: photoUrl ?? null,
           jerseyNumber: jerseyNumber ? parseInt(jerseyNumber, 10) : null,
           position,
+          dateOfBirth: dateOfBirthDate,
         },
       });
 
@@ -165,6 +169,7 @@ export async function updatePlayer(
     photoUrl: formData.get("photoUrl") || undefined,
     jerseyNumber: formData.get("jerseyNumber") || undefined,
     position: formData.get("position") || undefined,
+    dateOfBirth: formData.get("dateOfBirth") || undefined,
   });
 
   if (!parsed.success) {
@@ -172,7 +177,7 @@ export async function updatePlayer(
     return { success: false, error: first?.message ?? "بيانات غير صالحة" };
   }
 
-  const { fullName, phone, photoUrl, jerseyNumber, position } = parsed.data;
+  const { fullName, phone, photoUrl, jerseyNumber, position, dateOfBirth } = parsed.data;
 
   const player = await prisma.player.findUnique({ where: { id } });
   if (!player) return { success: false, error: "اللاعب غير موجود" };
@@ -192,6 +197,9 @@ export async function updatePlayer(
         data.jerseyNumber = jerseyNumber ? parseInt(jerseyNumber, 10) : null;
       }
       if (position) data.position = position;
+      if (dateOfBirth !== undefined) {
+        data.dateOfBirth = dateOfBirth ? new Date(dateOfBirth + "T00:00:00.000Z") : null;
+      }
 
       await tx.player.update({ where: { id }, data });
     });

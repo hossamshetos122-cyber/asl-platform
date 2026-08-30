@@ -159,6 +159,36 @@ export async function updateTournament(formData: FormData) {
   revalidatePath(`/tournaments/${rawId}`);
 }
 
+export async function makeFeaturedTournament(tournamentId: string) {
+  const user = await requireAdmin();
+
+  const idParsed = cuid.safeParse(tournamentId);
+  if (!idParsed.success) throw new Error("معرف البطولة غير صالح");
+
+  const tournament = await prisma.tournament.findUnique({ where: { id: tournamentId }, select: { id: true, name: true } });
+  if (!tournament) throw new Error("البطولة غير موجودة");
+
+  await prisma.$transaction(async (tx) => {
+    await tx.tournament.updateMany({ where: { status: "ONGOING" }, data: { status: "UPCOMING" } });
+    await tx.tournament.update({ where: { id: tournamentId }, data: { status: "ONGOING" } });
+  });
+
+  await auditLog({
+    actorId: user.id,
+    action: "MAKE_FEATURED_TOURNAMENT",
+    targetId: tournamentId,
+    metadata: { name: tournament.name },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/tournaments");
+  revalidatePath("/tournaments");
+  revalidatePath(`/tournaments/${tournamentId}`);
+  revalidatePath("/standings");
+  revalidatePath("/top-scorers");
+  revalidatePath("/");
+}
+
 export async function deleteTournament(formData: FormData) {
   const user = await requireAdmin();
 

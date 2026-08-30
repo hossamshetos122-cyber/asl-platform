@@ -1,6 +1,11 @@
 # dependencies
 /node_modules
 
+# qa artifacts
+qa-*.png
+/qa-*.p*
+*-shots
+
 # next.js
 /.next/
 /out/
