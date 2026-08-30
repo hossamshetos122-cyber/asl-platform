@@ -197,6 +197,7 @@ model Match {
   status       String   @default("SCHEDULED") // SCHEDULED | LIVE | HALFTIME | FINISHED | POSTPONED | CANCELLED
   kickoffAt    DateTime
   venue        String?
+  venueImageUrl String?
   homeScore    Int      @default(0)
   awayScore    Int      @default(0)
   minute       Int?

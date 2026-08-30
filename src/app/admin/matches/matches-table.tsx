@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { createMatch, setMatchResult, setMatchResultWithGoals, updateMatchSchedule, deleteMatch } from "@/lib/actions/matches";
 import { formatMatchDateTime } from "@/lib/dates";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 export interface GoalPlayerOption {
   id: string;
@@ -25,6 +26,7 @@ interface MatchRow {
   status: string;
   kickoffAt: string;
   venue: string | null;
+  venueImageUrl: string | null;
   round: string | null;
   homeScore: number;
   awayScore: number;
@@ -77,6 +79,7 @@ const isOverdueMatch = (m: { status: string; kickoffAt: string }) =>
 function InlineCreateForm({ teams, tournaments }: { teams: TeamOption[]; tournaments: TournamentOption[] }) {
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [venueImage, setVenueImage] = useState<string | null>(null);
 
   if (!isAdding) {
     return (
@@ -91,6 +94,7 @@ function InlineCreateForm({ teams, tournaments }: { teams: TeamOption[]; tournam
     <form action={async (formData) => {
       setError(null);
       try {
+        formData.set("venueImageUrl", venueImage || "");
         await createMatch(formData);
         setIsAdding(false);
         window.location.reload();
@@ -127,6 +131,9 @@ function InlineCreateForm({ teams, tournaments }: { teams: TeamOption[]; tournam
         <div>
           <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الملعب</label>
           <input name="venue" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent" placeholder="استاد الإسكندرية" />
+        </div>
+        <div className="sm:col-span-2 lg:col-span-3">
+          <ImageUpload name="venueImageUrl" purpose="general" label="صورة الملعب (اختياري)" value={venueImage} onChange={setVenueImage} />
         </div>
         <div>
           <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الجولة</label>
@@ -443,6 +450,7 @@ function GoalEntryButton({ match, isOpen, onClick }: { match: MatchRow; isOpen: 
 function ScheduleEditForm({ match, onClose }: { match: MatchRow; onClose: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string>(match.status === "POSTPONED" ? "POSTPONED" : match.status === "CANCELLED" ? "CANCELLED" : "SCHEDULED");
+  const [venueImage, setVenueImage] = useState<string | null>(match.venueImageUrl);
 
   return (
     <div className="rounded-xl border border-accent/20 bg-surface p-4">
@@ -454,6 +462,7 @@ function ScheduleEditForm({ match, onClose }: { match: MatchRow; onClose: () => 
             String(formData.get("kickoffAt") || ""),
             String(formData.get("venue") || ""),
             String(formData.get("status") || ""),
+            venueImage || "",
           );
           window.location.reload();
         } catch (e: unknown) {
@@ -475,6 +484,9 @@ function ScheduleEditForm({ match, onClose }: { match: MatchRow; onClose: () => 
               {SCHEDULE_STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
             </select>
           </div>
+        </div>
+        <div className="mt-3">
+          <ImageUpload name="venueImageUrl" purpose="general" label="صورة الملعب (اختياري)" value={venueImage} onChange={setVenueImage} />
         </div>
         {error && <p className="mt-3 rounded-lg border border-live/30 bg-live/10 px-3 py-2 font-body text-[12px] text-live">{error}</p>}
         <div className="mt-3 flex items-center gap-2.5">

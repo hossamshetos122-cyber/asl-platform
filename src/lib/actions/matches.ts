@@ -24,6 +24,7 @@ export async function createMatch(formData: FormData) {
     awayTeamId: formData.get("awayTeamId"),
     kickoffAt: formData.get("kickoffAt"),
     venue: formData.get("venue") || undefined,
+    venueImageUrl: formData.get("venueImageUrl") || undefined,
     round: formData.get("round") || undefined,
     status: formData.get("status") || undefined,
   });
@@ -33,7 +34,7 @@ export async function createMatch(formData: FormData) {
     throw new Error(first?.message ?? "بيانات غير صالحة");
   }
 
-  const { tournamentId, homeTeamId, awayTeamId, kickoffAt, venue, round, status } = parsed.data;
+  const { tournamentId, homeTeamId, awayTeamId, kickoffAt, venue, venueImageUrl, round, status } = parsed.data;
 
   // Verify tournament exists
   const tournament = await prisma.tournament.findUnique({ where: { id: tournamentId }, select: { id: true } });
@@ -69,6 +70,7 @@ export async function createMatch(formData: FormData) {
       awayTeamId,
       kickoffAt: new Date(kickoffAt),
       venue,
+      venueImageUrl: venueImageUrl ?? null,
       round,
       status,
     },
@@ -363,6 +365,7 @@ export async function updateMatchSchedule(
   kickoffAt: string,
   venue?: string | null,
   status?: string,
+  venueImageUrl?: string | null,
 ) {
   const user = await requireAdmin();
 
@@ -371,6 +374,7 @@ export async function updateMatchSchedule(
     kickoffAt,
     venue: venue || undefined,
     status: status || undefined,
+    venueImageUrl: venueImageUrl || undefined,
   });
 
   if (!parsed.success) {
@@ -396,6 +400,7 @@ export async function updateMatchSchedule(
     data: {
       kickoffAt: kickoffDate,
       ...(parsed.data.venue !== undefined ? { venue: parsed.data.venue || null } : {}),
+      ...(parsed.data.venueImageUrl !== undefined ? { venueImageUrl: parsed.data.venueImageUrl || null } : {}),
       ...(parsed.data.status ? { status: parsed.data.status } : {}),
     },
   });

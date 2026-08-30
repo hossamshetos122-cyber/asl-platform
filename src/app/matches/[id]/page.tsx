@@ -115,7 +115,6 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
                   {match.awayScore}
                 </div>
                 <div className="font-body text-[11px] text-text-dim">{formatDate(match.kickoffAt)}</div>
-                {match.venue && <div className="font-utility text-[8px] tracking-wider text-text-dimmer uppercase">{match.venue}</div>}
               </div>
               <div className="flex flex-col items-center gap-2.5">
                 <TeamBadge team={match.awayTeam} size="lg" />
@@ -123,6 +122,34 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
               </div>
             </div>
           </div>
+
+          {match.venue && (
+            <div className="border-t border-line">
+              {match.venueImageUrl ? (
+                <div className="relative h-44 sm:h-56 overflow-hidden">
+                  <ImageDisplay src={match.venueImageUrl} alt={match.venue} type="cover" fill className="h-full w-full" />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent px-5 pt-12 pb-3">
+                    <div className="flex items-center gap-2">
+                      <svg className="h-4 w-4 text-accent-bright" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 22V10l9-6 9 6v12M6 22v-4h12v4M7 10h.01M11 10h.01M15 10h.01M9 18v-3h6v3" />
+                      </svg>
+                      <div>
+                        <div className="font-utility text-[8px] tracking-[0.2em] text-accent-bright uppercase">الملعب</div>
+                        <div className="font-display text-sm sm:text-base font-black text-white drop-shadow">{match.venue}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-2 bg-surface-elevated/30 px-4 py-3">
+                  <svg className="h-4 w-4 text-text-dim" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 22V10l9-6 9 6v12M6 22v-4h12v4M7 10h.01M11 10h.01M15 10h.01M9 18v-3h6v3" />
+                  </svg>
+                  <span className="font-body text-[12px] text-text-dim">{match.venue}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Events */}

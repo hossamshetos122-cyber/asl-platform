@@ -209,6 +209,7 @@ export const createMatchSchema = z
     awayTeamId: cuid,
     kickoffAt: z.string().min(1, "موعد المباراة مطلوب"),
     venue: z.string().trim().max(200, "اسم الملعب طويل جداً").nullable().optional(),
+    venueImageUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
     round: z.string().trim().max(50).nullable().optional(),
     status: MatchStatus.default("SCHEDULED"),
   })
@@ -236,6 +237,7 @@ export const updateMatchScheduleSchema = z.object({
   matchId: cuid,
   kickoffAt: z.string().min(1, "موعد المباراة مطلوب"),
   venue: z.string().trim().max(200, "اسم الملعب طويل جداً").nullable().optional(),
+  venueImageUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
   status: MatchStatus.optional(),
 });
 

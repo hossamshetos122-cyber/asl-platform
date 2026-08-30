@@ -36,6 +36,7 @@ export interface UpcomingMatchVM {
   tournamentName: string;
   kickoffAt: Date;
   venue: string | null;
+  venueImageUrl: string | null;
   homeTeam: TeamSummaryVM;
   awayTeam: TeamSummaryVM;
 }
@@ -45,6 +46,7 @@ export interface LatestResultVM {
   tournamentName: string;
   playedAt: Date;
   venue: string | null;
+  venueImageUrl: string | null;
   homeTeam: TeamSummaryVM;
   awayTeam: TeamSummaryVM;
   homeScore: number;
@@ -111,6 +113,7 @@ export interface MatchSummaryVM {
   status: string;
   kickoffAt: Date;
   venue: string | null;
+  venueImageUrl: string | null;
   homeTeam: TeamSummaryVM;
   awayTeam: TeamSummaryVM;
   homeScore: number;
@@ -125,6 +128,7 @@ export interface MatchDetailVM {
   status: string;
   kickoffAt: Date;
   venue: string | null;
+  venueImageUrl: string | null;
   homeTeam: TeamSummaryVM;
   awayTeam: TeamSummaryVM;
   homeScore: number;

@@ -65,6 +65,14 @@ async function MatchesList({ filter }: { filter?: string }) {
                     {match.homeScore}<span className="mx-1 text-text-dimmer">-</span>{match.awayScore}
                   </div>
                   <span className={STATUS_CLASSES[match.status] ?? "badge-muted"}>{STATUS_LABELS[match.status] ?? match.status}</span>
+                  {match.venue && (
+                    <span className="flex items-center gap-1 font-body text-[9px] text-text-dimmer">
+                      <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 22V10l9-6 9 6v12M6 22v-4h12v4" />
+                      </svg>
+                      <span className="max-w-[120px] truncate">{match.venue}</span>
+                    </span>
+                  )}
                 </div>
 
                 {/* Away */}

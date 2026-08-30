@@ -27,6 +27,7 @@ export async function getMatches(statusFilter?: string): Promise<Result<MatchSum
       status: m.status,
       kickoffAt: m.kickoffAt,
       venue: m.venue,
+      venueImageUrl: m.venueImageUrl,
       homeTeam: {
         id: m.homeTeam.id,
         name: m.homeTeam.name,
@@ -162,6 +163,7 @@ export async function getMatchById(id: string): Promise<Result<MatchDetailVM>> {
       status: match.status,
       kickoffAt: match.kickoffAt,
       venue: match.venue,
+      venueImageUrl: match.venueImageUrl,
       homeTeam: {
         id: match.homeTeam.id,
         name: match.homeTeam.name,
@@ -212,6 +214,7 @@ export async function getMatchesByTournament(tournamentId: string): Promise<Resu
       status: m.status,
       kickoffAt: m.kickoffAt,
       venue: m.venue,
+      venueImageUrl: m.venueImageUrl,
       homeTeam: {
         id: m.homeTeam.id,
         name: m.homeTeam.name,

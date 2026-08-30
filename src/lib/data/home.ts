@@ -145,6 +145,7 @@ export async function getUpcomingMatches(limit = 3): Promise<Result<UpcomingMatc
       tournamentName: m.tournament.name,
       kickoffAt: m.kickoffAt,
       venue: m.venue,
+      venueImageUrl: m.venueImageUrl,
       homeTeam: toTeamSummary(m.homeTeam),
       awayTeam: toTeamSummary(m.awayTeam),
     }));
@@ -184,6 +185,7 @@ export async function getLatestResults(limit = 3): Promise<Result<LatestResultVM
       tournamentName: m.tournament.name,
       playedAt: m.kickoffAt,
       venue: m.venue,
+      venueImageUrl: m.venueImageUrl,
       homeTeam: toTeamSummary(m.homeTeam),
       awayTeam: toTeamSummary(m.awayTeam),
       homeScore: m.homeScore,
