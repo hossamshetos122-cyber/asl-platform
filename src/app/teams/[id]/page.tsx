@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ImageDisplay } from "@/components/ui/image-display";
-import { formatYear } from "@/lib/dates";
+import { formatYear, formatMatchDateTime } from "@/lib/dates";
 import { TeamEditForm, TeamDeleteButton } from "./team-owner-actions";
 import { PlayerManager, RemovePlayerButton } from "./player-manager";
 
@@ -34,14 +34,18 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
       {/* Hero */}
       <section className="relative overflow-hidden bg-surface border-b border-line">
         <div className="absolute inset-0 bg-gradient-to-b from-surface-elevated/40 to-surface" />
-        <div className="page-container relative pt-10 sm:pt-14 pb-6 sm:pb-10">
+        <div className="page-container relative pt-10 sm:pt-14 pb-6 sm:pb-10 animate-fade-up">
           <Link href="/teams" className="mb-5 inline-flex items-center gap-1.5 py-2 -my-2 font-body text-sm font-bold text-accent hover:text-accent-bright transition-colors">
             <svg className="h-3.5 w-3.5 rotate-180" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 6h8M7 3l3 3-3 3" /></svg>
             العودة للفرق
           </Link>
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-7">
-            <ImageDisplay src={team.crestUrl} alt={`شعار ${team.name}`} type="team-logo" size="xl" shortCode={team.shortCode} />
+            <div className="flex-shrink-0">
+              <div className="rounded-2xl p-[4px]" style={{ background: "linear-gradient(135deg, rgba(233,0,82,0.85), rgba(150,60,255,0.45))", boxShadow: "0 12px 32px rgba(233,0,82,0.22)" }}>
+                <ImageDisplay src={team.crestUrl} alt={`شعار ${team.name}`} type="team-logo" size="xl" shortCode={team.shortCode} className="rounded-2xl bg-surface-elevated" />
+              </div>
+            </div>
             <div className="flex-1 text-center sm:text-right">
               <h1 className="font-display text-2xl sm:text-3xl font-black text-text">{team.name}</h1>
               <div className="mt-2.5 flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
@@ -66,6 +70,22 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
       </section>
 
       <main className="page-container page-padding">
+        {/* Next fixture */}
+        {team.nextFixture && (
+          <Link href={`/matches/${team.nextFixture.id}`} className="mb-5 flex items-center gap-3 rounded-xl border border-accent/20 bg-gradient-to-l from-accent/10 via-surface to-surface p-4 premier-card animate-fade-up">
+            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-accent/25 bg-accent/10">
+              <svg className="h-4 w-4 text-accent" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2.5" y="4" width="13" height="11" rx="2" /><path d="M6 2v3M12 2v3M2.5 8h13" />
+              </svg>
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="font-utility text-[9px] tracking-[0.18em] text-accent uppercase">المباراة القادمة</div>
+              <div className="mt-0.5 font-num text-sm font-bold text-text">{formatMatchDateTime(team.nextFixture.kickoffAt)}</div>
+            </div>
+            <svg className="h-4 w-4 flex-shrink-0 text-text-dimmer group-hover:text-accent transition-colors" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 6h8M7 3l3 3-3 3" /></svg>
+          </Link>
+        )}
+
         {/* Owner Actions */}
         {(isOwner || isAdmin) && (
           <div className="mb-5 rounded-xl border border-accent/15 bg-surface p-4">
@@ -76,7 +96,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
         )}
 
         {/* Stats */}
-        <div className="mb-5 grid grid-cols-3 gap-2">
+        <div className="mb-5 grid grid-cols-3 gap-2 animate-fade-in">
           <div className="rounded-xl border border-line bg-surface p-3.5 text-center">
             <div className="font-num text-xl font-bold text-emerald-500">{team.playerCount}</div>
             <div className="font-utility text-[8px] tracking-[0.12em] text-text-dimmer uppercase mt-0.5">لاعب</div>
@@ -106,9 +126,9 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
                 {(isOwner || isAdmin) ? "لا يوجد لاعبون بعد. أضف لاعب للبدء." : "لا يوجد لاعبون مسجّلون في هذا الفريق بعد."}
               </p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 stagger-children">
                 {team.players.map((player) => (
-                  <Link key={player.id} href={`/players/${player.id}`} className="group relative flex items-center gap-2.5 rounded-lg border border-line/40 px-3 py-2.5 transition-all hover:bg-surface-elevated hover:border-line">
+                  <Link key={player.id} href={`/players/${player.id}`} className="group relative flex items-center gap-2.5 rounded-lg border border-line/40 px-3 py-2.5 transition-all hover:bg-surface-elevated hover:border-line animate-fade-up">
                     <ImageDisplay src={player.photoUrl} alt={player.name} type="player" size="sm" />
                     <div className="min-w-0 flex-1">
                       <div className="font-body text-[12px] font-bold text-text truncate group-hover:text-accent transition-colors">{player.name}</div>

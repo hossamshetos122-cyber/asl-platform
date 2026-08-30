@@ -3,10 +3,11 @@ import Image from "next/image";
 import { MobileMenu } from "./mobile-menu";
 import { DesktopNavLinks } from "./desktop-nav-links";
 import { AuthNav } from "@/components/auth/auth-nav";
+import { NavbarShell } from "./navbar-shell";
 
 export function Navbar() {
   return (
-    <nav aria-label="القائمة الرئيسية" className="sticky top-0 z-50 bg-[#1C0430]/90 backdrop-blur-lg border-b border-white/10">
+    <NavbarShell>
       <div className="page-container flex items-center justify-between h-14 sm:h-16">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
@@ -46,6 +47,6 @@ export function Navbar() {
           <MobileMenu />
         </div>
       </div>
-    </nav>
+    </NavbarShell>
   );
 }

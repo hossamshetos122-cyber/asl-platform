@@ -16,12 +16,12 @@ async function TeamList() {
   if (result.status === "empty") return <EmptyState message="لا توجد فرق مسجّلة بعد." />;
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 stagger-children">
       {result.data.map((team) => (
         <Link
           key={team.id}
           href={`/teams/${team.id}`}
-          className="group rounded-xl border border-line bg-surface p-4 premier-card"
+          className="group rounded-xl border border-line bg-surface p-4 premier-card animate-fade-up"
         >
           <div className="flex items-center gap-3">
             <ImageDisplay src={team.crestUrl} alt={`شعار ${team.name}`} type="team-logo" size="lg" shortCode={team.shortCode} />

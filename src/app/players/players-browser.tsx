@@ -78,7 +78,7 @@ function PlayerCard({ player }: { player: PlayerListItem }) {
   return (
     <Link
       href={`/players/${player.id}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border bg-surface premier-card transition-colors"
+      className="group flex flex-col overflow-hidden rounded-2xl border bg-surface premier-card animate-fade-up transition-colors"
       style={{ borderColor: role.hexDim }}
     >
       {/* Photo band */}
@@ -271,7 +271,7 @@ export function PlayersBrowser({ players }: { players: PlayerListItem[] }) {
           <p className="font-body text-sm text-text-dim">لا توجد نتائج مطابقة.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2.5 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 stagger-children">
           {filtered.map((player) => (
             <PlayerCard key={player.id} player={player} />
           ))}

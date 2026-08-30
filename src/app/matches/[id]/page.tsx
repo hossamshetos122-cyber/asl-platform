@@ -93,7 +93,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
         </Link>
 
         {/* Match Hero */}
-        <div className="mb-5 rounded-xl border border-line bg-surface overflow-hidden">
+        <div className="mb-5 rounded-xl border border-line bg-surface overflow-hidden animate-fade-up">
           <div className="flex items-center justify-center gap-2 px-4 py-2.5 border-b border-line bg-surface-elevated/30">
             <span className={STATUS_CLASSES[match.status] ?? "badge-muted"}>
               {match.status === "LIVE" && <span className="ml-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-live inline-block" />}
@@ -154,7 +154,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
 
         {/* Events */}
         {match.events.length > 0 && (
-          <div className="mb-5 rounded-xl border border-line bg-surface overflow-hidden">
+<div className="mb-5 rounded-xl border border-line bg-surface overflow-hidden animate-fade-up">
             <div className="px-4 py-3 border-b border-line">
               <h2 className="font-display text-base font-black text-text">أحداث المباراة</h2>
             </div>
