@@ -8,9 +8,10 @@ import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageDisplay } from "@/components/ui/image-display";
 import Link from "next/link";
+import { formatCalendarDate } from "@/lib/dates";
 
 function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("ar-EG", { year: "numeric", month: "short", day: "numeric" }).format(date);
+  return formatCalendarDate(date);
 }
 
 const STATUS_LABELS: Record<string, string> = {

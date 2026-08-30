@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getPlayerGoalCounts } from "@/lib/stats";
 import type { Result, TeamSummaryVM, TeamDetailVM } from "@/lib/types";
 
 export async function getTeams(): Promise<Result<TeamSummaryVM[]>> {
@@ -37,7 +38,6 @@ export async function getTeamById(id: string): Promise<Result<TeamDetailVM>> {
             player: {
               include: {
                 user: { select: { fullName: true } },
-                matchEvents: { where: { type: { in: ["GOAL", "PENALTY_SCORED"] } }, select: { id: true } },
               },
             },
           },
@@ -52,6 +52,10 @@ export async function getTeamById(id: string): Promise<Result<TeamDetailVM>> {
     if (!team) {
       return { status: "empty" };
     }
+
+    const goalCounts = await getPlayerGoalCounts(
+      team.memberships.map((m) => m.player.id)
+    );
 
     const vm: TeamDetailVM = {
       id: team.id,
@@ -69,7 +73,7 @@ export async function getTeamById(id: string): Promise<Result<TeamDetailVM>> {
         photoUrl: m.player.photoUrl,
         jerseyNumber: m.player.jerseyNumber,
         position: m.player.position,
-        goals: m.player.matchEvents.length,
+        goals: goalCounts.get(m.player.id) ?? 0,
       })),
       tournaments: team.tournamentEntries.map((te) => ({
         id: te.tournament.id,

@@ -10,7 +10,7 @@ import { TopScorers } from "@/components/home/top-scorers";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getFeaturedTournamentId } from "@/lib/data/home";
+import { getFeaturedTournamentId } from "@/lib/stats";
 
 async function FeaturedTournamentPanels() {
   const tournamentResult = await getFeaturedTournamentId();

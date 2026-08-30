@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { SectionHeader } from "@/components/ui/section-header";
-import { getCurrentSeasonLabel } from "@/lib/season";
+import { getDisplaySeasonLabel } from "@/lib/season";
 
 export const metadata: Metadata = {
   title: "عن المنصة — دوري نجوم الإسكندرية",
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
     "تعرف على منصة دوري نجوم الإسكندرية: دوري كرة قدم للهواة ينظم بطولاته في الإسكندرية ويقدّم أدوات إدارة الفرق وتتبع النتائج.",
 };
 
-export default function AboutPage() {
-  const season = getCurrentSeasonLabel();
+export default async function AboutPage() {
+  const season = await getDisplaySeasonLabel();
 
   return (
     <>

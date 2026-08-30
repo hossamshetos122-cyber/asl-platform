@@ -11,6 +11,7 @@ import {
 } from "@/lib/actions/tournaments";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { formatLongDate } from "@/lib/dates";
 
 interface TournamentTeamEntry {
   id: string;
@@ -332,7 +333,7 @@ export default function TournamentsTable({ tournaments, allTeams = [] }: { tourn
                         </span>
                       </td>
                       <td className="px-4 py-3 font-num text-sm font-bold text-text">{tournament._count.teams}</td>
-                      <td className="px-4 py-3 font-body text-sm text-text-dim">{new Intl.DateTimeFormat("ar-EG", { timeZone: "UTC" }).format(new Date(tournament.startDate))}</td>
+                      <td className="px-4 py-3 font-body text-sm text-text-dim">{formatLongDate(new Date(tournament.startDate))}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <button onClick={() => setEditingId(tournament.id)} className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">تعديل</button>

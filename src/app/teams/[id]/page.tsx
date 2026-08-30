@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ImageDisplay } from "@/components/ui/image-display";
+import { formatYear } from "@/lib/dates";
 import { TeamEditForm, TeamDeleteButton } from "./team-owner-actions";
 import { PlayerManager, RemovePlayerButton } from "./player-manager";
 
@@ -48,7 +49,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
                 <span className="rounded bg-surface-elevated border border-line px-2 py-0.5 font-body text-[11px] text-text-dim">{team.city}</span>
                 {team.foundedAt && (
                   <span className="rounded bg-surface-elevated border border-line px-2 py-0.5 font-body text-[11px] text-text-dim">
-                    تأسس {new Intl.DateTimeFormat("ar-EG", { year: "numeric" }).format(team.foundedAt)}
+                    تأسس {formatYear(team.foundedAt)}
                   </span>
                 )}
               </div>

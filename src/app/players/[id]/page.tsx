@@ -2,6 +2,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { getPlayerById } from "@/lib/data/players";
+import { formatLongDate } from "@/lib/dates";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -82,7 +83,7 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
             {player.dateOfBirth && (
               <div>
                 <dt className="font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">تاريخ الميلاد</dt>
-                <dd className="mt-1 font-body text-[13px] text-text">{new Intl.DateTimeFormat("ar-EG", { year: "numeric", month: "long", day: "numeric" }).format(player.dateOfBirth)}</dd>
+                <dd className="mt-1 font-body text-[13px] text-text">{formatLongDate(player.dateOfBirth)}</dd>
               </div>
             )}
             {player.team && (

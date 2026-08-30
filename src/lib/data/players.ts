@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getPlayerGoalCounts, getPlayerMatchesPlayedCounts } from "@/lib/stats";
 import type { Result, PlayerProfileVM, PlayerListItemVM } from "@/lib/types";
 
 export async function getPlayersList(): Promise<Result<PlayerListItemVM[]>> {
@@ -12,9 +13,10 @@ export async function getPlayersList(): Promise<Result<PlayerListItemVM[]>> {
           include: { team: { select: { id: true, name: true, crestUrl: true } } },
           take: 1,
         },
-        matchEvents: { where: { type: { in: ["GOAL", "PENALTY_SCORED"] } }, select: { id: true } },
       },
     });
+
+    const goalCounts = await getPlayerGoalCounts(players.map((p) => p.id));
 
     const list = players.map((player) => {
       const membership = player.memberships[0];
@@ -27,7 +29,7 @@ export async function getPlayersList(): Promise<Result<PlayerListItemVM[]>> {
         team: membership
           ? { id: membership.team.id, name: membership.team.name, crestUrl: membership.team.crestUrl }
           : null,
-        goals: player.matchEvents.length,
+        goals: goalCounts.get(player.id) ?? 0,
       };
     });
 
@@ -49,7 +51,6 @@ export async function getPlayerById(id: string): Promise<Result<PlayerProfileVM>
           include: { team: { select: { id: true, name: true, crestUrl: true } } },
           take: 1,
         },
-        matchEvents: { where: { type: { in: ["GOAL", "PENALTY_SCORED"] } }, select: { id: true } },
       },
     });
 
@@ -62,18 +63,10 @@ export async function getPlayerById(id: string): Promise<Result<PlayerProfileVM>
       ? { id: membership.team.id, name: membership.team.name, crestUrl: membership.team.crestUrl }
       : null;
 
-    let matchesPlayed = 0;
-    if (team) {
-      const squadAppearances = await prisma.matchSquadPlayer.count({
-        where: {
-          playerId: id,
-          squad: {
-            match: { status: "FINISHED" },
-          },
-        },
-      });
-      matchesPlayed = squadAppearances;
-    }
+    const [goalsByPlayer, matchesPlayedByPlayer] = await Promise.all([
+      getPlayerGoalCounts([id]),
+      getPlayerMatchesPlayedCounts([id]),
+    ]);
 
     const vm: PlayerProfileVM = {
       id: player.id,
@@ -83,8 +76,8 @@ export async function getPlayerById(id: string): Promise<Result<PlayerProfileVM>
       position: player.position,
       dateOfBirth: player.dateOfBirth,
       team,
-      goals: player.matchEvents.length,
-      matchesPlayed,
+      goals: goalsByPlayer.get(id) ?? 0,
+      matchesPlayed: matchesPlayedByPlayer.get(id) ?? 0,
     };
 
     return { status: "success", data: vm };

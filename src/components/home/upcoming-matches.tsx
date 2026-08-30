@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { getUpcomingMatches } from "@/lib/data/home";
+import { formatKickoffTime } from "@/lib/dates";
 import { MatchCard } from "./match-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 
 function formatKickoff(date: Date): string {
-  return new Intl.DateTimeFormat("ar-EG", { hour: "2-digit", minute: "2-digit" }).format(date);
+  return formatKickoffTime(date);
 }
 
 export async function UpcomingMatches() {

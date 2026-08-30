@@ -4,13 +4,14 @@ import { getTournamentById } from "@/lib/data/tournaments";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ImageDisplay } from "@/components/ui/image-display";
+import { formatLongDate } from "@/lib/dates";
 
 const STATUS_LABELS: Record<string, string> = { UPCOMING: "قادم", ONGOING: "جاري", COMPLETED: "منتهي", CANCELLED: "ملغى" };
 const STATUS_CLASSES: Record<string, string> = { UPCOMING: "badge-muted", ONGOING: "badge-accent", COMPLETED: "badge-success", CANCELLED: "badge-muted" };
 const FORMAT_LABELS: Record<string, string> = { LEAGUE: "دوري", KNOCKOUT: "كأس", GROUPS_KNOCKOUT: "مجموعات + إقصائي", CUP: "كأس", CHAMPIONS_LEAGUE: "دوري الأبطال" };
 
 function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("ar-EG", { year: "numeric", month: "long", day: "numeric" }).format(date);
+  return formatLongDate(date);
 }
 
 interface TournamentDetailPageProps {

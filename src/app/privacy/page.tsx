@@ -3,7 +3,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { SectionHeader } from "@/components/ui/section-header";
 import { getCurrentCopyrightYear } from "@/lib/season";
-import { getCurrentSeasonLabel } from "@/lib/season";
+import { getDisplaySeasonLabel } from "@/lib/season";
 
 export const metadata: Metadata = {
   title: "سياسة الخصوصية وشروط الاستخدام — دوري نجوم الإسكندرية",
@@ -11,9 +11,9 @@ export const metadata: Metadata = {
     "سياسة الخصوصية وشروط استخدام منصة دوري نجوم الإسكندرية — كيف نجمع بياناتك ونستخدمها ونحميها.",
 };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
   const year = getCurrentCopyrightYear();
-  const season = getCurrentSeasonLabel();
+  const season = await getDisplaySeasonLabel();
 
   return (
     <>

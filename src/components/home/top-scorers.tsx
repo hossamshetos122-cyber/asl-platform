@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTopScorers } from "@/lib/data/home";
+import { getTopScorers } from "@/lib/stats";
 import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";

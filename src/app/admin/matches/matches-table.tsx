@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { createMatch, updateScore, deleteMatch } from "@/lib/actions/matches";
+import { formatMatchDateTime } from "@/lib/dates";
 
 interface MatchRow {
   id: string;
@@ -136,7 +137,7 @@ function ScoreUpdateForm({ match }: { match: MatchRow }) {
 }
 
 function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("ar-EG", { timeZone: "UTC", year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(date);
+  return formatMatchDateTime(date);
 }
 
 function MatchDeleteRow({ matchId }: { matchId: string }) {

@@ -6,6 +6,7 @@ import { TeamBadge } from "@/components/ui/team-badge";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { notFound } from "next/navigation";
 import type { MatchSquadVM } from "@/lib/types";
+import { formatMatchDateTime } from "@/lib/dates";
 
 const STATUS_LABELS: Record<string, string> = { SCHEDULED: "مجدولة", LIVE: "مباشر", HALFTIME: "استراحة", FINISHED: "انتهت", POSTPONED: "مؤجلة", CANCELLED: "ملغاة" };
 const STATUS_CLASSES: Record<string, string> = { SCHEDULED: "badge-muted", LIVE: "badge-live", HALFTIME: "badge-accent", FINISHED: "badge-success", POSTPONED: "badge-muted", CANCELLED: "badge-muted" };
@@ -15,7 +16,7 @@ const STATUS_COLORS_SQUAD: Record<string, string> = { PENDING: "badge-muted", CO
 const POSITION_LABELS: Record<string, string> = { GOALKEEPER: "حارس مرمى", DEFENDER: "مدافع", MIDFIELDER: "لاعب وسط", FORWARD: "مهاجم" };
 
 function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("ar-EG", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(date);
+  return formatMatchDateTime(date);
 }
 
 function SquadSection({ squad }: { squad: MatchSquadVM }) {

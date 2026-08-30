@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { getFeaturedTournamentId, getStandings } from "@/lib/data/home";
+import { getFeaturedTournamentId, getStandings } from "@/lib/stats";
 import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";

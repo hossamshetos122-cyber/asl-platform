@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getHomeStats } from "@/lib/data/home";
-import { getCurrentSeasonLabel } from "@/lib/season";
+import { getHomeStats } from "@/lib/stats";
+import { getDisplaySeasonLabel } from "@/lib/season";
 import type { HomeStatsVM } from "@/lib/types";
 
 const FALLBACK_STATS: HomeStatsVM = {
@@ -16,8 +16,11 @@ function formatNumber(value: number): string {
 }
 
 export async function Hero() {
-  const result = await getHomeStats();
-  const stats = result.status === "success" ? result.data : FALLBACK_STATS;
+  const [statsResult, seasonLabel] = await Promise.all([
+    getHomeStats(),
+    getDisplaySeasonLabel(),
+  ]);
+  const stats = statsResult.status === "success" ? statsResult.data : FALLBACK_STATS;
 
   const statItems: { label: string; value: number }[] = [
     { label: "فريق", value: stats.registeredTeams },
@@ -42,7 +45,7 @@ export async function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
             </span>
-            <span className="font-utility text-[10px] tracking-[0.18em] text-accent-bright uppercase">الموسم {getCurrentSeasonLabel()}</span>
+            <span className="font-utility text-[10px] tracking-[0.18em] text-accent-bright uppercase">الموسم {seasonLabel}</span>
           </span>
         </div>
 
