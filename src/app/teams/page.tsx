@@ -1,11 +1,9 @@
-import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getTeams } from "@/lib/data/teams";
 import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ImageDisplay } from "@/components/ui/image-display";
 import Link from "next/link";
 
@@ -41,15 +39,13 @@ async function TeamList() {
   );
 }
 
-export default function TeamsPage() {
+export default async function TeamsPage() {
   return (
     <>
       <Navbar />
       <main className="page-container page-padding">
         <SectionHeader title="الفرق" tag="TEAMS" bordered={false} />
-        <Suspense fallback={<Skeleton className="h-64 w-full" />}>
-          <TeamList />
-        </Suspense>
+        <TeamList />
       </main>
       <Footer />
     </>

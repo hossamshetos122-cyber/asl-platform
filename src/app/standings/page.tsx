@@ -1,11 +1,9 @@
-import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getFeaturedTournamentId, getStandings } from "@/lib/stats";
 import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ImageDisplay } from "@/components/ui/image-display";
 import Link from "next/link";
 
@@ -110,15 +108,13 @@ async function FullStandings() {
   );
 }
 
-export default function StandingsPage() {
+export default async function StandingsPage() {
   return (
     <>
       <Navbar />
       <main className="page-container page-padding">
         <SectionHeader title="جدول الترتيب" tag="STANDINGS" bordered={false} />
-        <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-          <FullStandings />
-        </Suspense>
+        <FullStandings />
       </main>
       <Footer />
     </>

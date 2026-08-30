@@ -1,14 +1,14 @@
-import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getMatches } from "@/lib/data/matches";
 import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ImageDisplay } from "@/components/ui/image-display";
 import Link from "next/link";
 import { formatCalendarDate } from "@/lib/dates";
+
+export const dynamic = "force-dynamic";
 
 function formatDate(date: Date): string {
   return formatCalendarDate(date);
@@ -93,9 +93,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
       <Navbar />
       <main className="page-container page-padding">
         <SectionHeader title="المباريات" tag="MATCHES" bordered={false} />
-        <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-          <MatchesList filter={status} />
-        </Suspense>
+        <MatchesList filter={status} />
       </main>
       <Footer />
     </>

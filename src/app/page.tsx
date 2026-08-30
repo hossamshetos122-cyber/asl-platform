@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Hero } from "@/components/home/hero";
@@ -9,7 +8,6 @@ import { StandingsTable } from "@/components/home/standings-table";
 import { TopScorers } from "@/components/home/top-scorers";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
-import { Skeleton } from "@/components/ui/skeleton";
 import { getFeaturedTournamentId } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
@@ -30,26 +28,16 @@ async function FeaturedTournamentPanels() {
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
   return (
     <>
       <Navbar />
-      <Suspense fallback={<Skeleton className="h-[480px] sm:h-[560px] bg-bg-deep" />}>
-        <Hero />
-      </Suspense>
-      <Suspense fallback={null}>
-        <LiveMatchBanner />
-      </Suspense>
-      <Suspense fallback={<div className="page-container editorial-section"><Skeleton className="h-64 w-full" /></div>}>
-        <UpcomingMatches />
-      </Suspense>
-      <Suspense fallback={<div className="page-container editorial-section"><Skeleton className="h-64 w-full" /></div>}>
-        <LatestResults />
-      </Suspense>
+      <Hero />
+      <LiveMatchBanner />
+      <UpcomingMatches />
+      <LatestResults />
       <section className="page-container editorial-section">
-        <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-          <FeaturedTournamentPanels />
-        </Suspense>
+        <FeaturedTournamentPanels />
       </section>
       <Footer />
     </>

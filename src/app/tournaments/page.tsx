@@ -1,11 +1,9 @@
-import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getTournaments } from "@/lib/data/tournaments";
 import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
-import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { formatLongDate } from "@/lib/dates";
 
@@ -44,15 +42,13 @@ async function TournamentList() {
   );
 }
 
-export default function TournamentsPage() {
+export default async function TournamentsPage() {
   return (
     <>
       <Navbar />
       <main className="page-container page-padding">
         <SectionHeader title="البطولات" tag="COMPETITIONS" bordered={false} />
-        <Suspense fallback={<Skeleton className="h-64 w-full" />}>
-          <TournamentList />
-        </Suspense>
+        <TournamentList />
       </main>
       <Footer />
     </>

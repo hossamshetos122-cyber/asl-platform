@@ -112,7 +112,9 @@ export function ImageDisplay({
   const [error, setError] = useState(false);
   const sizeConfig = SIZE_MAP[size];
 
-  if (!src || error) {
+  const oversizedDataUri = !!src && src.startsWith("data:") && src.length > 60000;
+
+  if (!src || oversizedDataUri || error) {
     return (
       <div className={className}>
         {getFallback(type, sizeConfig.container, shortCode || alt, alt)}
