@@ -528,6 +528,14 @@ interface GoalEvent {
   count: number;
 }
 
+const SEED_VENUES = ["ملعب كرموز", "ستاد المنتزه", "ملعب النخاطر", "ستاد المنشية", "ستاد الإسكندرية المركزي"] as const;
+
+function seedVenueFor(id: string): string {
+  let h = 0;
+  for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return SEED_VENUES[h % SEED_VENUES.length]!;
+}
+
 async function upsertMatch(m: MatchInput) {
   return prisma.match.upsert({
     where: { id: m.id },
@@ -536,7 +544,7 @@ async function upsertMatch(m: MatchInput) {
       id: m.id, tournamentId: m.tournamentId, seasonId: m.seasonId,
       homeTeamId: m.homeId, awayTeamId: m.awayId, status: m.status,
       kickoffAt: m.kickoffAt, homeScore: m.homeScore, awayScore: m.awayScore,
-      minute: m.minute, round: m.round, venue: m.venue,
+      minute: m.minute, round: m.round, venue: m.venue ?? seedVenueFor(m.id),
     },
   });
 }

@@ -399,7 +399,7 @@ export async function updateMatchSchedule(
     where: { id: parsed.data.matchId },
     data: {
       kickoffAt: kickoffDate,
-      ...(parsed.data.venue !== undefined ? { venue: parsed.data.venue || null } : {}),
+      venue: parsed.data.venue,
       ...(parsed.data.venueImageUrl !== undefined ? { venueImageUrl: parsed.data.venueImageUrl || null } : {}),
       ...(parsed.data.status ? { status: parsed.data.status } : {}),
     },

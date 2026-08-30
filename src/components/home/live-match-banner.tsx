@@ -25,6 +25,14 @@ export async function LiveMatchBanner() {
             {statusLabel}
           </span>
           <span className="font-utility text-[10px] tracking-wider text-text-dimmer uppercase">{match.tournamentName}</span>
+          {match.venue && (
+            <span className="inline-flex items-center gap-1.5 font-body text-[11px] text-text-dimmer">
+              <svg className="h-3 w-3 text-accent" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="8" cy="8" r="7" /><circle cx="8" cy="8" r="2.5" /><path d="M8 2v2.5M8 11.5V14M2.5 8H5M11 8h2.5" />
+              </svg>
+              <span>{match.venue}</span>
+            </span>
+          )}
         </div>
 
         {/* Match */}

@@ -95,6 +95,9 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
                     <Link href={player.nextFixture ? `/matches/${player.nextFixture.id}` : "#"} className="text-red-200 underline underline-offset-2 hover:text-red-100 transition-colors">
                       <span className="mx-1 font-num">{player.nextFixture ? formatMatchDateTime(player.nextFixture.kickoffAt) : "الفريق القادمة"}</span>
                     </Link>
+                    {player.nextFixture?.venue && (
+                      <span className="mx-1 font-num">— {player.nextFixture.venue}</span>
+                    )}
                   </span>
                 </div>
               )}

@@ -346,6 +346,8 @@ async function handleSeed() {
 
     const rounds = ["الأسبوع 1", "الأسبوع 1", "الأسبوع 1", "الأسبوع 1", "الأسبوع 1", "الأسبوع 2", "الأسبوع 2", "الأسبوع 2", "الأسبوع 2", "الأسبوع 2", "الأسبوع 3", "الأسبوع 3", "الأسبوع 3"];
 
+    const seedVenues = ["ملعب كرموز", "ستاد المنتزه", "ملعب النخاطر", "ستاد المنشية", "ستاد الإسكندرية المركزي"];
+
     const matchIdMap: Record<number, string> = {};
 
     for (let i = 0; i < newMatchDefs.length; i++) {
@@ -374,6 +376,7 @@ async function handleSeed() {
           homeScore: m.hs,
           awayScore: m.as,
           round: rounds[i]!,
+          venue: seedVenues[i % seedVenues.length]!,
         },
       });
       matchIdMap[i] = createdMatch.id;

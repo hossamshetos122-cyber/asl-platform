@@ -81,6 +81,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             <div className="min-w-0 flex-1">
               <div className="font-utility text-[9px] tracking-[0.18em] text-accent uppercase">المباراة القادمة</div>
               <div className="mt-0.5 font-num text-sm font-bold text-text">{formatMatchDateTime(team.nextFixture.kickoffAt)}</div>
+              {team.nextFixture.venue && <div className="mt-0.5 flex items-center gap-1 font-body text-[11px] text-text-dimmer"><span className="h-1.5 w-1.5 rounded-full bg-accent" />{team.nextFixture.venue}</div>}
             </div>
             <svg className="h-4 w-4 flex-shrink-0 text-text-dimmer group-hover:text-accent transition-colors" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 6h8M7 3l3 3-3 3" /></svg>
           </Link>

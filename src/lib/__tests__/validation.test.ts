@@ -220,8 +220,22 @@ describe("createMatchSchema", () => {
       homeTeamId: CID2,
       awayTeamId: CID3,
       kickoffAt: "2025-06-01T18:00:00Z",
+      venue: "استاد الإسكندرية",
     });
     expect(result.success).toBe(true);
+  });
+
+  it("rejects a match without a venue", () => {
+    const result = createMatchSchema.safeParse({
+      tournamentId: CID1,
+      homeTeamId: CID2,
+      awayTeamId: CID3,
+      kickoffAt: "2025-06-01T18:00:00Z",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.path[0] === "venue")).toBe(true);
+    }
   });
 
   it("rejects same team on both sides", () => {
@@ -230,6 +244,7 @@ describe("createMatchSchema", () => {
       homeTeamId: CID2,
       awayTeamId: CID2,
       kickoffAt: "2025-06-01T18:00:00Z",
+      venue: "استاد الإسكندرية",
     });
     expect(result.success).toBe(false);
   });
@@ -240,6 +255,7 @@ describe("createMatchSchema", () => {
       homeTeamId: CID2,
       awayTeamId: CID3,
       kickoffAt: "2025-06-01T18:00:00Z",
+      venue: "استاد الإسكندرية",
       status: "SUPER_LIVE",
     });
     expect(result.success).toBe(false);

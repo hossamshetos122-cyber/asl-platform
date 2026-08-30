@@ -111,7 +111,7 @@ export interface PlayerDisciplineData {
 export interface TeamDisciplineResult {
   byPlayer: Map<string, PlayerDisciplineData>;
   /** The team's next fixture still to be played (null when none is left). */
-  nextFixture: { id: string; kickoffAt: Date } | null;
+  nextFixture: { id: string; kickoffAt: Date; venue: string | null } | null;
 }
 
 /**
@@ -131,7 +131,7 @@ export async function getTeamDiscipline(
   const fixtures = await prisma.match.findMany({
     where: { OR: [{ homeTeamId: teamId }, { awayTeamId: teamId }] },
     orderBy: { kickoffAt: "asc" },
-    select: { id: true, status: true, kickoffAt: true },
+    select: { id: true, status: true, kickoffAt: true, venue: true },
   });
 
   const fixtureIds = fixtures.map((f) => f.id);
@@ -204,7 +204,7 @@ export async function getTeamDiscipline(
   return {
     byPlayer,
     nextFixture: nextFixture
-      ? { id: nextFixture.id, kickoffAt: nextFixture.kickoffAt }
+      ? { id: nextFixture.id, kickoffAt: nextFixture.kickoffAt, venue: nextFixture.venue }
       : null,
   };
 }
@@ -216,7 +216,7 @@ export async function getTeamDiscipline(
 export async function getPlayerDiscipline(
   playerId: string,
   teamId: string | null
-): Promise<PlayerDisciplineData & { nextFixture: { id: string; kickoffAt: Date } | null }> {
+): Promise<PlayerDisciplineData & { nextFixture: { id: string; kickoffAt: Date; venue: string | null } | null }> {
   if (!teamId) {
     return { yellows: 0, reds: 0, suspendedNext: false, reason: null, nextFixture: null };
   }

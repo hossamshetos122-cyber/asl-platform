@@ -23,6 +23,7 @@ export function MatchCard({
   homeScore,
   awayScore,
   kickoffTime,
+  venue,
   status,
   variant = "fixture",
 }: MatchCardProps) {
@@ -99,6 +100,16 @@ export function MatchCard({
           )}
         </div>
       </div>
+
+      {/* Venue */}
+      {venue && (
+        <div className="flex items-center justify-center gap-1.5 border-t border-line/40 bg-surface-elevated/30 px-4 py-1.5">
+          <svg className="h-3 w-3 flex-shrink-0 text-accent" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="8" cy="8" r="7" /><circle cx="8" cy="8" r="2.5" /><path d="M8 2v2.5M8 11.5V14M2.5 8H5M11 8h2.5" />
+          </svg>
+          <span className="font-body text-[10px] text-text-dimmer truncate">{venue}</span>
+        </div>
+      )}
     </Link>
   );
 }

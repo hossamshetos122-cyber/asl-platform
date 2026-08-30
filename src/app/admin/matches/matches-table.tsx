@@ -129,8 +129,8 @@ function InlineCreateForm({ teams, tournaments }: { teams: TeamOption[]; tournam
           <input type="datetime-local" name="kickoffAt" required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent" />
         </div>
         <div>
-          <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الملعب</label>
-          <input name="venue" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent" placeholder="استاد الإسكندرية" />
+          <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الملعب <span className="text-live">*</span></label>
+          <input name="venue" required className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent" placeholder="استاد الإسكندرية" />
         </div>
         <div className="sm:col-span-2 lg:col-span-3">
           <ImageUpload name="venueImageUrl" purpose="general" label="صورة الملعب (اختياري)" value={venueImage} onChange={setVenueImage} />
@@ -475,8 +475,8 @@ function ScheduleEditForm({ match, onClose }: { match: MatchRow; onClose: () => 
             <input type="datetime-local" name="kickoffAt" defaultValue={toLocalInput(new Date(match.kickoffAt))} required className="w-full rounded-lg border border-line bg-bg px-3 py-2 font-body text-sm text-text outline-none focus:border-accent" />
           </div>
           <div>
-            <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الملعب</label>
-            <input name="venue" defaultValue={match.venue ?? ""} className="w-full rounded-lg border border-line bg-bg px-3 py-2 font-body text-sm text-text outline-none focus:border-accent" />
+            <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الملعب <span className="text-live">*</span></label>
+            <input name="venue" defaultValue={match.venue ?? ""} required className="w-full rounded-lg border border-line bg-bg px-3 py-2 font-body text-sm text-text outline-none focus:border-accent" />
           </div>
           <div>
             <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الحالة</label>
@@ -545,7 +545,7 @@ function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, s
     <>
       {editingSchedule === match.id ? (
         <tr className="bg-surface-elevated/40">
-          <td colSpan={6} className="px-4 py-3">
+          <td colSpan={7} className="px-4 py-3">
             <ScheduleEditForm match={match} onClose={() => setEditingSchedule(null)} />
           </td>
         </tr>
@@ -573,6 +573,18 @@ function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, s
           </td>
           <td className="px-4 py-3 font-body text-[12px] text-text-dim">{formatDate(new Date(match.kickoffAt))}</td>
           <td className="px-4 py-3">
+            {match.venue ? (
+              <span className="flex items-center gap-1.5 font-body text-[11px] text-text-dim">
+                <svg className="h-3 w-3 flex-shrink-0 text-accent" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="8" cy="8" r="7" /><circle cx="8" cy="8" r="2.5" /><path d="M8 2v2.5M8 11.5V14M2.5 8H5M11 8h2.5" />
+                </svg>
+                <span className="max-w-[110px] truncate">{match.venue}</span>
+              </span>
+            ) : (
+              <span className="font-body text-[11px] text-live">مطلوب</span>
+            )}
+          </td>
+          <td className="px-4 py-3">
             <div className="flex items-center gap-2">
               {match.status !== "CANCELLED" && (
                 <GoalEntryButton match={match} isOpen={goalsOpen} onClick={() => setGoalRowId(goalsOpen ? null : match.id)} />
@@ -586,7 +598,7 @@ function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, s
       )}
       {goalsOpen && (
         <tr className="bg-surface-elevated/40">
-          <td colSpan={6} className="px-4 py-3">
+          <td colSpan={7} className="px-4 py-3">
             <GoalAssignPanel
               match={match}
               homePlayers={playersByTeam[match.homeTeamId] ?? []}
@@ -645,6 +657,7 @@ export default function MatchesTable({ matches, teams, tournaments, playersByTea
                 <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">النتيجة</th>
                 <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الحالة</th>
                 <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">التاريخ</th>
+                <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الملعب</th>
                 <th className="px-4 py-3 font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">إجراءات</th>
               </tr>
             </thead>

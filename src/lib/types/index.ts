@@ -17,6 +17,8 @@ export interface LiveMatchVM {
   round: string | null;
   status: "LIVE" | "HALFTIME";
   minute: number | null;
+  venue: string | null;
+  venueImageUrl: string | null;
   homeTeam: TeamSummaryVM;
   awayTeam: TeamSummaryVM;
   homeScore: number;
@@ -190,7 +192,7 @@ export interface TeamDetailVM {
   players: TeamPlayerVM[];
   tournaments: { id: string; name: string }[];
   /** The team's next fixture still to be played (null when none is left). */
-  nextFixture: { id: string; kickoffAt: Date } | null;
+  nextFixture: { id: string; kickoffAt: Date; venue: string | null } | null;
 }
 
 export interface TeamPlayerVM {
@@ -223,7 +225,7 @@ export interface PlayerProfileVM {
   suspendedNext: boolean;
   suspendedReason: "RED" | "SECOND_YELLOW" | null;
   /** The player's next fixture, when the team has one that is a suspension target. */
-  nextFixture: { id: string; kickoffAt: Date } | null;
+  nextFixture: { id: string; kickoffAt: Date; venue: string | null } | null;
 }
 
 export interface PlayerListItemVM {
