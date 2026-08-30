@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdmin, requireUser, canManageTeam } from "@/lib/auth";
 import {
   createMatchSchema,
   updateScoreSchema,
@@ -727,7 +727,7 @@ export async function confirmTeamSquad(
   squadId: string,
   status: "CONFIRMED" | "PENDING" | "ABSENT"
 ): Promise<SetTeamSquadResult> {
-  const user = await requireAdmin();
+  const user = await requireUser();
 
   const parsed = confirmSquadSchema.safeParse({ squadId, status });
   if (!parsed.success) {
@@ -737,9 +737,13 @@ export async function confirmTeamSquad(
 
   const squad = await prisma.matchSquad.findUnique({
     where: { id: squadId },
-    select: { id: true, matchId: true },
+    select: { id: true, matchId: true, teamId: true },
   });
   if (!squad) return { ok: false, error: "قائمة المباراة غير موجودة." };
+
+  // Admins may confirm any squad; team managers only their own team's.
+  const isOwnTeam = await canManageTeam(user, squad.teamId);
+  if (!isOwnTeam) return { ok: false, error: "ليس لديك صلاحية لتأكيد هذه القائمة." };
 
   await prisma.matchSquad.update({
     where: { id: squadId },
@@ -755,5 +759,6 @@ export async function confirmTeamSquad(
 
   revalidatePath(`/matches/${squad.matchId}`);
   revalidatePath(`/admin/matches/${squad.matchId}/squads`);
+  revalidatePath("/manage");
   return { ok: true };
 }

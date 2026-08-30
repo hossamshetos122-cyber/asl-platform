@@ -9,6 +9,7 @@ import Link from "next/link";
 export default async function DashboardPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  if (user.role === "TEAM_MANAGER") redirect("/manage");
 
   const ownedTeams = await prisma.team.findMany({
     where: { ownerId: user.id },

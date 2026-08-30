@@ -183,7 +183,11 @@ export async function loginAction(
       redirect(redirectTo);
     }
 
-    redirect(user.role === "ADMIN" ? "/admin" : "/dashboard");
+    redirect(
+      user.role === "ADMIN" ? "/admin" :
+      user.role === "TEAM_MANAGER" ? "/manage" :
+      "/dashboard"
+    );
   } catch (error) {
     if (error instanceof Error && error.message === "NEXT_REDIRECT") throw error;
     console.error("[loginAction]", error);

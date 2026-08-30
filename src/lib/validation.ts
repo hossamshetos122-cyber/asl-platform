@@ -96,6 +96,20 @@ const cuidRegex = /^[a-zA-Z0-9_-]{2,50}$/;
 
 export const cuid = z.string().regex(cuidRegex, "معرف غير صالح");
 
+export const createManagerAccountSchema = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .min(2, "الاسم يجب أن يكون حرفين على الأقل")
+    .max(100, "الاسم طويل جداً"),
+  email: z.string().trim().email("البريد الإلكتروني غير صالح").max(254),
+  password: z
+    .string()
+    .min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل")
+    .max(128, "كلمة المرور طويلة جداً"),
+  teamId: cuid,
+});
+
 // ---------------------------------------------------------------------------
 // Team schemas
 // ---------------------------------------------------------------------------

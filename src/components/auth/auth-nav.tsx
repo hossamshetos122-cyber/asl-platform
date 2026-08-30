@@ -40,6 +40,11 @@ export function AuthNav() {
             لوحة التحكم
           </Link>
         )}
+        {user.role === "TEAM_MANAGER" && (
+          <Link href="/manage" className="rounded-lg border border-accent/20 bg-accent/5 px-3 py-1.5 font-body text-[12px] font-bold text-accent transition-all hover:bg-accent/10">
+            بوابة الفريق
+          </Link>
+        )}
         <div className="h-4 w-px bg-line-strong" />
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 border border-accent/20">

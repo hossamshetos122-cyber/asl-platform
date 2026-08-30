@@ -100,6 +100,48 @@ export async function requireUser(): Promise<User> {
 }
 
 /**
+ * Fetch the teams a user manages (via the TeamManagers many-to-many link).
+ */
+export async function getManagedTeams(userId: string) {
+  return prisma.team.findMany({
+    where: { managers: { some: { id: userId } } },
+    include: {
+      _count: { select: { memberships: { where: { status: "ACTIVE" } } } },
+    },
+    orderBy: { createdAt: "asc" },
+  });
+}
+
+/**
+ * Require a team manager who manages at least one team.
+ * Returns the user plus their managed teams.
+ */
+export async function requireTeamManager(): Promise<{ user: User; teams: Awaited<ReturnType<typeof getManagedTeams>> }> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error("UNAUTHORIZED");
+  if (user.role === "ADMIN") {
+    return { user, teams: [] };
+  }
+  if (user.role !== "TEAM_MANAGER") throw new Error("FORBIDDEN");
+  const teams = await getManagedTeams(user.id);
+  if (teams.length === 0) throw new Error("FORBIDDEN");
+  return { user, teams };
+}
+
+/**
+ * Whether a user may act on a specific team: admins manage everything,
+ * team managers only the teams explicitly linked to them.
+ */
+export async function canManageTeam(user: User, teamId: string): Promise<boolean> {
+  if (user.role === "ADMIN") return true;
+  if (user.role !== "TEAM_MANAGER") return false;
+  const count = await prisma.team.count({
+    where: { id: teamId, managers: { some: { id: user.id } } },
+  });
+  return count > 0;
+}
+
+/**
  * Remove all expired sessions from the database.
  * Call periodically (e.g. on a cron or on login) to prevent buildup.
  */
