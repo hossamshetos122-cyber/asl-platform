@@ -12,6 +12,8 @@ import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getFeaturedTournamentId } from "@/lib/stats";
 
+export const dynamic = "force-dynamic";
+
 async function FeaturedTournamentPanels() {
   const tournamentResult = await getFeaturedTournamentId();
 

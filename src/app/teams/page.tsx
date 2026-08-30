@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ImageDisplay } from "@/components/ui/image-display";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 async function TeamList() {
   const result = await getTeams();
 

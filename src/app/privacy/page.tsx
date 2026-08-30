@@ -11,6 +11,8 @@ export const metadata: Metadata = {
     "سياسة الخصوصية وشروط استخدام منصة دوري نجوم الإسكندرية — كيف نجمع بياناتك ونستخدمها ونحميها.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function PrivacyPage() {
   const year = getCurrentCopyrightYear();
   const season = await getDisplaySeasonLabel();

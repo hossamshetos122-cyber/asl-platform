@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { formatLongDate } from "@/lib/dates";
 
+export const dynamic = "force-dynamic";
+
 const STATUS_LABELS: Record<string, string> = { UPCOMING: "قادم", ONGOING: "جاري", COMPLETED: "منتهي", CANCELLED: "ملغى" };
 const STATUS_CLASSES: Record<string, string> = { UPCOMING: "badge-muted", ONGOING: "badge-accent", COMPLETED: "badge-success", CANCELLED: "badge-muted" };
 const FORMAT_LABELS: Record<string, string> = { LEAGUE: "دوري", KNOCKOUT: "كأس", GROUPS_KNOCKOUT: "مجموعات + إقصائي", CUP: "كأس", CHAMPIONS_LEAGUE: "دوري الأبطال" };

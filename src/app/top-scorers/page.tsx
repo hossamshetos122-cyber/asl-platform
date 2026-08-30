@@ -9,6 +9,8 @@ import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageDisplay } from "@/components/ui/image-display";
 
+export const dynamic = "force-dynamic";
+
 async function FullTopScorers() {
   const tournamentResult = await getFeaturedTournamentId();
   if (tournamentResult.status === "error") return <ErrorState message={tournamentResult.message} />;

@@ -10,6 +10,8 @@ export const metadata: Metadata = {
     "تعرف على منصة دوري نجوم الإسكندرية: دوري كرة قدم للهواة ينظم بطولاته في الإسكندرية ويقدّم أدوات إدارة الفرق وتتبع النتائج.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function AboutPage() {
   const season = await getDisplaySeasonLabel();
 
