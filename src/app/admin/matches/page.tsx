@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import MatchesTable, { type GoalPlayerOption, type GoalEventLite } from "./matches-table";
+import MatchesTable, { type GoalPlayerOption, type EventLite } from "./matches-table";
 
 export const metadata = {
   title: "إدارة المباريات | لوحة التحكم",
@@ -27,7 +27,7 @@ export default async function AdminMatchesPage() {
 
   const matchIds = matches.map((m) => m.id);
 
-  const [memberships, goalEvents] = await Promise.all([
+  const [memberships, events] = await Promise.all([
     prisma.teamMembership.findMany({
       where: { status: "ACTIVE" },
       select: {
@@ -42,8 +42,11 @@ export default async function AdminMatchesPage() {
       },
     }),
     prisma.matchEvent.findMany({
-      where: { matchId: { in: matchIds }, type: "GOAL" },
-      select: { matchId: true, playerId: true, teamId: true },
+      where: {
+        matchId: { in: matchIds },
+        type: { in: ["GOAL", "YELLOW_CARD", "RED_CARD"] },
+      },
+      select: { matchId: true, playerId: true, teamId: true, type: true },
       orderBy: { createdAt: "asc" },
     }),
   ]);
@@ -65,11 +68,12 @@ export default async function AdminMatchesPage() {
     );
   }
 
-  const goalEventsByMatch: Record<string, GoalEventLite[]> = {};
-  for (const ev of goalEvents) {
-    (goalEventsByMatch[ev.matchId] ??= []).push({
+  const eventsByMatch: Record<string, EventLite[]> = {};
+  for (const ev of events) {
+    (eventsByMatch[ev.matchId] ??= []).push({
       playerId: ev.playerId,
       teamId: ev.teamId,
+      type: ev.type as EventLite["type"],
     });
   }
 
@@ -84,7 +88,7 @@ export default async function AdminMatchesPage() {
         teams={teams}
         tournaments={tournaments}
         playersByTeam={playersByTeam}
-        goalEventsByMatch={goalEventsByMatch}
+        eventsByMatch={eventsByMatch}
       />
     </div>
   );

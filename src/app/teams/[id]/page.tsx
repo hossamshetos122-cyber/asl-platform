@@ -108,7 +108,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {team.players.map((player) => (
-                  <Link key={player.id} href={`/players/${player.id}`} className="group flex items-center gap-2.5 rounded-lg border border-line/40 px-3 py-2.5 transition-all hover:bg-surface-elevated hover:border-line">
+                  <Link key={player.id} href={`/players/${player.id}`} className="group relative flex items-center gap-2.5 rounded-lg border border-line/40 px-3 py-2.5 transition-all hover:bg-surface-elevated hover:border-line">
                     <ImageDisplay src={player.photoUrl} alt={player.name} type="player" size="sm" />
                     <div className="min-w-0 flex-1">
                       <div className="font-body text-[12px] font-bold text-text truncate group-hover:text-accent transition-colors">{player.name}</div>
@@ -116,8 +116,21 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
                     </div>
                     <div className="flex-shrink-0 text-left">
                       <div className="flex h-6 w-6 items-center justify-center rounded bg-surface-elevated font-num text-[10px] font-bold text-emerald-500">{player.jerseyNumber ?? "-"}</div>
-                      {player.goals > 0 && <div className="mt-0.5 text-center font-num text-[9px] font-bold text-emerald-400">{player.goals} ه</div>}
+                      {(player.goals > 0 || player.yellows > 0 || player.reds > 0) && (
+                        <div className="mt-1 flex items-center justify-end gap-1">
+                          {player.goals > 0 && <span className="font-num text-[9px] font-bold text-emerald-400">{player.goals} ه</span>}
+                          {player.yellows > 0 && (
+                            <span className="inline-flex h-4 min-w-6 items-center justify-center rounded-sm border border-yellow-400/35 bg-yellow-400/10 font-num text-[9px] font-bold text-yellow-300">{player.yellows}</span>
+                          )}
+                          {player.reds > 0 && (
+                            <span className="inline-flex h-4 min-w-6 items-center justify-center rounded-sm border border-red-500/35 bg-red-500/10 font-num text-[9px] font-bold text-red-400">{player.reds}</span>
+                          )}
+                        </div>
+                      )}
                     </div>
+                    {player.suspendedNext && (
+                      <span className="absolute -top-1.5 -left-1.5 rounded bg-red-500 px-1.5 py-0.5 font-utility text-[8px] font-bold tracking-wider text-bg">موقوف</span>
+                    )}
                     {(isOwner || isAdmin) && (
                       <div className="flex-shrink-0">
                         <RemovePlayerButton teamId={team.id} playerId={player.id} />

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getSuspendedPlayers } from "@/lib/discipline";
 
 export default async function AdminDashboard() {
   const overdueMatches = await prisma.match.findMany({
@@ -26,6 +27,8 @@ export default async function AdminDashboard() {
       include: { homeTeam: true, awayTeam: true, tournament: { select: { name: true } } },
     }),
   ]);
+
+  const suspended = await getSuspendedPlayers();
 
   const stats = [
     { label: "البطولات", value: tournamentCount, href: "/admin/tournaments", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
@@ -80,6 +83,22 @@ export default async function AdminDashboard() {
           </Link>
         ))}
       </div>
+
+      {suspended.length > 0 ? (
+        <Link href="/admin/suspensions" className="group flex items-center gap-3 rounded-xl border border-live/30 bg-live/10 px-4 py-3 transition-colors hover:bg-live/15">
+          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-live/20 font-num text-[13px] font-bold text-live">{suspended.length}</span>
+          <div>
+            <p className="font-body text-[13px] font-bold text-live">لاعبون موقوفون عن المباراة القادمة</p>
+            <p className="font-body text-[11px] text-live/80">عرض قائمة الموقوفين مع سبب الإيقاف والمباراة القادمة</p>
+          </div>
+          <span className="mr-auto font-body text-[11px] font-bold text-live group-hover:underline">عرض القائمة</span>
+        </Link>
+      ) : (
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.07] px-4 py-3">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 font-num text-[12px] font-bold text-emerald-500">0</span>
+          <p className="font-body text-[12px] font-bold text-emerald-500">لا يوجد لاعبون موقوفون عن المباراة القادمة.</p>
+        </div>
+      )}
 
       <div className="rounded-xl border border-line bg-surface overflow-hidden">
         <div className="px-4 py-3 border-b border-line">

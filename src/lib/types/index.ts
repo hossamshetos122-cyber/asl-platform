@@ -185,6 +185,8 @@ export interface TeamDetailVM {
   squadLimit: number;
   players: TeamPlayerVM[];
   tournaments: { id: string; name: string }[];
+  /** The team's next fixture still to be played (null when none is left). */
+  nextFixture: { id: string; kickoffAt: Date } | null;
 }
 
 export interface TeamPlayerVM {
@@ -194,6 +196,10 @@ export interface TeamPlayerVM {
   jerseyNumber: number | null;
   position: string;
   goals: number;
+  yellows: number;
+  reds: number;
+  suspendedNext: boolean;
+  suspendedReason: "RED" | "SECOND_YELLOW" | null;
 }
 
 // --- Player view models -----------------------------------------------------
@@ -208,6 +214,12 @@ export interface PlayerProfileVM {
   team: { id: string; name: string; crestUrl: string | null } | null;
   goals: number;
   matchesPlayed: number;
+  yellows: number;
+  reds: number;
+  suspendedNext: boolean;
+  suspendedReason: "RED" | "SECOND_YELLOW" | null;
+  /** The player's next fixture, when the team has one that is a suspension target. */
+  nextFixture: { id: string; kickoffAt: Date } | null;
 }
 
 export interface PlayerListItemVM {

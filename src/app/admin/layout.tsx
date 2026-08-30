@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { label: "المباريات", href: "/admin/matches", icon: "matches" },
   { label: "الفرق", href: "/admin/teams", icon: "teams" },
   { label: "اللاعبون", href: "/admin/players", icon: "players" },
+  { label: "الموقوفون", href: "/admin/suspensions", icon: "suspensions" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

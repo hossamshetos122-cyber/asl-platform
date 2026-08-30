@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getPlayerGoalCounts, getPlayerMatchesPlayedCounts } from "@/lib/stats";
+import { getPlayerDiscipline } from "@/lib/discipline";
 import type { Result, PlayerProfileVM, PlayerListItemVM } from "@/lib/types";
 
 export async function getPlayersList(): Promise<Result<PlayerListItemVM[]>> {
@@ -63,9 +64,10 @@ export async function getPlayerById(id: string): Promise<Result<PlayerProfileVM>
       ? { id: membership.team.id, name: membership.team.name, crestUrl: membership.team.crestUrl }
       : null;
 
-    const [goalsByPlayer, matchesPlayedByPlayer] = await Promise.all([
+    const [goalsByPlayer, matchesPlayedByPlayer, discipline] = await Promise.all([
       getPlayerGoalCounts([id]),
       getPlayerMatchesPlayedCounts([id]),
+      getPlayerDiscipline(id, team?.id ?? null),
     ]);
 
     const vm: PlayerProfileVM = {
@@ -78,6 +80,11 @@ export async function getPlayerById(id: string): Promise<Result<PlayerProfileVM>
       team,
       goals: goalsByPlayer.get(id) ?? 0,
       matchesPlayed: matchesPlayedByPlayer.get(id) ?? 0,
+      yellows: discipline.yellows,
+      reds: discipline.reds,
+      suspendedNext: discipline.suspendedNext,
+      suspendedReason: discipline.reason,
+      nextFixture: discipline.suspendedNext ? discipline.nextFixture : null,
     };
 
     return { status: "success", data: vm };

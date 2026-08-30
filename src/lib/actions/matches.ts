@@ -189,15 +189,27 @@ export async function setMatchResult(id: string, homeScore: number, awayScore: n
 const SCHEDULE_STATUSES = ["SCHEDULED", "POSTPONED", "CANCELLED"] as const;
 
 const GOAL_TYPE = "GOAL";
+const YELLOW_CARD_TYPE = "YELLOW_CARD";
+const RED_CARD_TYPE = "RED_CARD";
 
 const playerIdToken = /^[a-zA-Z0-9_-]{2,50}$/;
 
+/**
+ * Records a FINISHED result together with the goal scorers and any cards.
+ * Old GOAL / YELLOW_CARD / RED_CARD events for the match are wiped and
+ * recreated from the selections, so re-saving with an edited score stays
+ * consistent. Card arrays are optional and default to empty.
+ */
 export async function setMatchResultWithGoals(
   id: string,
   homeScore: number,
   awayScore: number,
   homeGoalPlayerIds: string[],
   awayGoalPlayerIds: string[],
+  homeYellowPlayerIds: string[] = [],
+  awayYellowPlayerIds: string[] = [],
+  homeRedPlayerIds: string[] = [],
+  awayRedPlayerIds: string[] = [],
 ) {
   const user = await requireAdmin();
 
@@ -223,6 +235,10 @@ export async function setMatchResultWithGoals(
 
   const homeGoalIds = Array.isArray(homeGoalPlayerIds) ? homeGoalPlayerIds : [];
   const awayGoalIds = Array.isArray(awayGoalPlayerIds) ? awayGoalPlayerIds : [];
+  const homeYellowIds = Array.isArray(homeYellowPlayerIds) ? homeYellowPlayerIds : [];
+  const awayYellowIds = Array.isArray(awayYellowPlayerIds) ? awayYellowPlayerIds : [];
+  const homeRedIds = Array.isArray(homeRedPlayerIds) ? homeRedPlayerIds : [];
+  const awayRedIds = Array.isArray(awayRedPlayerIds) ? awayRedPlayerIds : [];
 
   if (homeGoalIds.length !== parsed.data.homeScore) {
     throw new Error(`حدّد لاعباً لكل هدف من أهداف الفريق المضيف (${parsed.data.homeScore} أهداف) أو اضغط «حفظ النتيجة فقط»`);
@@ -231,7 +247,14 @@ export async function setMatchResultWithGoals(
     throw new Error("حدّد لاعباً لكل هدف من أهداف الفريق الضيف أو اضغط «حفظ النتيجة فقط»");
   }
 
-  const allIds = [...homeGoalIds, ...awayGoalIds];
+  const allIds = [
+    ...homeGoalIds,
+    ...awayGoalIds,
+    ...homeYellowIds,
+    ...awayYellowIds,
+    ...homeRedIds,
+    ...awayRedIds,
+  ];
   if (allIds.some((pid) => typeof pid !== "string" || !playerIdToken.test(pid))) {
     throw new Error("اختيار اللاعب غير صالح");
   }
@@ -248,11 +271,16 @@ export async function setMatchResultWithGoals(
       select: { playerId: true, teamId: true },
     });
     const membershipByPlayer = new Map(memberships.map((m) => [m.playerId, m.teamId]));
-    for (const pid of homeGoalIds) {
-      if (membershipByPlayer.get(pid) !== match.homeTeamId) throw new Error("أحد اللاعبين المختارين ليس من الفريق المضيف");
+    const assertOfTeam = (pid: string, teamId: string, teamLabel: string) => {
+      if (membershipByPlayer.get(pid) !== teamId) {
+        throw new Error(`أحد اللاعبين المختارين ليس من ${teamLabel}`);
+      }
+    };
+    for (const pid of [...homeGoalIds, ...homeYellowIds, ...homeRedIds]) {
+      assertOfTeam(pid, match.homeTeamId, "الفريق المضيف");
     }
-    for (const pid of awayGoalIds) {
-      if (membershipByPlayer.get(pid) !== match.awayTeamId) throw new Error("أحد اللاعبين المختارين ليس من الفريق الضيف");
+    for (const pid of [...awayGoalIds, ...awayYellowIds, ...awayRedIds]) {
+      assertOfTeam(pid, match.awayTeamId, "الفريق الضيف");
     }
   }
 
@@ -266,27 +294,39 @@ export async function setMatchResultWithGoals(
       },
     });
 
-    await tx.matchEvent.deleteMany({ where: { matchId, type: GOAL_TYPE } });
+    await tx.matchEvent.deleteMany({
+      where: { matchId, type: { in: [GOAL_TYPE, YELLOW_CARD_TYPE, RED_CARD_TYPE] } },
+    });
 
-    if (allIds.length > 0) {
-      await tx.matchEvent.createMany({
-        data: [
-          ...homeGoalIds.map((playerId) => ({
-            matchId,
-            playerId,
-            teamId: match.homeTeamId,
-            type: GOAL_TYPE,
-            minute: 0,
-          })),
-          ...awayGoalIds.map((playerId) => ({
-            matchId,
-            playerId,
-            teamId: match.awayTeamId,
-            type: GOAL_TYPE,
-            minute: 0,
-          })),
-        ],
-      });
+    const events: {
+      matchId: string;
+      playerId: string;
+      teamId: string;
+      type: string;
+      minute: number;
+    }[] = [
+      ...homeGoalIds.map((playerId) => ({
+        matchId, playerId, teamId: match.homeTeamId, type: GOAL_TYPE, minute: 0,
+      })),
+      ...awayGoalIds.map((playerId) => ({
+        matchId, playerId, teamId: match.awayTeamId, type: GOAL_TYPE, minute: 0,
+      })),
+      ...homeYellowIds.map((playerId) => ({
+        matchId, playerId, teamId: match.homeTeamId, type: YELLOW_CARD_TYPE, minute: 0,
+      })),
+      ...awayYellowIds.map((playerId) => ({
+        matchId, playerId, teamId: match.awayTeamId, type: YELLOW_CARD_TYPE, minute: 0,
+      })),
+      ...homeRedIds.map((playerId) => ({
+        matchId, playerId, teamId: match.homeTeamId, type: RED_CARD_TYPE, minute: 0,
+      })),
+      ...awayRedIds.map((playerId) => ({
+        matchId, playerId, teamId: match.awayTeamId, type: RED_CARD_TYPE, minute: 0,
+      })),
+    ];
+
+    if (events.length > 0) {
+      await tx.matchEvent.createMany({ data: events });
     }
   });
 
@@ -299,6 +339,10 @@ export async function setMatchResultWithGoals(
       awayScore: parsed.data.awayScore,
       homeGoalPlayerIds,
       awayGoalPlayerIds,
+      homeYellowPlayerIds,
+      awayYellowPlayerIds,
+      homeRedPlayerIds,
+      awayRedPlayerIds,
     },
   });
 
@@ -308,7 +352,10 @@ export async function setMatchResultWithGoals(
   revalidatePath("/top-scorers");
   revalidatePath("/admin");
   revalidatePath("/admin/matches");
+  revalidatePath("/admin/suspensions");
   revalidatePath("/");
+  revalidatePath("/players");
+  revalidatePath("/teams");
 }
 
 export async function updateMatchSchedule(

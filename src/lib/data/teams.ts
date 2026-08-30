@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getPlayerGoalCounts } from "@/lib/stats";
+import { getTeamDiscipline } from "@/lib/discipline";
 import type { Result, TeamSummaryVM, TeamDetailVM } from "@/lib/types";
 
 export async function getTeams(): Promise<Result<TeamSummaryVM[]>> {
@@ -53,9 +54,13 @@ export async function getTeamById(id: string): Promise<Result<TeamDetailVM>> {
       return { status: "empty" };
     }
 
-    const goalCounts = await getPlayerGoalCounts(
-      team.memberships.map((m) => m.player.id)
-    );
+    const [goalCounts, discipline] = await Promise.all([
+      getPlayerGoalCounts(team.memberships.map((m) => m.player.id)),
+      getTeamDiscipline(
+        team.id,
+        team.memberships.map((m) => m.player.id)
+      ),
+    ]);
 
     const vm: TeamDetailVM = {
       id: team.id,
@@ -67,14 +72,27 @@ export async function getTeamById(id: string): Promise<Result<TeamDetailVM>> {
       ownerId: team.ownerId,
       playerCount: team.memberships.length,
       squadLimit: 20,
-      players: team.memberships.map((m) => ({
-        id: m.player.id,
-        name: m.player.user.fullName,
-        photoUrl: m.player.photoUrl,
-        jerseyNumber: m.player.jerseyNumber,
-        position: m.player.position,
-        goals: goalCounts.get(m.player.id) ?? 0,
-      })),
+      nextFixture: discipline.nextFixture,
+      players: team.memberships.map((m) => {
+        const d = discipline.byPlayer.get(m.player.id) ?? {
+          yellows: 0,
+          reds: 0,
+          suspendedNext: false,
+          reason: null,
+        };
+        return {
+          id: m.player.id,
+          name: m.player.user.fullName,
+          photoUrl: m.player.photoUrl,
+          jerseyNumber: m.player.jerseyNumber,
+          position: m.player.position,
+          goals: goalCounts.get(m.player.id) ?? 0,
+          yellows: d.yellows,
+          reds: d.reds,
+          suspendedNext: d.suspendedNext,
+          suspendedReason: d.reason,
+        };
+      }),
       tournaments: team.tournamentEntries.map((te) => ({
         id: te.tournament.id,
         name: te.tournament.name,

@@ -12,9 +12,12 @@ export interface GoalPlayerOption {
   jerseyNumber: number | null;
 }
 
-export interface GoalEventLite {
+export type EventType = "GOAL" | "YELLOW_CARD" | "RED_CARD";
+
+export interface EventLite {
   playerId: string;
   teamId: string;
+  type: EventType;
 }
 
 interface MatchRow {
@@ -143,12 +146,79 @@ function playerLabel(p: GoalPlayerOption): string {
   return p.jerseyNumber !== null ? `${p.name} — ${p.jerseyNumber}` : p.name;
 }
 
-function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existingAway, onClose }: {
+interface CardGroupProps {
+  label: string;
+  color: "yellow" | "red";
+  teamName: string;
+  players: GoalPlayerOption[];
+  values: string[];
+  prefix: string;
+  onAdd: () => void;
+  onRemove: (idx: number) => void;
+  onChange: (idx: number, value: string) => void;
+}
+
+function CardGroup({ label, color, teamName, players, values, prefix, onAdd, onRemove, onChange }: CardGroupProps) {
+  return (
+    <div className="rounded-lg border border-line/60 bg-surface-elevated/30 px-3 py-2.5">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <p className="font-body text-[11px] font-bold text-text">
+          <span className={`ml-1.5 inline-block h-2.5 w-2.5 rounded-sm ${color === "yellow" ? "bg-yellow-400" : "bg-red-500"}`} />
+          {label} — {teamName}
+        </p>
+        <button
+          type="button"
+          onClick={onAdd}
+          disabled={players.length === 0}
+          className={`rounded-md border px-2 py-0.5 font-body text-[10px] font-bold transition-colors ${color === "yellow" ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-300 hover:bg-yellow-400/20" : "border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500/20"} disabled:cursor-not-allowed disabled:opacity-40`}
+        >
+          + كارت {color === "yellow" ? "أصفر" : "أحمر"}
+        </button>
+      </div>
+      {players.length === 0 ? (
+        <p className="font-body text-[10px] text-text-dimmer">لا يوجد لاعبون مسجّلون في هذا الفريق.</p>
+      ) : values.length === 0 ? (
+        <p className="font-body text-[10px] text-text-dimmer">لا توجد كروت — اضغط «+ كارت» لاختيار اللاعب.</p>
+      ) : (
+        <div className="space-y-1.5">
+          {values.map((v, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <span className={`h-3 w-3 flex-shrink-0 rounded-sm ${color === "yellow" ? "bg-yellow-400" : "bg-red-500"}`} />
+              <select
+                name={`${prefix}-${color}-${idx}`}
+                value={v}
+                onChange={(e) => onChange(idx, e.target.value)}
+                className="w-full rounded-lg border border-line bg-bg px-2.5 py-1.5 font-body text-[12px] text-text outline-none focus:border-accent"
+              >
+                <option value="">كارت {color === "yellow" ? "أصفر" : "أحمر"}: اختر اللاعب</option>
+                {players.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
+              </select>
+              <button
+                type="button"
+                onClick={() => onRemove(idx)}
+                className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md border border-line font-body text-[12px] text-text-dim transition-colors hover:border-live/40 hover:text-live"
+                aria-label="حذف الكارت"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existingAway, existingHomeYellow, existingAwayYellow, existingHomeRed, existingAwayRed, onClose }: {
   match: MatchRow;
   homePlayers: GoalPlayerOption[];
   awayPlayers: GoalPlayerOption[];
   existingHome: string[];
   existingAway: string[];
+  existingHomeYellow: string[];
+  existingAwayYellow: string[];
+  existingHomeRed: string[];
+  existingAwayRed: string[];
   onClose: () => void;
 }) {
   const [homeScore, setHomeScore] = useState<number>(match.homeScore);
@@ -159,6 +229,10 @@ function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existi
   const [awaySel, setAwaySel] = useState<string[]>(() =>
     Array.from({ length: Math.max(match.awayScore, 0) }, (_, i) => existingAway[i] ?? "")
   );
+  const [homeYellowSel, setHomeYellowSel] = useState<string[]>(() => [...existingHomeYellow]);
+  const [awayYellowSel, setAwayYellowSel] = useState<string[]>(() => [...existingAwayYellow]);
+  const [homeRedSel, setHomeRedSel] = useState<string[]>(() => [...existingHomeRed]);
+  const [awayRedSel, setAwayRedSel] = useState<string[]>(() => [...existingAwayRed]);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -171,16 +245,26 @@ function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existi
   useEffect(() => resize(homeSel, homeScore, setHomeSel), [homeScore]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => resize(awaySel, awayScore, setAwaySel), [awayScore]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const add = (list: string[], setter: (v: string[]) => void) => setter([...list, ""]);
+  const removeAt = (list: string[], setter: (v: string[]) => void, idx: number) =>
+    setter(list.filter((_, i) => i !== idx));
+
   const canSaveWithGoals =
     (homeScore === 0 || homeSel.every((s) => s !== "")) &&
     (awayScore === 0 || awaySel.every((s) => s !== ""));
 
-  async function save(withGoals: boolean) {
+  async function save(withEvents: boolean) {
     setSaving(true);
     setError(null);
     try {
-      if (withGoals) {
-        await setMatchResultWithGoals(match.id, homeScore, awayScore, homeSel, awaySel);
+      if (withEvents) {
+        await setMatchResultWithGoals(
+          match.id, homeScore, awayScore, homeSel, awaySel,
+          homeYellowSel.filter((s) => s !== ""),
+          awayYellowSel.filter((s) => s !== ""),
+          homeRedSel.filter((s) => s !== ""),
+          awayRedSel.filter((s) => s !== ""),
+        );
       } else {
         await setMatchResult(match.id, homeScore, awayScore);
       }
@@ -262,6 +346,73 @@ function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existi
         </div>
       )}
 
+      <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <div className="space-y-2">
+          <CardGroup
+            label="الكروت الصفراء"
+            color="yellow"
+            teamName={match.homeTeam.name}
+            players={homeList}
+            values={homeYellowSel}
+            prefix={`${match.id}-home`}
+            onAdd={() => add(homeYellowSel, setHomeYellowSel)}
+            onRemove={(idx) => removeAt(homeYellowSel, setHomeYellowSel, idx)}
+            onChange={(idx, value) => {
+              const next = [...homeYellowSel];
+              next[idx] = value;
+              setHomeYellowSel(next);
+            }}
+          />
+          <CardGroup
+            label="الكروت الحمراء"
+            color="red"
+            teamName={match.homeTeam.name}
+            players={homeList}
+            values={homeRedSel}
+            prefix={`${match.id}-home`}
+            onAdd={() => add(homeRedSel, setHomeRedSel)}
+            onRemove={(idx) => removeAt(homeRedSel, setHomeRedSel, idx)}
+            onChange={(idx, value) => {
+              const next = [...homeRedSel];
+              next[idx] = value;
+              setHomeRedSel(next);
+            }}
+          />
+        </div>
+        <div className="space-y-2">
+          <CardGroup
+            label="الكروت الصفراء"
+            color="yellow"
+            teamName={match.awayTeam.name}
+            players={awayList}
+            values={awayYellowSel}
+            prefix={`${match.id}-away`}
+            onAdd={() => add(awayYellowSel, setAwayYellowSel)}
+            onRemove={(idx) => removeAt(awayYellowSel, setAwayYellowSel, idx)}
+            onChange={(idx, value) => {
+              const next = [...awayYellowSel];
+              next[idx] = value;
+              setAwayYellowSel(next);
+            }}
+          />
+          <CardGroup
+            label="الكروت الحمراء"
+            color="red"
+            teamName={match.awayTeam.name}
+            players={awayList}
+            values={awayRedSel}
+            prefix={`${match.id}-away`}
+            onAdd={() => add(awayRedSel, setAwayRedSel)}
+            onRemove={(idx) => removeAt(awayRedSel, setAwayRedSel, idx)}
+            onChange={(idx, value) => {
+              const next = [...awayRedSel];
+              next[idx] = value;
+              setAwayRedSel(next);
+            }}
+          />
+        </div>
+      </div>
+
       {error && <p className="mb-3 rounded-lg border border-live/30 bg-live/10 px-3 py-2 font-body text-[12px] text-live">{error}</p>}
 
       <div className="flex flex-wrap items-center gap-2.5">
@@ -273,7 +424,7 @@ function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existi
         </button>
         <button onClick={onClose} disabled={saving} className="rounded-lg border border-line px-3 py-1.5 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>
       </div>
-      <p className="mt-2 font-body text-[10px] text-text-dimmer">الأهداف تُحتسب تلقائياً في جدول الهدافين وصفحة اللاعب. إذا غيرت النتيجة لاحقاً، حُدد اللاعبون مرة أخرى وستُستبدل الأهداف السابقة.</p>
+      <p className="mt-2 font-body text-[10px] text-text-dimmer">الأهداف تُحتسب تلقائياً في جدول الهدافين وصفحة اللاعب، والكروت تظهر في سجل الانضباط وتُحسب الإيقافات تلقائياً (حمراء = إيقاف مباراة، كارتان أصفراوان في مباراتين = إيقاف مباراة). إذا غيرت النتيجة لاحقاً، تُعاد اختيارات الأهداف والكروت وستُستبدل السابقة.</p>
     </div>
   );
 }
@@ -358,20 +509,25 @@ function MatchDeleteRow({ matchId }: { matchId: string }) {
   );
 }
 
-function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, setGoalRowId, playersByTeam, goalEventsByMatch }: {
+function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, setGoalRowId, playersByTeam, eventsByMatch }: {
   match: MatchRow;
   editingSchedule: string | null;
   setEditingSchedule: (id: string | null) => void;
   goalRowId: string | null;
   setGoalRowId: (id: string | null) => void;
   playersByTeam: Record<string, GoalPlayerOption[]>;
-  goalEventsByMatch: Record<string, GoalEventLite[]>;
+  eventsByMatch: Record<string, EventLite[]>;
 }) {
   const overdue = isOverdueMatch(match);
   const goalsOpen = goalRowId === match.id;
-  const existingGoals = goalEventsByMatch[match.id] ?? [];
-  const existingHome = existingGoals.filter((g) => g.teamId === match.homeTeamId).map((g) => g.playerId);
-  const existingAway = existingGoals.filter((g) => g.teamId === match.awayTeamId).map((g) => g.playerId);
+  const existingEvents = eventsByMatch[match.id] ?? [];
+
+  const existingHomeGoals = existingEvents.filter((g) => g.type === "GOAL" && g.teamId === match.homeTeamId).map((g) => g.playerId);
+  const existingAwayGoals = existingEvents.filter((g) => g.type === "GOAL" && g.teamId === match.awayTeamId).map((g) => g.playerId);
+  const existingHomeYellow = existingEvents.filter((e) => e.type === "YELLOW_CARD" && e.teamId === match.homeTeamId).map((e) => e.playerId);
+  const existingAwayYellow = existingEvents.filter((e) => e.type === "YELLOW_CARD" && e.teamId === match.awayTeamId).map((e) => e.playerId);
+  const existingHomeRed = existingEvents.filter((e) => e.type === "RED_CARD" && e.teamId === match.homeTeamId).map((e) => e.playerId);
+  const existingAwayRed = existingEvents.filter((e) => e.type === "RED_CARD" && e.teamId === match.awayTeamId).map((e) => e.playerId);
 
   return (
     <>
@@ -423,8 +579,12 @@ function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, s
               match={match}
               homePlayers={playersByTeam[match.homeTeamId] ?? []}
               awayPlayers={playersByTeam[match.awayTeamId] ?? []}
-              existingHome={existingHome}
-              existingAway={existingAway}
+              existingHome={existingHomeGoals}
+              existingAway={existingAwayGoals}
+              existingHomeYellow={existingHomeYellow}
+              existingAwayYellow={existingAwayYellow}
+              existingHomeRed={existingHomeRed}
+              existingAwayRed={existingAwayRed}
               onClose={() => setGoalRowId(null)}
             />
           </td>
@@ -434,12 +594,12 @@ function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, s
   );
 }
 
-export default function MatchesTable({ matches, teams, tournaments, playersByTeam = {}, goalEventsByMatch = {} }: {
+export default function MatchesTable({ matches, teams, tournaments, playersByTeam = {}, eventsByMatch = {} }: {
   matches: MatchRow[];
   teams: TeamOption[];
   tournaments: TournamentOption[];
   playersByTeam?: Record<string, GoalPlayerOption[]>;
-  goalEventsByMatch?: Record<string, GoalEventLite[]>;
+  eventsByMatch?: Record<string, EventLite[]>;
 }) {
   const [editingSchedule, setEditingSchedule] = useState<string | null>(null);
   const [goalRowId, setGoalRowId] = useState<string | null>(null);
@@ -486,7 +646,7 @@ export default function MatchesTable({ matches, teams, tournaments, playersByTea
                   goalRowId={goalRowId}
                   setGoalRowId={setGoalRowId}
                   playersByTeam={playersByTeam}
-                  goalEventsByMatch={goalEventsByMatch}
+                  eventsByMatch={eventsByMatch}
                 />
               ))}
             </tbody>
