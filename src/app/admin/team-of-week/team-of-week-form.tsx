@@ -361,9 +361,9 @@ export function TeamOfWeekForm({
               <span className="font-utility text-[9px] tracking-[0.2em] text-white/40 uppercase">TOTW XI</span>
             </div>
 
-            <div className="pointer-events-none relative">
-              <div className="absolute inset-x-[8%] top-1/2 hidden h-24 w-24 -translate-y-1/2 rounded-full border border-white/10 sm:block" />
-              <div className="absolute inset-x-[5%] top-0 bottom-0 hidden border-y border-white/10 sm:block" />
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-x-[8%] top-1/2 hidden h-24 w-24 -translate-y-1/2 rounded-full border border-white/10 sm:block" />
+              <div className="pointer-events-none absolute inset-x-[5%] top-0 bottom-0 hidden border-y border-white/10 sm:block" />
 
               <div className="relative space-y-4 sm:space-y-5">
                 {formationBands.map((band) => (

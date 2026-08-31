@@ -1,4 +1,4 @@
-const fs = require("fs");
+﻿const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const puppeteer = require("puppeteer-core");
@@ -54,7 +54,7 @@ async function homeInnerText(page) {
   return page.evaluate(() => document.body.innerText);
 }
 
-async function waitForText(page, text, timeout = 15000) {
+async function waitForText(page, text, timeout = 20000) {
   const start = Date.now();
   while (Date.now() - start < timeout) {
     const t = await page.evaluate(() => document.body.innerText);
@@ -75,7 +75,7 @@ async function waitForText(page, text, timeout = 15000) {
   await db.connect();
 
   const seeded = await db.query(
-    `SELECT towp."positionSlot", u."fullName", p.rating, towp.captain, p.id AS "playerId"
+    `SELECT towp."positionSlot", u."fullName", p.rating, towp.captain
      FROM "TeamOfTheWeekPlayer" towp
      JOIN "Player" p ON p.id = towp."playerId"
      JOIN "User" u ON u.id = p."userId"
@@ -84,15 +84,20 @@ async function waitForText(page, text, timeout = 15000) {
   const first = seeded.rows[0] ?? {};
   const captainName = seeded.rows.find((r) => r.captain)?.fullName ?? first.fullName ?? null;
 
-  const candidate = await db.query(
-    `SELECT p.id, u."fullName", p.rating
+  const candidates = await db.query(
+    `SELECT p.id, u."fullName"
      FROM "TeamMembership" tm
      JOIN "Player" p ON p.id = tm."playerId"
      JOIN "User" u ON u.id = p."userId"
      WHERE tm.status = 'ACTIVE'
        AND p.id NOT IN (SELECT "playerId" FROM "TeamOfTheWeekPlayer")
-     LIMIT 1`);
-  const newName = candidate.rows[0]?.fullName ?? null;
+     ORDER BY u."fullName"
+     LIMIT 2`);
+  const candA = candidates.rows[0]?.fullName ?? null;
+  const candB = candidates.rows[1]?.fullName ?? null;
+  const activeCount = await db.query(
+    `SELECT count(DISTINCT tm."playerId")::int AS n FROM "TeamMembership" tm WHERE tm.status = 'ACTIVE'`);
+  const registeredPlayers = activeCount.rows[0]?.n ?? 0;
 
   const countWeeks = async () => {
     const r = await db.query(`SELECT count(*)::int AS n FROM "TeamOfTheWeek"`);
@@ -166,55 +171,132 @@ async function waitForText(page, text, timeout = 15000) {
     ok("ADMIN seeded player prefilled", adminText.includes(first.fullName ?? ""), first.fullName || "?");
     ok("ADMIN history row present", (await page.evaluate(() => document.querySelectorAll("tbody tr").length)) >= 1, ">=1 history rows");
 
-    // 3. SWAP a player via the picker + save a new week via UI
-    if (newName) {
-      await page.evaluate((name) => {
-        const btn = [...document.querySelectorAll("button")].find((b) => (b.textContent || "").includes(name));
-        if (btn) btn.click();
-      }, first.fullName ?? "");
-      await sleep(1200);
-      const modalOpen = await page.evaluate(() => !!document.querySelector('input[placeholder="ابحث بالاسم..."]'));
-      ok("ADMIN picker modal opens", modalOpen, "search input present");
-      if (modalOpen) {
-        await page.type('input[placeholder="ابحث بالاسم..."]', newName);
-        await sleep(1200);
-        const picked = await page.evaluate((name) => {
-          const overlay = [...document.querySelectorAll("div")].find((el) => String(el.className || "").includes("z-[60]"));
-          const list = overlay ? overlay.querySelectorAll("button") : document.querySelectorAll("button");
-          const btn = [...list].find((b) => (b.textContent || "").includes(name));
-          if (!btn) return false;
-          btn.click();
-          return true;
-        }, newName);
-        ok("ADMIN candidate selected", picked === true, newName);
-        await sleep(1200);
+    // REAL-click helpers: drive the actual input pipeline (respects pointer-events + scroll hit-testing).
+    const clickAt = async (finder, ...args) => {
+      const pt = await page.evaluate(finder, ...args);
+      if (!pt) return false;
+      await page.mouse.click(pt.x, pt.y);
+      await sleep(700);
+      return true;
+    };
+    const counterText = () =>
+      page.evaluate(() => {
+        const s = [...document.querySelectorAll("span")].find((sp) => (sp.textContent || "").includes("/ 11 لاعب"));
+        return s ? s.textContent.trim() : "";
+      });
+    const hasCard = (name) =>
+      page.evaluate(
+        (n) =>
+          [...document.querySelectorAll("button")].some(
+            (b) => (b.textContent || "").includes(n) && b.getAttribute("title") === "اضغط لتغيير اللاعب"
+          ),
+        name
+      );
+    const columnControls = async (name, control) => {
+      const card = [...document.querySelectorAll("button")].find(
+        (b) => (b.textContent || "").includes(name) && b.getAttribute("title") === "اضغط لتغيير اللاعب"
+      );
+      if (!card) return null;
+      const btn = [...card.parentElement.querySelectorAll("button")].find((b) => (b.textContent || "").trim() === control);
+      if (!btn) return null;
+      btn.scrollIntoView({ block: "center" });
+      await new Promise((r) => setTimeout(r, 350));
+      const r = btn.getBoundingClientRect();
+      return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+    };
+    // 3. REAL-CLICK × removes the player, slot turns into an empty placeholder instantly
+    const removed = await clickAt(columnControls, first.fullName ?? "", "×");
+    ok("ADMIN × real-click removes player", removed === true, first.fullName || "?");
+    ok("ADMIN slot emptied instantly without refresh (10/11)", (await counterText()).startsWith("10 / 11"), await counterText());
+    ok("ADMIN empty placeholder appears", await page.evaluate(() => [...document.querySelectorAll("button")].some((b) => (b.textContent || "").trim().startsWith("+"))), "plus box present");
+    ok("ADMIN removed player gone from pitch", !(await hasCard(first.fullName ?? "__none__")), first.fullName || "?");
 
-        await page.evaluate(() => {
-          const btn = [...document.querySelectorAll("button")].find((b) => /حفظ فريق الأسبوع/.test(b.textContent || ""));
-          if (btn) btn.click();
+    // 4. REAL-CLICK the empty placeholder -> picker opens, refill the slot
+    const ph = await clickAt(async () => {
+      const b = [...document.querySelectorAll("button")].find((bb) => (bb.textContent || "").trim().startsWith("+"));
+      if (!b) return null;
+      b.scrollIntoView({ block: "center" });
+      await new Promise((r) => setTimeout(r, 350));
+      const r = b.getBoundingClientRect();
+      return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+    });
+    ok("ADMIN empty slot (placeholder) real-click opens picker", ph === true, "modal");
+    if (candA) {
+      await page.type('input[placeholder="ابحث بالاسم..."]', candA);
+      await sleep(800);
+      const pickA = await clickAt((name) => {
+        const overlay = [...document.querySelectorAll("div")].find((el) => String(el.className || "").includes("z-[60]"));
+        const btn = [...(overlay ? overlay.querySelectorAll("button") : [])].find((b) => (b.textContent || "").includes(name));
+        if (!btn) return null;
+        const r = btn.getBoundingClientRect();
+        return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+      }, candA);
+      ok("ADMIN candidate A picked via real click", pickA === true, candA);
+    }
+    ok("ADMIN refilled slot instantly without refresh (11/11)", (await counterText()).startsWith("11 / 11"), await counterText());
+    ok("ADMIN candA now on pitch", candA ? await hasCard(candA) : true, candA || "skip");
+
+    // 5. REAL-CLICK تبديل on a filled slot -> picker lists EVERY registered player, same slot swapped
+    const couldSwap = !!(candA && candB);
+    if (couldSwap) {
+      const swapBtn = await clickAt(columnControls, candA, "تبديل");
+      ok("ADMIN تبديل real-click opens picker", swapBtn === true, candA);
+      if (swapBtn) {
+        const nRows = await page.evaluate(() => {
+          const overlay = [...document.querySelectorAll("div")].find((el) => String(el.className || "").includes("z-[60]"));
+          const grid = overlay ? overlay.querySelector("div.grid") : null;
+          return grid ? grid.querySelectorAll("button").length : 0;
         });
-        const saved = await waitForText(page, "تم حفظ فريق الأسبوع بنجاح");
-        ok("ADMIN save new week succeeds", saved, "success message");
-        ok("DB two weeks after save", (await countWeeks()) === 2, `weeks=2`);
-        const p2 = await homeInnerText(page);
-        ok("HOME reflects swapped player", p2.includes(newName), newName);
+        ok("ADMIN picker lists every registered player (not just current XI)", nRows >= registeredPlayers && registeredPlayers >= 11, `rows=${nRows} registered=${registeredPlayers}`);
+        await page.type('input[placeholder="ابحث بالاسم..."]', candB);
+        await sleep(800);
+        const pickB = await clickAt((name) => {
+          const overlay = [...document.querySelectorAll("div")].find((el) => String(el.className || "").includes("z-[60]"));
+          const btn = [...(overlay ? overlay.querySelectorAll("button") : [])].find((b) => (b.textContent || "").includes(name));
+          if (!btn) return null;
+          const r = btn.getBoundingClientRect();
+          return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+        }, candB);
+        ok("ADMIN candidate B picked via تبديل", pickB === true, candB);
       }
     }
+    ok("ADMIN swapped instantly without refresh (11/11)", (await counterText()).startsWith("11 / 11"), await counterText());
+    ok("ADMIN candB now on pitch in same slot", candB ? await hasCard(candB) : true, candB || "skip");
+    if (couldSwap) ok("ADMIN candA left the pitch", !(await hasCard(candA)), candA || "skip");
 
-    // 4. DELETE the latest week via history
-    await page.goto(BASE + "/admin/team-of-week", { waitUntil: "networkidle2", timeout: 45000 });
-    await page.evaluate(() => {
-      const btn = [...document.querySelectorAll("tbody button")].find((b) => /حذف/.test(b.textContent || ""));
-      if (btn) btn.click();
+    // 6. REAL-CLICK save -> new week persisted & visible on home
+    const saved = await clickAt(async () => {
+      const b = [...document.querySelectorAll("button")].find((bb) => (bb.textContent || "").trim().startsWith("حفظ فريق"));
+      if (!b) return null;
+      b.scrollIntoView({ block: "center" });
+      await new Promise((r) => setTimeout(r, 350));
+      const r = b.getBoundingClientRect();
+      return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
     });
-    const deleted = await waitForText(page, "تم حذف فريق الأسبوع.");
-    ok("ADMIN delete latest week", deleted, "delete message");
+    ok("ADMIN save new week succeeds (real click)", saved && (await waitForText(page, "تم حفظ فريق الأسبوع بنجاح")), "success message");
+    ok("DB two weeks after save", (await countWeeks()) === 2, `weeks=2`);
+    if (candB) {
+      const p2 = await homeInnerText(page);
+      ok("HOME reflects swapped player", p2.includes(candB), candB);
+    }
+
+    // 7. REAL-CLICK delete the latest week from history
+    await page.goto(BASE + "/admin/team-of-week", { waitUntil: "networkidle2", timeout: 45000 });
+    const del = await clickAt(async () => {
+      const btn = [...document.querySelectorAll("tbody button")].find((b) => /حذف/.test(b.textContent || ""));
+      if (!btn) return null;
+      btn.scrollIntoView({ block: "center" });
+      await new Promise((r) => setTimeout(r, 350));
+      const r = btn.getBoundingClientRect();
+      return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+    });
+    ok("ADMIN delete latest week (real click)", del && (await waitForText(page, "تم حذف فريق الأسبوع.")), "delete message");
     ok("DB back to one week", (await countWeeks()) === 1, `weeks=1`);
     const p3 = await homeInnerText(page);
     ok("HOME restored previous week", first.fullName && p3.includes(first.fullName), first.fullName || "?");
-    if (newName) ok("HOME dropped swapped player", !p3.includes(newName), newName || "?");
+    if (candB) ok("HOME dropped swapped player", !p3.includes(candB), candB || "?");
 
-    // 5. Restore demo XI
+    // 8. Restore demo XI
     runSeed();
     const p4 = await homeInnerText(page);
     ok("HOME demo XI restored", first.fullName && p4.includes(first.fullName), first.fullName || "?");
