@@ -112,7 +112,7 @@ export function ImageDisplay({
   const [error, setError] = useState(false);
   const sizeConfig = SIZE_MAP[size];
 
-  const oversizedDataUri = !!src && src.startsWith("data:") && src.length > 60000;
+  const oversizedDataUri = !!src && src.startsWith("data:") && src.length > 5_000_000;
 
   if (!src || oversizedDataUri || error) {
     return (

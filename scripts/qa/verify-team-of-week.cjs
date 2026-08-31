@@ -138,6 +138,61 @@ async function waitForText(page, text, timeout = 20000) {
     ok("HOME captain badge C", homeStyles.captain, "C badge present");
     ok("HOME rendered > 0 cards", homeStyles.count >= 11, `cards=${homeStyles.count}`);
 
+    // 1b. MOBILE 375px (iPhone) — the pitch must be compact, readable, no horizontal scroll
+    const mpage = await browser.newPage();
+    await mpage.setViewport({ width: 375, height: 812 });
+    await mpage.goto(BASE + "/", { waitUntil: "networkidle2", timeout: 45000 });
+    const mob = await mpage.evaluate((ratingsArr, namesArr) => {
+      const panel = document.querySelector("[data-team-of-week]");
+      if (!panel) return { found: false };
+      const vw = window.innerWidth;
+      const doc = document.documentElement.scrollWidth;
+      const shields = [...panel.querySelectorAll("div")].filter((el) => (window.getComputedStyle(el).clipPath || "").startsWith("polygon"));
+      const rect = shields[0]?.getBoundingClientRect();
+      const cardW = rect ? rect.width : 0;
+      const panelH = panel.getBoundingClientRect().height;
+      const tops = [...new Set(shields.map((s) => Math.round(s.getBoundingClientRect().top)))];
+      const badge = shields
+        .map((s) =>
+          [...s.querySelectorAll("div")].find((d) =>
+            [...d.childNodes].some((n) => n.nodeType === 3 && ratingsArr.includes((n.textContent || "").trim()))
+          )
+        )
+        .filter(Boolean)[0];
+      const texts = shields.map((s) => {
+        const p = [...s.parentElement.querySelectorAll("p")];
+        return { name: p[0]?.textContent || "", label: p[1]?.textContent || "" };
+      });
+      const overflowing = [...panel.querySelectorAll("p")]
+        .filter((el) => el.scrollWidth > el.clientWidth + 2)
+        .map((el) => (el.textContent || "").slice(0, 20));
+      const overlap = (a, b) => !(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y);
+      let avatarTouches = 0;
+      for (const s of shields) {
+        const parent = s.parentElement;
+        const caps = parent.textContent || "";
+        const imgs = [...parent.querySelectorAll("img")];
+        const coin = imgs.find((i) => namesArr.includes(i.alt));
+        const crest = imgs.find((i) => i !== coin);
+        if (!coin || !crest) continue;
+        const c = coin.getBoundingClientRect();
+        const t = crest.getBoundingClientRect();
+        if (overlap({ x: c.x, y: c.y, w: c.width, h: c.height }, { x: t.x, y: t.y, w: t.width, h: t.height })) avatarTouches++;
+      }
+      return { found: true, vw, doc, shields: shields.length, rows: tops.length, cardW, panelH, badgeH: badge?.getBoundingClientRect().height || 0, texts, overflowing, avatarTouches };
+    }, seeded.rows.map((r) => String(r.rating)), seeded.rows.map((r) => r.fullName));
+    ok("MOBILE panel found at 375px", mob.found, "present");
+    ok("MOBILE no horizontal scroll", mob.found && mob.doc <= mob.vw + 2, `scrollW=${mob.doc} vw=${mob.vw}`);
+    ok("MOBILE all 11 shields rendered", mob.found && mob.shields >= 11, `shields=${mob.shields}`);
+    ok("MOBILE 4-player bands stay on one line (4 rows total)", mob.found && mob.rows === 4, `rows=${mob.rows}`);
+    ok("MOBILE compact card width", mob.found && mob.cardW > 44 && mob.cardW <= 80, `cardW=${mob.cardW.toFixed(1)}px`);
+    ok("MOBILE pitch panel compact height", mob.found && mob.panelH <= 1200, `panelH=${mob.panelH.toFixed(0)}px`);
+    ok("MOBILE rating badge still visible", mob.found && mob.badgeH >= 20, `badgeH=${mob.badgeH.toFixed(1)}px`);
+    ok("MOBILE names + labels all present", mob.found && mob.texts.length >= 11 && mob.texts.every((t) => t.name && t.label), `texts=${mob.texts.length}`);
+    ok("MOBILE no text cut/overlap", mob.found && mob.overflowing.length === 0, mob.overflowing.length ? mob.overflowing.join(" | ") : "clean");
+    ok("MOBILE crest does not touch avatar ring", mob.found && mob.avatarTouches === 0, `touches=${mob.avatarTouches}`);
+    await mpage.close();
+
     ok("DB seeded ratings persisted", seeded.rows.every((r) => typeof r.rating === "number"), `ratings=${seeded.rows.map((r) => r.rating).join(",")}`);
     ok("DB single week seeded", (await countWeeks()) === 1, `weeks=1`);
 

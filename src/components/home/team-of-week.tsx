@@ -66,51 +66,61 @@ function ShieldCard({ slot }: { slot: TeamOfTheWeekSlotVM }) {
   const tier = TIER_STYLES[getRatingTier(player.rating)];
 
   return (
-    <div className="flex w-[100px] flex-col items-center sm:w-[106px]">
+    <div className="flex w-[72px] flex-col items-center sm:w-[106px]">
       <div
         style={{ clipPath: SHIELD_CLIP }}
-        className={`relative flex h-[150px] w-full flex-col items-center overflow-hidden border bg-gradient-to-b from-white/[0.07] via-white/[0.02] to-black/25 ${tier.border} ${tier.glow}`}
+        className={`relative flex h-[100px] w-full flex-col items-center overflow-hidden border bg-gradient-to-b from-white/[0.07] via-white/[0.02] to-black/25 ${tier.border} ${tier.glow} sm:h-[150px]`}
       >
         <div className={`h-1.5 w-full bg-gradient-to-r ${tier.strip}`} />
 
-        <div className="absolute top-2 left-1.5 flex flex-col items-start gap-1">
+        <div className="absolute top-1.5 left-1 flex flex-col items-start gap-0.5 sm:top-2 sm:left-1.5">
           {slot.captain && (
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent font-display text-[9px] font-black text-[#1d1400]">
+            <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent font-display text-[8px] font-black text-[#1d1400] sm:h-4 sm:w-4 sm:text-[9px]">
               C
             </span>
           )}
           {player.jerseyNumber !== null && (
-            <span className="font-num text-[9px] font-black text-white/55" dir="ltr">
+            <span className="font-num leading-none text-[8px] font-black text-white/55 sm:text-[9px]" dir="ltr">
               {player.jerseyNumber}
             </span>
           )}
         </div>
 
-        <div className="absolute top-2 right-1.5">
+        <div className="absolute top-1.5 right-1 sm:top-2 sm:right-1.5">
           <ImageDisplay
             src={player.team.crestUrl}
             alt={player.team.name}
             type="avatar"
             size="xs"
             shortCode={player.team.shortName}
+            className="!h-4 !w-4 sm:!h-6 sm:!w-6"
           />
         </div>
 
         <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden pt-1">
-          <div className={`flex h-[60px] w-[60px] items-center justify-center rounded-full border bg-bg/80 p-0.5 ${tier.border}`}>
-            <ImageDisplay src={player.photoUrl} alt={player.name} type="avatar" size="md" shortCode={player.name} />
+          <div
+            className={`flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border bg-bg/80 sm:h-[60px] sm:w-[60px] sm:p-0.5 ${tier.border}`}
+          >
+            <ImageDisplay
+              src={player.photoUrl}
+              alt={player.name}
+              type="avatar"
+              size="md"
+              shortCode={player.name}
+              className="!h-8 !w-8 sm:!h-12 sm:!w-12"
+            />
           </div>
         </div>
 
         <div
-          className={`-mt-0.5 mb-2 flex h-9 w-9 items-center justify-center rounded-full border-2 border-black/25 font-num text-[15px] leading-none font-black shadow-lg ${tier.badge}`}
+          className={`-mt-0.5 mb-1.5 flex h-6 w-6 items-center justify-center rounded-full border-2 border-black/25 font-num text-[11px] leading-none font-black shadow-lg sm:mb-2 sm:h-9 sm:w-9 sm:text-[15px] ${tier.badge}`}
         >
           {player.rating}
         </div>
       </div>
 
-      <p className="mt-1.5 w-full truncate text-center font-body text-[11px] font-bold text-text">{player.name}</p>
-      <p className="mt-0.5 font-utility text-[8px] tracking-[0.15em] text-white/40 uppercase">{slot.label}</p>
+      <p className="mt-1 w-full text-center font-body leading-snug text-[10px] font-bold text-text sm:mt-1.5 sm:text-[11px]">{player.name}</p>
+      <p className="mt-0.5 w-full text-center font-utility text-[8px] tracking-[0.12em] text-white/40 uppercase sm:tracking-[0.15em]">{slot.label}</p>
     </div>
   );
 }
@@ -127,7 +137,7 @@ export async function TeamOfWeek() {
 
       {result.status === "success" && (
         <div data-team-of-week className="overflow-hidden rounded-3xl border border-line bg-surface">
-          <div className="border-b border-line bg-gradient-to-l from-[#0d1830] via-[#123B6B] to-[#0d1830] px-5 py-4 sm:px-7">
+          <div className="border-b border-line bg-gradient-to-l from-[#0d1830] via-[#123B6B] to-[#0d1830] px-4 py-3 sm:px-7 sm:py-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 className="font-display text-lg font-black text-text sm:text-xl">{result.data.weekLabel}</h3>
@@ -144,7 +154,7 @@ export async function TeamOfWeek() {
             </div>
           </div>
 
-          <div className="bg-[linear-gradient(180deg,#181334_0%,#101B36_50%,#0A0F1E_100%)] p-5 sm:p-7">
+          <div className="bg-[linear-gradient(180deg,#181334_0%,#101B36_50%,#0A0F1E_100%)] px-3 py-4 sm:p-7">
             <div className="relative">
               <div className="pointer-events-none absolute inset-0">
                 <div className="absolute inset-x-[4%] inset-y-0 border-x border-white/10" />
@@ -157,7 +167,7 @@ export async function TeamOfWeek() {
                 <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_50%,rgba(46,123,255,0.12),transparent_70%)]" />
               </div>
 
-              <div className="relative flex flex-col gap-6 sm:gap-7">
+              <div className="relative flex flex-col gap-4 sm:gap-7">
                 {[...result.data.slots]
                   .reduce<{ band: number; slots: TeamOfTheWeekSlotVM[] }[]>((bands, slot) => {
                     const existing = bands.find((b) => b.band === slot.band);
@@ -167,7 +177,7 @@ export async function TeamOfWeek() {
                   }, [])
                   .sort((a, b) => a.band - b.band)
                   .map((band) => (
-                    <div key={band.band} className="flex flex-wrap items-center justify-center gap-x-3 gap-y-3 sm:gap-x-4">
+                    <div key={band.band} className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2.5 sm:gap-x-4 sm:gap-y-3">
                       {band.slots.map((slot) => (
                         <ShieldCard key={slot.positionSlot} slot={slot} />
                       ))}
