@@ -64,7 +64,7 @@ export function AuthNav() {
       <Link href="/login" className="rounded-lg px-3 py-2 font-body text-[12px] font-bold text-text-dim transition-all hover:text-text">
         تسجيل الدخول
       </Link>
-      <Link href="/register" className="rounded-lg bg-accent px-4 py-2 font-body text-[12px] font-extrabold text-[#1d1400] transition-all hover:bg-accent-bright">
+      <Link href="/register" className="rounded-lg bg-accent px-4 py-2 font-body text-[12px] font-extrabold text-white transition-all hover:bg-accent-bright">
         إنشاء حساب
       </Link>
     </div>

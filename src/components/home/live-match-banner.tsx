@@ -22,7 +22,7 @@ export async function LiveMatchBanner() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-live opacity-70" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-live" />
             </span>
-            {statusLabel}
+            <span className={match.status === "LIVE" ? "live-word" : ""}>{statusLabel}</span>
           </span>
           <span className="font-utility text-[10px] tracking-wider text-text-dimmer uppercase">{match.tournamentName}</span>
           {match.venue && (

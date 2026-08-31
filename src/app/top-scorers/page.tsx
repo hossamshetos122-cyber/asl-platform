@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -117,10 +118,14 @@ export default async function TopScorersPage() {
       <Navbar />
       <main className="page-container page-padding">
         <SectionHeader title="ترتيب الهدافين" tag="TOP SCORERS" bordered={false} />
-        <FullTopScorers />
+        <Suspense fallback={<div className="h-48 animate-pulse rounded-xl border border-line bg-surface" />}>
+          <FullTopScorers />
+        </Suspense>
         <div className="mt-10">
           <SectionHeader title="أفضل صنّاع الأهداف" tag="TOP ASSISTS" bordered={false} />
-          <FullTopAssisters />
+          <Suspense fallback={<div className="h-48 animate-pulse rounded-xl border border-line bg-surface" />}>
+            <FullTopAssisters />
+          </Suspense>
         </div>
       </main>
       <Footer />

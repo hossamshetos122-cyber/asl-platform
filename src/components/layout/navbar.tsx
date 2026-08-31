@@ -37,7 +37,7 @@ export function Navbar() {
           <AuthNav />
           <Link
             href="/teams/new"
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 font-body text-[12px] font-extrabold text-[#1d1400] transition-all hover:bg-accent-bright active:scale-[0.98]"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 font-body text-[12px] font-extrabold text-white transition-all hover:bg-accent-bright active:scale-[0.98]"
           >
             <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <path d="M8 3v10M3 8h10" />

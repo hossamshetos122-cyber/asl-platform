@@ -31,7 +31,7 @@ export function ConfirmSquadButton({ squadId, status, label }: {
             setBusy(false);
           }
         }}
-        className="rounded-lg bg-accent px-3 py-1.5 font-body text-[11px] font-bold text-[#1d1400] transition-colors hover:bg-accent-bright disabled:opacity-50"
+        className="rounded-lg bg-accent px-3 py-1.5 font-body text-[11px] font-bold text-white transition-colors hover:bg-accent-bright disabled:opacity-50"
       >
         {busy ? "جارٍ..." : label}
       </button>

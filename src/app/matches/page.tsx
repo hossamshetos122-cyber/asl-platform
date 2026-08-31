@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getMatches } from "@/lib/data/matches";
@@ -101,7 +102,16 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
       <Navbar />
       <main className="page-container page-padding">
         <SectionHeader title="المباريات" tag="MATCHES" bordered={false} />
-        <MatchesList filter={status} />
+        <Suspense fallback={<div className="space-y-6">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="space-y-2">
+              <div className="h-3 w-24 animate-pulse rounded bg-line" />
+              <div className="h-16 animate-pulse rounded-xl border border-line bg-surface" />
+            </div>
+          ))}
+        </div>}>
+          <MatchesList filter={status} />
+        </Suspense>
       </main>
       <Footer />
     </>

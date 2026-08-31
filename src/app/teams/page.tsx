@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getTeams } from "@/lib/data/teams";
@@ -45,7 +46,13 @@ export default async function TeamsPage() {
       <Navbar />
       <main className="page-container page-padding">
         <SectionHeader title="الفرق" tag="TEAMS" bordered={false} />
-        <TeamList />
+        <Suspense fallback={<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-xl border border-line bg-surface" />
+          ))}
+        </div>}>
+          <TeamList />
+        </Suspense>
       </main>
       <Footer />
     </>

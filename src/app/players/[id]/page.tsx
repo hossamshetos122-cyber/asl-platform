@@ -40,7 +40,7 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
       <section className="relative overflow-hidden bg-surface border-b border-line">
         <div
           className="absolute inset-0"
-          style={{ background: `radial-gradient(120% 160% at 85% -10%, ${role.soft}, rgba(10,15,30,0) 60%), linear-gradient(180deg, ${role.dim}, #0A0F1E 80%)` }}
+          style={{ background: `radial-gradient(120% 160% at 85% -10%, ${role.soft}, rgba(10,38,71,0) 60%), linear-gradient(180deg, ${role.dim}, #0A2647 80%)` }}
         />
         <div className="page-container relative pt-10 sm:pt-14 pb-6 sm:pb-10 animate-fade-up">
           <Link href="/teams" className="mb-5 inline-flex items-center gap-1.5 py-2 -my-2 font-body text-sm font-bold text-accent hover:text-accent-bright transition-colors">
@@ -59,7 +59,7 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
                 className="rounded-full p-[4px]"
                 style={{ background: `linear-gradient(135deg, ${role.hex}, ${role.hex}55)`, boxShadow: `0 10px 28px ${role.hex}33` }}
               >
-                <ImageDisplay src={player.photoUrl} alt={`صورة ${player.name}`} type="avatar" size="xl" className="rounded-full bg-surface-elevated" />
+                <ImageDisplay src={player.photoUrl} alt={player.name} type="avatar" size="xl" className="rounded-full bg-surface-elevated" />
               </div>
             </div>
 

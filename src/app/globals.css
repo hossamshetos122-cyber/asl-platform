@@ -12,7 +12,7 @@
   }
 
   body {
-    background: #0a0f1e;
+    background: #0a2647;
   }
 
   :focus-visible {
@@ -78,7 +78,7 @@
   }
 
 .btn-primary {
-  @apply rounded-lg bg-accent px-6 py-3 font-body text-sm font-black text-[#1d1400] transition-all hover:bg-accent-bright hover:shadow-glow active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply rounded-lg bg-accent px-6 py-3 font-body text-sm font-black text-white transition-all hover:bg-accent-bright hover:shadow-glow active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
   .btn-secondary {
@@ -118,14 +118,14 @@
   }
 }
 
-/* Hero background — dark navy broadcast look (Saudi Pro League style) */
+/* Hero background — deep navy + floodlit coral broadcast look */
 .hero-bg {
   background:
-    radial-gradient(60% 82% at 88% 8%, rgba(46, 123, 255, 0.28), transparent 62%),
-    radial-gradient(48% 72% at 8% 88%, rgba(245, 197, 24, 0.14), transparent 58%),
+    radial-gradient(60% 82% at 88% 8%, rgba(46, 123, 255, 0.26), transparent 62%),
+    radial-gradient(48% 72% at 8% 88%, rgba(255, 107, 53, 0.16), transparent 58%),
     radial-gradient(46% 66% at 35% 118%, rgba(16, 62, 114, 0.6), transparent 62%),
     radial-gradient(32% 46% at 108% 106%, rgba(253, 115, 1, 0.13), transparent 55%),
-    linear-gradient(165deg, #0d1830 0%, #0a0f1e 48%, #050810 100%);
+    linear-gradient(165deg, #0d223f 0%, #0a2647 48%, #061730 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -138,7 +138,7 @@
 
 /* Broadcast-style text gradients */
 .text-gradient-hero {
-  background: linear-gradient(120deg, #ffe066 0%, #f5c518 28%, #dce7ff 55%, #2e7bff 100%);
+  background: linear-gradient(120deg, #ff8a5c 0%, #ff6b35 30%, #8fb5ff 62%, #ffffff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -184,6 +184,32 @@
 }
 .score-live {
   animation: score-pulse 2s ease-in-out infinite;
+}
+
+/* Live "مباشر" word pulse */
+@keyframes live-word-pulse {
+  0%, 100% { color: #ff6b6b; text-shadow: 0 0 12px rgba(255, 61, 46, 0.55); }
+  50% { color: #ff3d2e; text-shadow: 0 0 4px rgba(255, 61, 46, 0.15); }
+}
+.live-word {
+  animation: live-word-pulse 1.5s ease-in-out infinite;
+}
+
+/* Results marquee (RTL-safe: track is explicit ltr, fades on edges) */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee-scroll 32s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
 }
 
 /* Subtle entry animations */
@@ -243,6 +269,6 @@
 
 /* Gradient accent line */
 .gradient-accent {
-  background: linear-gradient(90deg, transparent, rgba(245, 197, 24, 0.4), rgba(46, 123, 255, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.4), rgba(46, 123, 255, 0.4), transparent);
   height: 1px;
 }

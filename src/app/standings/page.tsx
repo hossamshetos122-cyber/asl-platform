@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getFeaturedTournamentId, getStandings } from "@/lib/stats";
@@ -114,7 +115,13 @@ export default async function StandingsPage() {
       <Navbar />
       <main className="page-container page-padding">
         <SectionHeader title="جدول الترتيب" tag="STANDINGS" bordered={false} />
-        <FullStandings />
+        <Suspense fallback={<div className="space-y-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-20 animate-pulse rounded-lg border border-line bg-surface" />
+          ))}
+        </div>}>
+          <FullStandings />
+        </Suspense>
       </main>
       <Footer />
     </>

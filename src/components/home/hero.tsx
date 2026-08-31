@@ -33,7 +33,69 @@ export async function Hero() {
     <section className="relative overflow-hidden hero-bg">
       {/* Decorative orbs */}
       <div className="hero-glow-orb bottom-[-140px] left-[-100px] h-96 w-96 bg-accent/15" />
-      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-bg to-transparent" />
+
+      {/* Night floodlit stadium (vector, ultra-light) */}
+      <svg
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[52%] w-full text-white"
+        viewBox="0 0 1440 420"
+        preserveAspectRatio="xMidYMax slice"
+        fill="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="beamA" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="rgba(255,255,255,0.10)" />
+            <stop offset="1" stopColor="rgba(255,255,255,0)" />
+          </linearGradient>
+          <linearGradient id="beamB" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="rgba(255,138,92,0.12)" />
+            <stop offset="1" stopColor="rgba(255,138,92,0)" />
+          </linearGradient>
+          <pattern id="crowd" width="12" height="9" patternUnits="userSpaceOnUse">
+            <rect x="0" y="0" width="12" height="9" fill="rgba(3,14,32,0.55)" />
+            <circle cx="3" cy="4" r="1.7" fill="rgba(255,255,255,0.07)" />
+            <circle cx="9" cy="4" r="1.7" fill="rgba(255,255,255,0.05)" />
+          </pattern>
+        </defs>
+
+        {/* floodlight towers + beams */}
+        <polygon points="118,52 620,420 392,420" fill="url(#beamA)" />
+        <polygon points="1322,52 820,420 1048,420" fill="url(#beamA)" />
+        <polygon points="322,150 180,420 380,420" fill="url(#beamB)" />
+        <polygon points="1118,150 1060,420 1260,420" fill="url(#beamB)" />
+        <g stroke="rgba(255,255,255,0.14)" strokeWidth="3">
+          <line x1="118" y1="58" x2="118" y2="420" />
+          <line x1="1322" y1="58" x2="1322" y2="420" />
+          <line x1="322" y1="156" x2="322" y2="420" />
+          <line x1="1118" y1="156" x2="1118" y2="420" />
+        </g>
+        <g fill="rgba(255,255,255,0.85)">
+          <circle cx="112" cy="52" r="3" />
+          <circle cx="118" cy="46" r="3" />
+          <circle cx="124" cy="52" r="3" />
+          <circle cx="1316" cy="52" r="3" />
+          <circle cx="1322" cy="46" r="3" />
+          <circle cx="1328" cy="52" r="3" />
+          <circle cx="316" cy="150" r="3" />
+          <circle cx="322" cy="144" r="3" />
+          <circle cx="328" cy="150" r="3" />
+          <circle cx="1112" cy="150" r="3" />
+          <circle cx="1118" cy="144" r="3" />
+          <circle cx="1124" cy="150" r="3" />
+        </g>
+        <g fill="rgba(255,255,255,0.18)">
+          <circle cx="118" cy="50" r="14" />
+          <circle cx="1322" cy="50" r="14" />
+          <circle cx="322" cy="148" r="10" />
+          <circle cx="1118" cy="148" r="10" />
+        </g>
+
+        {/* stands band + crowd */}
+        <rect x="0" y="398" width="1440" height="22" fill="url(#crowd)" />
+        <line x1="0" y1="398" x2="1440" y2="398" stroke="rgba(255,255,255,0.20)" strokeWidth="2" />
+      </svg>
+
+      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-bg to-transparent" />
 
       {/* Content */}
       <div className="page-container relative z-10 pt-10 sm:pt-14 lg:pt-16 pb-12 sm:pb-16">
@@ -90,7 +152,7 @@ export async function Hero() {
             </p>
 
             <div className="flex flex-wrap gap-3 justify-center lg:justify-start animate-fade-up">
-              <Link href="/teams/new" className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 font-body text-sm font-black text-[#1d1400] transition-all hover:bg-accent-bright hover:shadow-glow active:scale-[0.98]">
+              <Link href="/teams/new" className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 font-body text-sm font-black text-white transition-all hover:bg-accent-bright hover:shadow-glow active:scale-[0.98]">
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M8 3v10M3 8h10" /></svg>
                 سجّل فريقك الآن
               </Link>

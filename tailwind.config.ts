@@ -6,13 +6,13 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          DEFAULT: "#0A0F1E",
-          deep: "#050810",
+          DEFAULT: "#0A2647",
+          deep: "#061730",
         },
         surface: {
-          DEFAULT: "#10192E",
-          elevated: "#1A2642",
-          raised2: "#253352",
+          DEFAULT: "#122C4F",
+          elevated: "#16335C",
+          raised2: "#1B3D6B",
         },
         purple: {
           DEFAULT: "#123B6B",
@@ -21,10 +21,10 @@ const config: Config = {
         },
         live: "#FF3D2E",
         accent: {
-          DEFAULT: "#F5C518",
-          bright: "#FFE066",
-          dim: "#D0A100",
-          faint: "rgba(245,197,24,0.08)",
+          DEFAULT: "#FF6B35",
+          bright: "#FF8A5C",
+          dim: "#E04E1A",
+          faint: "rgba(255,107,53,0.08)",
         },
         success: {
           DEFAULT: "#00D68F",
@@ -37,7 +37,7 @@ const config: Config = {
         },
         cyan: "#2ED6F5",
         line: "rgba(255,255,255,0.08)",
-        "line-accent": "rgba(245,197,24,0.40)",
+        "line-accent": "rgba(255,107,53,0.40)",
         "line-strong": "rgba(255,255,255,0.14)",
         navy: {
           DEFAULT: "#103E72",
@@ -45,9 +45,9 @@ const config: Config = {
         },
         text: {
           DEFAULT: "#FFFFFF",
-          dim: "#B9C4DC",
-          dimmer: "#8794B2",
-          faint: "#5B6883",
+          dim: "#C7D2E3",
+          dimmer: "#94A3B8",
+          faint: "#64748B",
         },
       },
       fontFamily: {
@@ -64,9 +64,9 @@ const config: Config = {
         "2xl": "24px",
       },
       boxShadow: {
-        glow: "0 0 20px rgba(245,197,24,0.16)",
-        "glow-sm": "0 0 10px rgba(245,197,24,0.10)",
-        "glow-lg": "0 0 40px rgba(245,197,24,0.22), 0 0 80px rgba(245,197,24,0.08)",
+        glow: "0 0 20px rgba(255,107,53,0.16)",
+        "glow-sm": "0 0 10px rgba(255,107,53,0.10)",
+        "glow-lg": "0 0 40px rgba(255,107,53,0.22), 0 0 80px rgba(255,107,53,0.08)",
         "pulse-green": "0 0 20px rgba(0,214,143,0.25)",
         deep: "0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.25)",
         elevated: "0 4px 20px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.18)",

@@ -68,16 +68,11 @@ function CoverFallback({ size }: { size: string }) {
 }
 
 function AvatarFallback({ name, size }: { name: string; size: string }) {
-  const initials = name
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const initial = ((name || "").trim().charAt(0) || "؟").toUpperCase();
 
   return (
     <div className={`${size} flex items-center justify-center rounded-full border border-accent/25 bg-gradient-to-br from-[#123B6B] to-purple-bright/30`}>
-      <span className="font-display font-black text-accent-bright">{initials || "?"}</span>
+      <span className="font-display font-black text-accent-bright">{initial}</span>
     </div>
   );
 }

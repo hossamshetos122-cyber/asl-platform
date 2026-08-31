@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Hero } from "@/components/home/hero";
@@ -39,7 +40,13 @@ export default async function HomePage() {
       <LatestResults />
       <TeamOfWeek />
       <section className="page-container editorial-section">
-        <FeaturedTournamentPanels />
+        <Suspense fallback={<div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.3fr_1fr]">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="h-56 animate-pulse rounded-xl border border-line bg-surface" />
+          ))}
+        </div>}>
+          <FeaturedTournamentPanels />
+        </Suspense>
       </section>
       <Footer />
     </>

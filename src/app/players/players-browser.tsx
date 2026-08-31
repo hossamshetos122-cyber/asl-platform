@@ -83,7 +83,7 @@ function PlayerCard({ player }: { player: PlayerListItem }) {
       style={{ borderColor: role.hexDim }}
     >
       {/* Photo band */}
-      <div className="relative h-28 sm:h-32 overflow-hidden" style={{ background: `radial-gradient(130% 160% at 50% -20%, ${role.soft}, rgba(10,15,30,0) 65%), linear-gradient(180deg, ${role.hexDim}, #0A0F1E 78%)` }}>
+      <div className="relative h-28 sm:h-32 overflow-hidden" style={{ background: `radial-gradient(130% 160% at 50% -20%, ${role.soft}, rgba(10,38,71,0) 65%), linear-gradient(180deg, ${role.hexDim}, #0A2647 78%)` }}>
         {player.jerseyNumber != null && (
           <span className="pointer-events-none absolute left-1 -bottom-2 select-none font-num text-[68px] font-black leading-none text-white/5" dir="ltr">
             {player.jerseyNumber}
@@ -98,7 +98,7 @@ function PlayerCard({ player }: { player: PlayerListItem }) {
           <div className="rounded-full p-[3px]" style={{ background: `linear-gradient(135deg, ${role.hex}, rgba(255,255,255,0.15) 55%, ${role.hex})`, boxShadow: `0 6px 20px ${role.hex}22` }}>
             <ImageDisplay
               src={player.photoUrl}
-              alt={`صورة ${player.name}`}
+              alt={player.name}
               type="avatar"
               size="lg"
               className="rounded-full bg-surface-elevated"

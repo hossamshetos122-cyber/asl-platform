@@ -22,9 +22,9 @@ const TIER_STYLES: Record<RatingTierKey, TierStyle> = {
     glow: "shadow-[0_0_16px_rgba(46,214,245,0.35)]",
   },
   gold: {
-    border: "border-accent/70",
-    strip: "from-accent to-accent-bright",
-    badge: "bg-accent text-[#1d1400]",
+    border: "border-[#F5C518]/70",
+    strip: "from-[#FFD166] to-[#F5C518]",
+    badge: "bg-[#F5C518] text-[#1d1400]",
     glow: "shadow-[0_0_16px_rgba(245,197,24,0.30)]",
   },
   silver: {
@@ -89,7 +89,7 @@ export function TOTWCard({
       </div>
       <div className="absolute right-1 top-1 flex flex-col items-end gap-0.5">
         {captain && (
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent font-display text-[9px] font-black text-[#1d1400]">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent font-display text-[9px] font-black text-white">
             C
           </span>
         )}
