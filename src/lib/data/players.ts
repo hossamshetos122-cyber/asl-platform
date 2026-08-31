@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getPlayerGoalCounts, getPlayerMatchesPlayedCounts } from "@/lib/stats";
+import { getPlayerAssistCounts, getPlayerGoalCounts, getPlayerMatchesPlayedCounts } from "@/lib/stats";
 import { getPlayerDiscipline } from "@/lib/discipline";
 import type { Result, PlayerProfileVM, PlayerListItemVM } from "@/lib/types";
 
@@ -18,6 +18,7 @@ export async function getPlayersList(): Promise<Result<PlayerListItemVM[]>> {
     });
 
     const goalCounts = await getPlayerGoalCounts(players.map((p) => p.id));
+    const assistCounts = await getPlayerAssistCounts(players.map((p) => p.id));
 
     const list = players.map((player) => {
       const membership = player.memberships[0];
@@ -31,6 +32,7 @@ export async function getPlayersList(): Promise<Result<PlayerListItemVM[]>> {
           ? { id: membership.team.id, name: membership.team.name, crestUrl: membership.team.crestUrl }
           : null,
         goals: goalCounts.get(player.id) ?? 0,
+        assists: assistCounts.get(player.id) ?? 0,
       };
     });
 
@@ -64,8 +66,9 @@ export async function getPlayerById(id: string): Promise<Result<PlayerProfileVM>
       ? { id: membership.team.id, name: membership.team.name, crestUrl: membership.team.crestUrl }
       : null;
 
-    const [goalsByPlayer, matchesPlayedByPlayer, discipline] = await Promise.all([
+    const [goalsByPlayer, assistsByPlayer, matchesPlayedByPlayer, discipline] = await Promise.all([
       getPlayerGoalCounts([id]),
+      getPlayerAssistCounts([id]),
       getPlayerMatchesPlayedCounts([id]),
       getPlayerDiscipline(id, team?.id ?? null),
     ]);
@@ -79,6 +82,7 @@ export async function getPlayerById(id: string): Promise<Result<PlayerProfileVM>
       dateOfBirth: player.dateOfBirth,
       team,
       goals: goalsByPlayer.get(id) ?? 0,
+      assists: assistsByPlayer.get(id) ?? 0,
       matchesPlayed: matchesPlayedByPlayer.get(id) ?? 0,
       yellows: discipline.yellows,
       reds: discipline.reds,

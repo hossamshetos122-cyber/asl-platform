@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getPlayerGoalCounts } from "@/lib/stats";
+import { getPlayerAssistCounts, getPlayerGoalCounts } from "@/lib/stats";
 import { getTeamDiscipline } from "@/lib/discipline";
 import type { Result, TeamSummaryVM, TeamDetailVM } from "@/lib/types";
 
@@ -54,8 +54,9 @@ export async function getTeamById(id: string): Promise<Result<TeamDetailVM>> {
       return { status: "empty" };
     }
 
-    const [goalCounts, discipline] = await Promise.all([
+    const [goalCounts, assistCounts, discipline] = await Promise.all([
       getPlayerGoalCounts(team.memberships.map((m) => m.player.id)),
+      getPlayerAssistCounts(team.memberships.map((m) => m.player.id)),
       getTeamDiscipline(
         team.id,
         team.memberships.map((m) => m.player.id)
@@ -87,6 +88,7 @@ export async function getTeamById(id: string): Promise<Result<TeamDetailVM>> {
           jerseyNumber: m.player.jerseyNumber,
           position: m.player.position,
           goals: goalCounts.get(m.player.id) ?? 0,
+          assists: assistCounts.get(m.player.id) ?? 0,
           yellows: d.yellows,
           reds: d.reds,
           suspendedNext: d.suspendedNext,

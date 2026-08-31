@@ -44,7 +44,7 @@ export default async function AdminMatchesPage() {
     prisma.matchEvent.findMany({
       where: {
         matchId: { in: matchIds },
-        type: { in: ["GOAL", "YELLOW_CARD", "RED_CARD"] },
+        type: { in: ["GOAL", "ASSIST", "YELLOW_CARD", "RED_CARD"] },
       },
       select: { matchId: true, playerId: true, teamId: true, type: true },
       orderBy: { createdAt: "asc" },

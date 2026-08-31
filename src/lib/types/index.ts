@@ -77,6 +77,16 @@ export interface TopScorerVM {
   goals: number;
 }
 
+export interface TopAssisterVM {
+  rank: number;
+  playerId: string;
+  playerName: string;
+  photoUrl: string | null;
+  teamName: string;
+  teamId: string | null;
+  assists: number;
+}
+
 export interface HomeStatsVM {
   registeredTeams: number;
   goalsThisSeason: number;
@@ -202,6 +212,7 @@ export interface TeamPlayerVM {
   jerseyNumber: number | null;
   position: string;
   goals: number;
+  assists: number;
   yellows: number;
   reds: number;
   suspendedNext: boolean;
@@ -219,6 +230,7 @@ export interface PlayerProfileVM {
   dateOfBirth: Date | null;
   team: { id: string; name: string; crestUrl: string | null } | null;
   goals: number;
+  assists: number;
   matchesPlayed: number;
   yellows: number;
   reds: number;
@@ -236,9 +248,11 @@ export interface PlayerListItemVM {
   position: string;
   team: { id: string; name: string; crestUrl: string | null } | null;
   goals: number;
+  assists: number;
 }
 
 // --- Full standings / scorers (no limit) ------------------------------------
 
 export type FullStandingRowVM = StandingRowVM;
 export type FullTopScorerVM = TopScorerVM;
+export type FullTopAssisterVM = TopAssisterVM;

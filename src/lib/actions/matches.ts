@@ -191,6 +191,7 @@ export async function setMatchResult(id: string, homeScore: number, awayScore: n
 const SCHEDULE_STATUSES = ["SCHEDULED", "POSTPONED", "CANCELLED"] as const;
 
 const GOAL_TYPE = "GOAL";
+const ASSIST_TYPE = "ASSIST";
 const YELLOW_CARD_TYPE = "YELLOW_CARD";
 const RED_CARD_TYPE = "RED_CARD";
 
@@ -212,6 +213,8 @@ export async function setMatchResultWithGoals(
   awayYellowPlayerIds: string[] = [],
   homeRedPlayerIds: string[] = [],
   awayRedPlayerIds: string[] = [],
+  homeAssistPlayerIds: string[] = [],
+  awayAssistPlayerIds: string[] = [],
 ) {
   const user = await requireAdmin();
 
@@ -241,6 +244,8 @@ export async function setMatchResultWithGoals(
   const awayYellowIds = Array.isArray(awayYellowPlayerIds) ? awayYellowPlayerIds : [];
   const homeRedIds = Array.isArray(homeRedPlayerIds) ? homeRedPlayerIds : [];
   const awayRedIds = Array.isArray(awayRedPlayerIds) ? awayRedPlayerIds : [];
+  const homeAssistIds = Array.isArray(homeAssistPlayerIds) ? homeAssistPlayerIds.filter((s) => s !== "") : [];
+  const awayAssistIds = Array.isArray(awayAssistPlayerIds) ? awayAssistPlayerIds.filter((s) => s !== "") : [];
 
   if (homeGoalIds.length !== parsed.data.homeScore) {
     throw new Error(`حدّد لاعباً لكل هدف من أهداف الفريق المضيف (${parsed.data.homeScore} أهداف) أو اضغط «حفظ النتيجة فقط»`);
@@ -256,6 +261,8 @@ export async function setMatchResultWithGoals(
     ...awayYellowIds,
     ...homeRedIds,
     ...awayRedIds,
+    ...homeAssistIds,
+    ...awayAssistIds,
   ];
   if (allIds.some((pid) => typeof pid !== "string" || !playerIdToken.test(pid))) {
     throw new Error("اختيار اللاعب غير صالح");
@@ -278,10 +285,10 @@ export async function setMatchResultWithGoals(
         throw new Error(`أحد اللاعبين المختارين ليس من ${teamLabel}`);
       }
     };
-    for (const pid of [...homeGoalIds, ...homeYellowIds, ...homeRedIds]) {
+    for (const pid of [...homeGoalIds, ...homeYellowIds, ...homeRedIds, ...homeAssistIds]) {
       assertOfTeam(pid, match.homeTeamId, "الفريق المضيف");
     }
-    for (const pid of [...awayGoalIds, ...awayYellowIds, ...awayRedIds]) {
+    for (const pid of [...awayGoalIds, ...awayYellowIds, ...awayRedIds, ...awayAssistIds]) {
       assertOfTeam(pid, match.awayTeamId, "الفريق الضيف");
     }
   }
@@ -297,7 +304,7 @@ export async function setMatchResultWithGoals(
     });
 
     await tx.matchEvent.deleteMany({
-      where: { matchId, type: { in: [GOAL_TYPE, YELLOW_CARD_TYPE, RED_CARD_TYPE] } },
+      where: { matchId, type: { in: [GOAL_TYPE, ASSIST_TYPE, YELLOW_CARD_TYPE, RED_CARD_TYPE] } },
     });
 
     const events: {
@@ -312,6 +319,12 @@ export async function setMatchResultWithGoals(
       })),
       ...awayGoalIds.map((playerId) => ({
         matchId, playerId, teamId: match.awayTeamId, type: GOAL_TYPE, minute: 0,
+      })),
+      ...homeAssistIds.map((playerId) => ({
+        matchId, playerId, teamId: match.homeTeamId, type: ASSIST_TYPE, minute: 0,
+      })),
+      ...awayAssistIds.map((playerId) => ({
+        matchId, playerId, teamId: match.awayTeamId, type: ASSIST_TYPE, minute: 0,
       })),
       ...homeYellowIds.map((playerId) => ({
         matchId, playerId, teamId: match.homeTeamId, type: YELLOW_CARD_TYPE, minute: 0,
@@ -341,6 +354,8 @@ export async function setMatchResultWithGoals(
       awayScore: parsed.data.awayScore,
       homeGoalPlayerIds,
       awayGoalPlayerIds,
+      homeAssistPlayerIds,
+      awayAssistPlayerIds,
       homeYellowPlayerIds,
       awayYellowPlayerIds,
       homeRedPlayerIds,

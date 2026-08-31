@@ -3,6 +3,7 @@ import type {
   HomeStatsVM,
   Result,
   StandingRowVM,
+  TopAssisterVM,
   TopScorerVM,
 } from "@/lib/types";
 import type { Match, Team } from "@prisma/client";
@@ -21,6 +22,8 @@ import type { Match, Team } from "@prisma/client";
  */
 
 export const GOAL_EVENT_TYPES = ["GOAL", "PENALTY_SCORED"] as const;
+
+export const ASSIST_EVENT_TYPE = "ASSIST" as const;
 
 export const OFFICIAL_MATCH_STATUS = "FINISHED" as const;
 
@@ -120,6 +123,36 @@ export async function getPlayerGoalCounts(
     where: {
       playerId: { in: playerIds },
       type: { in: [...GOAL_EVENT_TYPES] },
+      match: { tournamentId: featured.data.id, status: OFFICIAL_MATCH_STATUS },
+    },
+    _count: { playerId: true },
+  });
+
+  const map = new Map<string, number>();
+  for (const group of grouped) {
+    map.set(group.playerId, group._count.playerId);
+  }
+  return map;
+}
+
+/**
+ * Canonical player assist count: ASSIST events inside FINISHED matches of
+ * the featured tournament. Same contract as getPlayerGoalCounts so lists,
+ * profiles and rosters share one definition.
+ */
+export async function getPlayerAssistCounts(
+  playerIds: string[]
+): Promise<Map<string, number>> {
+  if (playerIds.length === 0) return new Map<string, number>();
+
+  const featured = await getFeaturedTournament();
+  if (featured.status !== "success") return new Map<string, number>();
+
+  const grouped = await prisma.matchEvent.groupBy({
+    by: ["playerId"],
+    where: {
+      playerId: { in: playerIds },
+      type: ASSIST_EVENT_TYPE,
       match: { tournamentId: featured.data.id, status: OFFICIAL_MATCH_STATUS },
     },
     _count: { playerId: true },
@@ -399,6 +432,72 @@ export async function getTopScorers(
   } catch (error) {
     console.error("[getTopScorers]", error);
     return { status: "error", message: "تعذّر تحميل ترتيب الهدافين." };
+  }
+}
+
+/**
+ * Canonical top assisters: ASSIST events inside FINISHED matches of the given
+ * tournament, mirroring getTopScorers so both tables agree on every page.
+ */
+export async function getTopAssisters(
+  tournamentId: string,
+  limit = 8
+): Promise<Result<TopAssisterVM[]>> {
+  try {
+    const grouped = await prisma.matchEvent.groupBy({
+      by: ["playerId"],
+      where: {
+        type: ASSIST_EVENT_TYPE,
+        match: { tournamentId, status: OFFICIAL_MATCH_STATUS },
+      },
+      _count: { playerId: true },
+      orderBy: { _count: { playerId: "desc" } },
+      take: limit,
+    });
+
+    if (grouped.length === 0) {
+      return { status: "empty" };
+    }
+
+    const playerIds = grouped.map((g) => g.playerId);
+    const players = await prisma.player.findMany({
+      where: { id: { in: playerIds } },
+      include: {
+        user: { select: { fullName: true } },
+        memberships: {
+          where: { status: "ACTIVE" },
+          include: { team: { select: { id: true, name: true } } },
+          take: 1,
+        },
+      },
+    });
+
+    const playerById = new Map(players.map((p) => [p.id, p]));
+
+    const rows: TopAssisterVM[] = grouped
+      .map((g) => {
+        const player = playerById.get(g.playerId);
+        if (!player) return null;
+        const teamName = player.memberships[0]?.team.name ?? "بدون فريق";
+        const teamId = player.memberships[0]?.team.id ?? null;
+        const row: TopAssisterVM = {
+          rank: 0,
+          playerId: player.id,
+          playerName: player.user.fullName,
+          photoUrl: player.photoUrl,
+          teamName,
+          teamId,
+          assists: g._count.playerId,
+        };
+        return row;
+      })
+      .filter((row): row is TopAssisterVM => row !== null)
+      .map((row, index) => ({ ...row, rank: index + 1 }));
+
+    return { status: "success", data: rows };
+  } catch (error) {
+    console.error("[getTopAssisters]", error);
+    return { status: "error", message: "تعذّر تحميل ترتيب صناع الأهداف." };
   }
 }
 

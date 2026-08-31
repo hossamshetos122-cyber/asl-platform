@@ -10,7 +10,7 @@ interface NewTeam {
 
 const NEW_TEAMS: NewTeam[] = [
   {
-    name: "الكانيلات", shortName: "كن",
+    name: "محرم بك", shortName: "مب",
     players: [
       { fullName: "مصطفى ناصر", position: "FORWARD", jerseyNumber: 9 },
       { fullName: "محمد سعيد", position: "MIDFIELDER", jerseyNumber: 7 },
@@ -33,7 +33,7 @@ const NEW_TEAMS: NewTeam[] = [
     ],
   },
   {
-    name: "الجمرك", shortName: "جر",
+    name: "العصافرة", shortName: "عص",
     players: [
       { fullName: "إبراهيم حسين", position: "FORWARD", jerseyNumber: 9 },
       { fullName: "مصطفى أحمد", position: "MIDFIELDER", jerseyNumber: 7 },
@@ -56,7 +56,7 @@ const NEW_TEAMS: NewTeam[] = [
     ],
   },
   {
-    name: "البحري", shortName: "بح",
+    name: "بولكلي", shortName: "بو",
     players: [
       { fullName: "ياسر عادل", position: "FORWARD", jerseyNumber: 9 },
       { fullName: "هشام سعيد", position: "MIDFIELDER", jerseyNumber: 7 },
@@ -79,7 +79,7 @@ const NEW_TEAMS: NewTeam[] = [
     ],
   },
   {
-    name: "الورديان", shortName: "ور",
+    name: "جليم", shortName: "جل",
     players: [
       { fullName: "ياسر عادل", position: "FORWARD", jerseyNumber: 9 },
       { fullName: "هشام سعيد", position: "MIDFIELDER", jerseyNumber: 7 },
@@ -102,7 +102,7 @@ const NEW_TEAMS: NewTeam[] = [
     ],
   },
   {
-    name: "العزموط", shortName: "عز",
+    name: "كامب شيزار", shortName: "كم",
     players: [
       { fullName: "إبراهيم ناصر", position: "FORWARD", jerseyNumber: 9 },
       { fullName: "مصطفى سعيد", position: "MIDFIELDER", jerseyNumber: 7 },
@@ -125,7 +125,7 @@ const NEW_TEAMS: NewTeam[] = [
     ],
   },
   {
-    name: "الدخيلة", shortName: "دخ",
+    name: "زيزينيا", shortName: "زي",
     players: [
       { fullName: "ياسر عادل", position: "FORWARD", jerseyNumber: 9 },
       { fullName: "هشام سعيد", position: "MIDFIELDER", jerseyNumber: 7 },
@@ -171,7 +171,7 @@ const NEW_TEAMS: NewTeam[] = [
     ],
   },
   {
-    name: "سبا", shortName: "سبا",
+    name: "باكوس", shortName: "با",
     players: [
       { fullName: "وليد عادل", position: "FORWARD", jerseyNumber: 9 },
       { fullName: "فرج سعيد", position: "MIDFIELDER", jerseyNumber: 7 },
@@ -194,7 +194,7 @@ const NEW_TEAMS: NewTeam[] = [
     ],
   },
   {
-    name: "ريكي", shortName: "ري",
+    name: "كرموز", shortName: "كر",
     players: [
       { fullName: "إبراهيم حسين", position: "FORWARD", jerseyNumber: 9 },
       { fullName: "مصطفى ناصر", position: "MIDFIELDER", jerseyNumber: 7 },
@@ -217,7 +217,7 @@ const NEW_TEAMS: NewTeam[] = [
     ],
   },
   {
-    name: "المحمودية", shortName: "مح",
+    name: "فلمنج", shortName: "فل",
     players: [
       { fullName: "ياسر عادل", position: "FORWARD", jerseyNumber: 9 },
       { fullName: "هشام سعيد", position: "MIDFIELDER", jerseyNumber: 7 },
@@ -329,19 +329,19 @@ async function handleSeed() {
     }
 
     const newMatchDefs = [
-      { home: "الكانيلات", away: "الجمرك", hs: 2, as: 1 },
-      { home: "البحري", away: "الورديان", hs: 1, as: 0 },
-      { home: "العزموط", away: "الدخيلة", hs: 0, as: 0 },
-      { home: "المعمورة", away: "سبا", hs: 3, as: 2 },
-      { home: "ريكي", away: "المحمودية", hs: 1, as: 1 },
-      { home: "الجمرك", away: "البحري", hs: 2, as: 2 },
-      { home: "الورديان", away: "العزموط", hs: 1, as: 3 },
-      { home: "الدخيلة", away: "المعمورة", hs: 0, as: 1 },
-      { home: "سبا", away: "ريكي", hs: 2, as: 0 },
-      { home: "المحمودية", away: "الكانيلات", hs: 1, as: 2 },
-      { home: "الكانيلات", away: "البحري", hs: 1, as: 0 },
-      { home: "العزموط", away: "الجمرك", hs: 2, as: 1 },
-      { home: "المعمورة", away: "الورديان", hs: 0, as: 0 },
+      { home: "محرم بك", away: "العصافرة", hs: 2, as: 1 },
+      { home: "بولكلي", away: "جليم", hs: 1, as: 0 },
+      { home: "كامب شيزار", away: "زيزينيا", hs: 0, as: 0 },
+      { home: "المعمورة", away: "باكوس", hs: 3, as: 2 },
+      { home: "كرموز", away: "فلمنج", hs: 1, as: 1 },
+      { home: "العصافرة", away: "بولكلي", hs: 2, as: 2 },
+      { home: "جليم", away: "كامب شيزار", hs: 1, as: 3 },
+      { home: "زيزينيا", away: "المعمورة", hs: 0, as: 1 },
+      { home: "باكوس", away: "كرموز", hs: 2, as: 0 },
+      { home: "فلمنج", away: "محرم بك", hs: 1, as: 2 },
+      { home: "محرم بك", away: "بولكلي", hs: 1, as: 0 },
+      { home: "كامب شيزار", away: "العصافرة", hs: 2, as: 1 },
+      { home: "المعمورة", away: "جليم", hs: 0, as: 0 },
     ];
 
     const rounds = ["الأسبوع 1", "الأسبوع 1", "الأسبوع 1", "الأسبوع 1", "الأسبوع 1", "الأسبوع 2", "الأسبوع 2", "الأسبوع 2", "الأسبوع 2", "الأسبوع 2", "الأسبوع 3", "الأسبوع 3", "الأسبوع 3"];
@@ -384,31 +384,31 @@ async function handleSeed() {
     }
 
     const goalDefs = [
-      { mid: 0, player: "مصطفى ناصر", team: "الكانيلات", c: 2 },
-      { mid: 0, player: "إبراهيم حسين", team: "الجمرك", c: 1 },
-      { mid: 1, player: "ياسر عادل", team: "البحري", c: 1 },
+      { mid: 0, player: "مصطفى ناصر", team: "محرم بك", c: 2 },
+      { mid: 0, player: "إبراهيم حسين", team: "العصافرة", c: 1 },
+      { mid: 1, player: "ياسر عادل", team: "بولكلي", c: 1 },
       { mid: 3, player: "نادر سعيد", team: "المعمورة", c: 2 },
       { mid: 3, player: "عماد حسين", team: "المعمورة", c: 1 },
-      { mid: 3, player: "وليد عادل", team: "سبا", c: 2 },
-      { mid: 4, player: "إبراهيم حسين", team: "ريكي", c: 1 },
-      { mid: 4, player: "ياسر عادل", team: "المحمودية", c: 1 },
-      { mid: 5, player: "مصطفى أحمد", team: "الجمرك", c: 1 },
-      { mid: 5, player: "محمد طارق", team: "الجمرك", c: 1 },
-      { mid: 5, player: "ياسر عادل", team: "البحري", c: 1 },
-      { mid: 5, player: "هشام سعيد", team: "البحري", c: 1 },
-      { mid: 6, player: "إبراهيم ناصر", team: "العزموط", c: 2 },
-      { mid: 6, player: "مصطفى سعيد", team: "العزموط", c: 1 },
-      { mid: 6, player: "ياسر عادل", team: "الورديان", c: 1 },
+      { mid: 3, player: "وليد عادل", team: "باكوس", c: 2 },
+      { mid: 4, player: "إبراهيم حسين", team: "كرموز", c: 1 },
+      { mid: 4, player: "ياسر عادل", team: "فلمنج", c: 1 },
+      { mid: 5, player: "مصطفى أحمد", team: "العصافرة", c: 1 },
+      { mid: 5, player: "محمد طارق", team: "العصافرة", c: 1 },
+      { mid: 5, player: "ياسر عادل", team: "بولكلي", c: 1 },
+      { mid: 5, player: "هشام سعيد", team: "بولكلي", c: 1 },
+      { mid: 6, player: "إبراهيم ناصر", team: "كامب شيزار", c: 2 },
+      { mid: 6, player: "مصطفى سعيد", team: "كامب شيزار", c: 1 },
+      { mid: 6, player: "ياسر عادل", team: "جليم", c: 1 },
       { mid: 7, player: "نادر سعيد", team: "المعمورة", c: 1 },
-      { mid: 8, player: "وليد عادل", team: "سبا", c: 1 },
-      { mid: 8, player: "فرج سعيد", team: "سبا", c: 1 },
-      { mid: 9, player: "مصطفى ناصر", team: "الكانيلات", c: 1 },
-      { mid: 9, player: "محمد سعيد", team: "الكانيلات", c: 1 },
-      { mid: 9, player: "ياسر عادل", team: "المحمودية", c: 1 },
-      { mid: 10, player: "أحمد حسين", team: "الكانيلات", c: 1 },
-      { mid: 11, player: "إبراهيم ناصر", team: "العزموط", c: 1 },
-      { mid: 11, player: "محمد حسين", team: "العزموط", c: 1 },
-      { mid: 11, player: "إبراهيم حسين", team: "الجمرك", c: 1 },
+      { mid: 8, player: "وليد عادل", team: "باكوس", c: 1 },
+      { mid: 8, player: "فرج سعيد", team: "باكوس", c: 1 },
+      { mid: 9, player: "مصطفى ناصر", team: "محرم بك", c: 1 },
+      { mid: 9, player: "محمد سعيد", team: "محرم بك", c: 1 },
+      { mid: 9, player: "ياسر عادل", team: "فلمنج", c: 1 },
+      { mid: 10, player: "أحمد حسين", team: "محرم بك", c: 1 },
+      { mid: 11, player: "إبراهيم ناصر", team: "كامب شيزار", c: 1 },
+      { mid: 11, player: "محمد حسين", team: "كامب شيزار", c: 1 },
+      { mid: 11, player: "إبراهيم حسين", team: "العصافرة", c: 1 },
     ];
 
     let eventsAdded = 0;

@@ -88,7 +88,7 @@ async function launch() {
     const matchesText = await page.evaluate(() => document.body.innerText);
     ok("ADMIN matches overview", matchesText.includes("النتيجة") && matchesText.includes("الموعد"), "table headers/الموعد button");
     if (matchesText.includes("مباريات متأخرة بدون نتيجة")) {
-      ok("ADMIN matches OVERDUE banner", matchesText.includes("حفظ وإنهاء"), "banner + result button present");
+      ok("ADMIN matches OVERDUE banner", matchesText.includes("حفظ النتيجة والأهداف"), "banner + result button present");
       notes.push("overdue banner shown => reschedule/result buttons on live table");
     } else {
       ok("ADMIN matches no-overdue state", true, "no overdue matches currently (banner hidden)");

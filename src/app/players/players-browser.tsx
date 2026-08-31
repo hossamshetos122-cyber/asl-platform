@@ -12,6 +12,7 @@ interface PlayerListItem {
   position: string;
   team: { id: string; name: string; crestUrl: string | null } | null;
   goals: number;
+  assists: number;
 }
 
 const POSITION_LABELS: Record<string, string> = {
@@ -127,6 +128,12 @@ function PlayerCard({ player }: { player: PlayerListItem }) {
             <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
             {player.goals}
           </span>
+          {player.assists > 0 && (
+            <span className="inline-flex h-5 items-center gap-1 rounded bg-amber-400/10 px-1.5 font-num text-[11px] font-black text-amber-400" title="الأسيست">
+              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3l4 4-4 4M21 7H9a4 4 0 0 0 0 8h3" /></svg>
+              {player.assists}
+            </span>
+          )}
         </div>
 
         {player.team ? (

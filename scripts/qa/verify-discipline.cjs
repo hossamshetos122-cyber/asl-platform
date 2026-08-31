@@ -87,11 +87,11 @@ function ok(name, cond, detail) {
       await new Promise((r) => setTimeout(r, 1200));
       const panel = await page.evaluate(() => {
         const text = document.body.innerText;
-        const goalSelects = [...document.querySelectorAll("select")].filter((s) => !s.name);
-        const cardSelects = [...document.querySelectorAll("select")].filter((s) => s.name);
+        const goalSelects = [...document.querySelectorAll("select")].filter((s) => s.name && s.name.includes("-goal-"));
+        const cardSelects = [...document.querySelectorAll("select")].filter((s) => s.name && (s.name.includes("-yellow-") || s.name.includes("-red-")));
         const cardGroups = document.body.innerText.includes("الكروت الصفراء") && document.body.innerText.includes("الكروت الحمراء");
         const addBtns = [...document.querySelectorAll("button")].filter((b) => /كارت/.test(b.textContent || ""));
-        return { goalCount: goalSelects.length, cardSelectCount: cardSelects.length, cardSelectsNamed: cardSelects.every((s) => s.name.startsWith(`matches-`) || s.name.indexOf("-") > -1), cardGroups, addBtnCount: addBtns.length };
+        return { goalCount: goalSelects.length, cardSelectCount: cardSelects.length, cardSelectsNamed: cardSelects.every((s) => s.name.indexOf("-") > -1), cardGroups, addBtnCount: addBtns.length };
       });
       ok("GOAL dropdowns == score total (unchanged)", panel.goalCount === finished.score[0] + finished.score[1], `goals=${panel.goalCount}`);
       ok("CARD groups render for both teams", panel.cardGroups, `card selects=${panel.cardSelectCount}`);
@@ -117,7 +117,7 @@ function ok(name, cond, detail) {
     if (upcoming) {
       await new Promise((r) => setTimeout(r, 1000));
       const panel = await page.evaluate(() => {
-        const goalSelects = [...document.querySelectorAll("select")].filter((s) => !s.name);
+        const goalSelects = [...document.querySelectorAll("select")].filter((s) => s.name && s.name.includes("-goal-"));
         const hasCards = document.body.innerText.includes("الكروت الصفراء") || document.body.innerText.includes("الكروت الحمراء");
         return { goalCount: goalSelects.length, hasCards };
       });

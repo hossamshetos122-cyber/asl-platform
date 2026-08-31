@@ -137,9 +137,10 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
                     </div>
                     <div className="flex-shrink-0 text-left">
                       <div className="flex h-6 w-6 items-center justify-center rounded bg-surface-elevated font-num text-[10px] font-bold text-emerald-500">{player.jerseyNumber ?? "-"}</div>
-                      {(player.goals > 0 || player.yellows > 0 || player.reds > 0) && (
+                      {(player.goals > 0 || player.assists > 0 || player.yellows > 0 || player.reds > 0) && (
                         <div className="mt-1 flex items-center justify-end gap-1">
                           {player.goals > 0 && <span className="font-num text-[9px] font-bold text-emerald-400">{player.goals} ه</span>}
+                          {player.assists > 0 && <span className="font-num text-[9px] font-bold text-amber-400">{player.assists} أ</span>}
                           {player.yellows > 0 && (
                             <span className="inline-flex h-4 min-w-6 items-center justify-center rounded-sm border border-yellow-400/35 bg-yellow-400/10 font-num text-[9px] font-bold text-yellow-300">{player.yellows}</span>
                           )}

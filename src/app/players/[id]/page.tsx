@@ -114,10 +114,14 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
 
       <main className="page-container page-padding">
         {/* Stats */}
-        <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-4 stagger-children">
+        <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-5 stagger-children">
           <div className="animate-fade-up rounded-xl border border-line bg-surface p-4 text-center">
             <div className="font-num text-2xl font-bold text-emerald-500">{player.goals}</div>
             <div className="font-utility text-[8px] tracking-[0.12em] text-text-dimmer uppercase mt-0.5">هدف</div>
+          </div>
+          <div className="animate-fade-up rounded-xl border border-line bg-surface p-4 text-center">
+            <div className="font-num text-2xl font-bold text-amber-400">{player.assists}</div>
+            <div className="font-utility text-[8px] tracking-[0.12em] text-text-dimmer uppercase mt-0.5">أسيست</div>
           </div>
           <div className="animate-fade-up rounded-xl border border-line bg-surface p-4 text-center">
             <div className="font-num text-2xl font-bold text-text">{player.matchesPlayed}</div>

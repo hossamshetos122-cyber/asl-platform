@@ -90,7 +90,7 @@ function ok(name, cond, detail) {
 
       const panel = await page.evaluate(() => {
         const text = document.body.innerText;
-        const panelSelects = [...document.querySelectorAll("select")].filter((s) => !s.name);
+        const panelSelects = [...document.querySelectorAll("select")].filter((s) => s.name && s.name.includes("-goal-"));
         const filled = panelSelects.filter((s) => s.value !== "").map((s) => s.selectedOptions[0]?.textContent?.trim());
         const hasPanel = text.includes("أهداف") && text.includes("حفظ النتيجة والأهداف");
         const cancelBtn = [...document.querySelectorAll("button")].find((b) => b.textContent.trim() === "إلغاء");
@@ -132,7 +132,7 @@ function ok(name, cond, detail) {
       await new Promise((r) => setTimeout(r, 1000));
       const panel = await page.evaluate(() => {
         const text = document.body.innerText;
-        const panelSelects = [...document.querySelectorAll("select")].filter((s) => !s.name);
+        const panelSelects = [...document.querySelectorAll("select")].filter((s) => s.name && s.name.includes("-goal-"));
         return { hasTeamNames: text.includes("تسجيل نتيجة"), goalsSelects: panelSelects.length, hasSave: text.includes("حفظ النتيجة والأهداف") };
       });
       ok("PANEL opens for overdue (default 0-0)", clicked && panel.hasTeamNames && panel.goalsSelects === 0 && panel.hasSave, `goals selects=${panel.goalsSelects}`);

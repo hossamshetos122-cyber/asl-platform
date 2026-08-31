@@ -13,7 +13,7 @@ export interface GoalPlayerOption {
   jerseyNumber: number | null;
 }
 
-export type EventType = "GOAL" | "YELLOW_CARD" | "RED_CARD";
+export type EventType = "GOAL" | "ASSIST" | "YELLOW_CARD" | "RED_CARD";
 
 export interface EventLite {
   playerId: string;
@@ -216,12 +216,15 @@ function CardGroup({ label, color, teamName, players, values, prefix, onAdd, onR
   );
 }
 
-function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existingAway, existingHomeYellow, existingAwayYellow, existingHomeRed, existingAwayRed, onClose }: {
+function GoalAssignPanel({ match, prefix, homePlayers, awayPlayers, existingHome, existingAway, existingHomeAssists, existingAwayAssists, existingHomeYellow, existingAwayYellow, existingHomeRed, existingAwayRed, onClose }: {
   match: MatchRow;
+  prefix: string;
   homePlayers: GoalPlayerOption[];
   awayPlayers: GoalPlayerOption[];
   existingHome: string[];
   existingAway: string[];
+  existingHomeAssists: string[];
+  existingAwayAssists: string[];
   existingHomeYellow: string[];
   existingAwayYellow: string[];
   existingHomeRed: string[];
@@ -236,6 +239,12 @@ function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existi
   const [awaySel, setAwaySel] = useState<string[]>(() =>
     Array.from({ length: Math.max(match.awayScore, 0) }, (_, i) => existingAway[i] ?? "")
   );
+  const [homeAssistSel, setHomeAssistSel] = useState<string[]>(() =>
+    Array.from({ length: Math.max(match.homeScore, 0) }, (_, i) => existingHomeAssists[i] ?? "")
+  );
+  const [awayAssistSel, setAwayAssistSel] = useState<string[]>(() =>
+    Array.from({ length: Math.max(match.awayScore, 0) }, (_, i) => existingAwayAssists[i] ?? "")
+  );
   const [homeYellowSel, setHomeYellowSel] = useState<string[]>(() => [...existingHomeYellow]);
   const [awayYellowSel, setAwayYellowSel] = useState<string[]>(() => [...existingAwayYellow]);
   const [homeRedSel, setHomeRedSel] = useState<string[]>(() => [...existingHomeRed]);
@@ -249,8 +258,14 @@ function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existi
     else setter(list.slice(0, n));
   };
 
-  useEffect(() => resize(homeSel, homeScore, setHomeSel), [homeScore]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => resize(awaySel, awayScore, setAwaySel), [awayScore]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+  resize(homeSel, homeScore, setHomeSel);
+  resize(homeAssistSel, homeScore, setHomeAssistSel);
+}, [homeScore]); // eslint-disable-line react-hooks/exhaustive-deps
+useEffect(() => {
+  resize(awaySel, awayScore, setAwaySel);
+  resize(awayAssistSel, awayScore, setAwayAssistSel);
+}, [awayScore]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const add = (list: string[], setter: (v: string[]) => void) => setter([...list, ""]);
   const removeAt = (list: string[], setter: (v: string[]) => void, idx: number) =>
@@ -271,6 +286,8 @@ function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existi
           awayYellowSel.filter((s) => s !== ""),
           homeRedSel.filter((s) => s !== ""),
           awayRedSel.filter((s) => s !== ""),
+          homeAssistSel,
+          awayAssistSel,
         );
       } else {
         await setMatchResult(match.id, homeScore, awayScore);
@@ -315,14 +332,24 @@ function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existi
           ) : (
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {homeSel.map((sel, idx) => (
-                <select key={idx} value={sel} onChange={(e) => {
-                  const next = [...homeSel];
-                  next[idx] = e.target.value;
-                  setHomeSel(next);
-                }} className="rounded-lg border border-line bg-bg px-2.5 py-2 font-body text-[12px] text-text outline-none focus:border-accent">
-                  <option value="">الهدف {idx + 1}: اختر اللاعب</option>
-                  {homeList.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
-                </select>
+                <div key={idx} className="flex flex-col gap-1.5 rounded-lg border border-line/60 bg-surface-elevated/40 p-2">
+                  <select name={`${prefix}-goal-${idx}`} value={sel} onChange={(e) => {
+                    const next = [...homeSel];
+                    next[idx] = e.target.value;
+                    setHomeSel(next);
+                  }} className="rounded-lg border border-line bg-bg px-2.5 py-1.5 font-body text-[12px] text-text outline-none focus:border-accent">
+                    <option value="">الهدف {idx + 1}: اختر اللاعب</option>
+                    {homeList.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
+                  </select>
+                  <select name={`${prefix}-assist-${idx}`} value={homeAssistSel[idx] ?? ""} onChange={(e) => {
+                    const next = [...homeAssistSel];
+                    next[idx] = e.target.value;
+                    setHomeAssistSel(next);
+                  }} className="rounded-lg border border-line/70 bg-surface-elevated px-2.5 py-1.5 font-body text-[12px] text-text-dim outline-none focus:border-accent">
+                    <option value="">صانع الهدف {idx + 1} (اختياري)</option>
+                    {homeList.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
+                  </select>
+                </div>
               ))}
             </div>
           )}
@@ -339,14 +366,24 @@ function GoalAssignPanel({ match, homePlayers, awayPlayers, existingHome, existi
           ) : (
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {awaySel.map((sel, idx) => (
-                <select key={idx} value={sel} onChange={(e) => {
-                  const next = [...awaySel];
-                  next[idx] = e.target.value;
-                  setAwaySel(next);
-                }} className="rounded-lg border border-line bg-bg px-2.5 py-2 font-body text-[12px] text-text outline-none focus:border-accent">
-                  <option value="">الهدف {idx + 1}: اختر اللاعب</option>
-                  {awayList.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
-                </select>
+                <div key={idx} className="flex flex-col gap-1.5 rounded-lg border border-line/60 bg-surface-elevated/40 p-2">
+                  <select name={`${prefix}-goal-${idx}`} value={sel} onChange={(e) => {
+                    const next = [...awaySel];
+                    next[idx] = e.target.value;
+                    setAwaySel(next);
+                  }} className="rounded-lg border border-line bg-bg px-2.5 py-1.5 font-body text-[12px] text-text outline-none focus:border-accent">
+                    <option value="">الهدف {idx + 1}: اختر اللاعب</option>
+                    {awayList.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
+                  </select>
+                  <select name={`${prefix}-assist-${idx}`} value={awayAssistSel[idx] ?? ""} onChange={(e) => {
+                    const next = [...awayAssistSel];
+                    next[idx] = e.target.value;
+                    setAwayAssistSel(next);
+                  }} className="rounded-lg border border-line/70 bg-surface-elevated px-2.5 py-1.5 font-body text-[12px] text-text-dim outline-none focus:border-accent">
+                    <option value="">صانع الهدف {idx + 1} (اختياري)</option>
+                    {awayList.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
+                  </select>
+                </div>
               ))}
             </div>
           )}
@@ -536,6 +573,8 @@ function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, s
 
   const existingHomeGoals = existingEvents.filter((g) => g.type === "GOAL" && g.teamId === match.homeTeamId).map((g) => g.playerId);
   const existingAwayGoals = existingEvents.filter((g) => g.type === "GOAL" && g.teamId === match.awayTeamId).map((g) => g.playerId);
+  const existingHomeAssists = existingEvents.filter((e) => e.type === "ASSIST" && e.teamId === match.homeTeamId).map((e) => e.playerId);
+  const existingAwayAssists = existingEvents.filter((e) => e.type === "ASSIST" && e.teamId === match.awayTeamId).map((e) => e.playerId);
   const existingHomeYellow = existingEvents.filter((e) => e.type === "YELLOW_CARD" && e.teamId === match.homeTeamId).map((e) => e.playerId);
   const existingAwayYellow = existingEvents.filter((e) => e.type === "YELLOW_CARD" && e.teamId === match.awayTeamId).map((e) => e.playerId);
   const existingHomeRed = existingEvents.filter((e) => e.type === "RED_CARD" && e.teamId === match.homeTeamId).map((e) => e.playerId);
@@ -601,10 +640,13 @@ function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, s
           <td colSpan={7} className="px-4 py-3">
             <GoalAssignPanel
               match={match}
+              prefix={`${match.id}-home`}
               homePlayers={playersByTeam[match.homeTeamId] ?? []}
               awayPlayers={playersByTeam[match.awayTeamId] ?? []}
               existingHome={existingHomeGoals}
               existingAway={existingAwayGoals}
+              existingHomeAssists={existingHomeAssists}
+              existingAwayAssists={existingAwayAssists}
               existingHomeYellow={existingHomeYellow}
               existingAwayYellow={existingAwayYellow}
               existingHomeRed={existingHomeRed}
