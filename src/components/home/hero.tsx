@@ -32,7 +32,6 @@ export async function Hero() {
   return (
     <section className="relative overflow-hidden hero-bg">
       {/* Decorative orbs */}
-      <div className="hero-glow-orb -top-24 right-[-120px] h-80 w-80 bg-[#2E7BFF]/25" />
       <div className="hero-glow-orb bottom-[-140px] left-[-100px] h-96 w-96 bg-accent/15" />
       <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-bg to-transparent" />
 
