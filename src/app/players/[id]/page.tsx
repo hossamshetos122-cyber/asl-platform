@@ -14,10 +14,10 @@ const POSITION_STYLES: Record<string, { hex: string; soft: string; dim: string }
   GOALKEEPER: { hex: "#4AA8FF", soft: "rgba(74,168,255,0.12)", dim: "rgba(74,168,255,0.16)" },
   DEFENDER: { hex: "#00FF87", soft: "rgba(0,255,135,0.12)", dim: "rgba(0,255,135,0.16)" },
   MIDFIELDER: { hex: "#FFB23E", soft: "rgba(255,178,62,0.12)", dim: "rgba(255,178,62,0.18)" },
-  FORWARD: { hex: "#FF2E77", soft: "rgba(255,46,119,0.12)", dim: "rgba(255,46,119,0.16)" },
+  FORWARD: { hex: "#FF5740", soft: "rgba(255,87,64,0.12)", dim: "rgba(255,87,64,0.16)" },
 };
 
-const POSITION_DEFAULT = { hex: "#963CFF", soft: "rgba(150,60,255,0.12)", dim: "rgba(150,60,255,0.16)" };
+const POSITION_DEFAULT = { hex: "#2E7BFF", soft: "rgba(46,123,255,0.12)", dim: "rgba(46,123,255,0.18)" };
 
 interface PlayerProfilePageProps {
   params: Promise<{ id: string }>;
@@ -40,7 +40,7 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
       <section className="relative overflow-hidden bg-surface border-b border-line">
         <div
           className="absolute inset-0"
-          style={{ background: `radial-gradient(120% 160% at 85% -10%, ${role.soft}, rgba(30,7,52,0) 60%), linear-gradient(180deg, ${role.dim}, #1E0734 80%)` }}
+          style={{ background: `radial-gradient(120% 160% at 85% -10%, ${role.soft}, rgba(10,15,30,0) 60%), linear-gradient(180deg, ${role.dim}, #0A0F1E 80%)` }}
         />
         <div className="page-container relative pt-10 sm:pt-14 pb-6 sm:pb-10 animate-fade-up">
           <Link href="/teams" className="mb-5 inline-flex items-center gap-1.5 py-2 -my-2 font-body text-sm font-bold text-accent hover:text-accent-bright transition-colors">

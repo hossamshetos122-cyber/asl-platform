@@ -179,7 +179,7 @@ function EditRow({ team, onClose }: { team: TeamRow; onClose: () => void }) {
           <div className="mt-4 flex items-center gap-3">
             <button
               type="submit"
-              className="rounded-lg bg-gradient-to-b from-accent to-accent-dim px-5 py-2 font-body text-[12px] font-extrabold text-white transition-all hover:from-accent-bright hover:to-accent"
+              className="rounded-lg bg-gradient-to-b from-accent to-accent-dim px-5 py-2 font-body text-[12px] font-black text-[#1d1400] transition-all hover:from-accent-bright hover:to-accent"
             >
               تحديث
             </button>

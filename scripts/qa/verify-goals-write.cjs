@@ -120,10 +120,13 @@ function ok(name, cond, detail) {
         return true;
       });
       ok("score inputs set to 1-0", set);
-      await page.waitForFunction(() => document.querySelectorAll("select").length === 1, { timeout: 15000 });
+      await page.waitForFunction(() => {
+        const sels = [...document.querySelectorAll("select")];
+        return sels.some((s) => s.name && s.name.endsWith("-goal-0"));
+      }, { timeout: 15000 });
 
-      const selected = await page.evaluate((pid) => {
-        const sel = [...document.querySelectorAll("select")].find((s) => !s.name);
+      const chosen = await page.evaluate((pid) => {
+        const sel = [...document.querySelectorAll("select")].find((s) => s.name && s.name.endsWith("-goal-0"));
         if (!sel) return false;
         const opt = [...sel.options].find((o) => o.value === pid);
         if (!opt) return false;
@@ -131,7 +134,7 @@ function ok(name, cond, detail) {
         sel.dispatchEvent(new Event("change", { bubbles: true }));
         return true;
       }, homePlayer.id);
-      ok("home scorer chosen", selected);
+      ok("home scorer chosen", chosen);
 
       await Promise.all([
         page.waitForNavigation({ waitUntil: "networkidle0", timeout: 60000 }).catch(() => {}),

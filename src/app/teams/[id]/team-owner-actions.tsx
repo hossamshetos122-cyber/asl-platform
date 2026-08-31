@@ -9,7 +9,7 @@ import { ImageUpload } from "@/components/ui/image-upload";
 function SaveButton() {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className="rounded-sm bg-accent px-5 py-2 font-body text-[13px] font-extrabold text-white transition-colors hover:bg-accent-bright disabled:opacity-50">
+    <button type="submit" disabled={pending} className="rounded-sm bg-accent px-5 py-2 font-body text-[13px] font-extrabold text-[#1d1400] transition-colors hover:bg-accent-bright disabled:opacity-50">
       {pending ? "جارِ الحفظ..." : "حفظ التعديلات"}
     </button>
   );

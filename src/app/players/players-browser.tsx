@@ -56,17 +56,17 @@ const ROLE_STYLES: Record<string, RoleStyle> = {
     label: "لاعب وسط",
   },
   FORWARD: {
-    hex: "#FF2E77",
-    hexDim: "rgba(255,46,119,0.16)",
-    soft: "rgba(255,46,119,0.12)",
+    hex: "#FF5740",
+    hexDim: "rgba(255,87,64,0.16)",
+    soft: "rgba(255,87,64,0.12)",
     label: "مهاجم",
   },
 };
 
 const ROLE_DEFAULT: RoleStyle = {
-  hex: "#963CFF",
-  hexDim: "rgba(150,60,255,0.16)",
-  soft: "rgba(150,60,255,0.12)",
+  hex: "#2E7BFF",
+  hexDim: "rgba(46,123,255,0.18)",
+  soft: "rgba(46,123,255,0.12)",
   label: "لاعب",
 };
 
@@ -83,7 +83,7 @@ function PlayerCard({ player }: { player: PlayerListItem }) {
       style={{ borderColor: role.hexDim }}
     >
       {/* Photo band */}
-      <div className="relative h-28 sm:h-32 overflow-hidden" style={{ background: `radial-gradient(130% 160% at 50% -20%, ${role.soft}, rgba(42,13,72,0) 65%), linear-gradient(180deg, ${role.hexDim}, #1E0734 78%)` }}>
+      <div className="relative h-28 sm:h-32 overflow-hidden" style={{ background: `radial-gradient(130% 160% at 50% -20%, ${role.soft}, rgba(10,15,30,0) 65%), linear-gradient(180deg, ${role.hexDim}, #0A0F1E 78%)` }}>
         {player.jerseyNumber != null && (
           <span className="pointer-events-none absolute left-1 -bottom-2 select-none font-num text-[68px] font-black leading-none text-white/5" dir="ltr">
             {player.jerseyNumber}

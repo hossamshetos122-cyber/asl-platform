@@ -99,6 +99,7 @@ model Player {
   matchEvents  MatchEvent[]
   manOfTheMatchAwards MatchAward[]
   matchSquadEntries MatchSquadPlayer[]
+  teamOfWeekSelections TeamOfWeekPlayer[]
 
   @@index([userId])
 }
@@ -153,6 +154,7 @@ model Tournament {
   seasons    Season[]
   teams      TournamentTeam[]
   matches    Match[]
+  teamOfWeekPlayers TeamOfWeekPlayer[]
 
   @@index([status])
 }
@@ -181,6 +183,21 @@ model TournamentTeam {
 
   @@unique([tournamentId, teamId])
   @@index([tournamentId])
+}
+
+model TeamOfWeekPlayer {
+  id           String   @id @default(cuid())
+  tournamentId String
+  playerId     String
+  position     String   // GK | DEF | MID | FW
+  sortOrder    Int      // 1..11 slot in the starting XI
+  createdAt    DateTime @default(now())
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  player     Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, playerId])
+  @@index([tournamentId, sortOrder])
 }
 
 // ---------------------------------------------------------------------------

@@ -94,6 +94,31 @@ export interface HomeStatsVM {
   registeredPlayers: number;
 }
 
+export type TeamOfWeekPosition = "GK" | "DEF" | "MID" | "FW";
+
+export interface TeamOfWeekPlayerVM {
+  playerId: string;
+  name: string;
+  photoUrl: string | null;
+  jerseyNumber: number | null;
+  position: TeamOfWeekPosition;
+  sortOrder: number;
+  goals: number;
+  assists: number;
+  team: {
+    id: string;
+    name: string;
+    shortName: string;
+    crestUrl: string | null;
+  };
+}
+
+export interface TeamOfWeekVM {
+  tournamentId: string;
+  tournamentName: string;
+  players: TeamOfWeekPlayerVM[];
+}
+
 // --- Tournament view models -------------------------------------------------
 
 export interface TournamentSummaryVM {

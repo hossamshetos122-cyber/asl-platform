@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { label: "الفرق", href: "/admin/teams", icon: "teams" },
   { label: "اللاعبون", href: "/admin/players", icon: "players" },
   { label: "الموقوفون", href: "/admin/suspensions", icon: "suspensions" },
+  { label: "فريق الأسبوع", href: "/admin/team-of-week", icon: "team-of-week" },
   { label: "حسابات الفرق", href: "/admin/accounts", icon: "accounts" },
 ];
 

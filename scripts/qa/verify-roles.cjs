@@ -92,8 +92,8 @@ async function clickByText(page, selector, text) {
     const tour = await db.query(`SELECT id FROM "Tournament" ORDER BY "createdAt" ASC LIMIT 1`);
     const matchId = crypto.randomUUID();
     await db.query(
-      `INSERT INTO "Match" (id, "homeTeamId", "awayTeamId", "tournamentId", "kickoffAt", status, "homeScore", "awayScore", "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, now() + interval '2 days', 'SCHEDULED', 0, 0, now(), now())`,
+      `INSERT INTO "Match" (id, "homeTeamId", "awayTeamId", "tournamentId", "kickoffAt", status, venue, "homeScore", "awayScore", "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, now() + interval '2 days', 'SCHEDULED', 'ملعب QA', 0, 0, now(), now())`,
       [matchId, teamAId, teamBId, tour.rows[0].id]
     );
     seeded.matchId = matchId;

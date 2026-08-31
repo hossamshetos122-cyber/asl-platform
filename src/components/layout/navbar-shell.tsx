@@ -17,8 +17,8 @@ export function NavbarShell({ children }: { children: React.ReactNode }) {
       aria-label="القائمة الرئيسية"
       className={`sticky top-0 z-50 backdrop-blur-lg transition-all duration-300 ${
         scrolled
-          ? "bg-[#150324]/95 border-b border-accent/15 shadow-deep"
-          : "bg-[#1C0430]/90 border-b border-white/10"
+          ? "bg-[#0a203c]/95 border-b border-accent/20 shadow-deep"
+          : "bg-[#0d1830]/90 border-b border-white/10"
       }`}
     >
       {children}

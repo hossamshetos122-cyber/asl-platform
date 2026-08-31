@@ -4,6 +4,7 @@ import { Hero } from "@/components/home/hero";
 import { LiveMatchBanner } from "@/components/home/live-match-banner";
 import { UpcomingMatches } from "@/components/home/upcoming-matches";
 import { LatestResults } from "@/components/home/latest-results";
+import { TeamOfWeek } from "@/components/home/team-of-week";
 import { StandingsTable } from "@/components/home/standings-table";
 import { TopScorers } from "@/components/home/top-scorers";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -36,6 +37,7 @@ export default async function HomePage() {
       <LiveMatchBanner />
       <UpcomingMatches />
       <LatestResults />
+      <TeamOfWeek />
       <section className="page-container editorial-section">
         <FeaturedTournamentPanels />
       </section>

@@ -12,7 +12,7 @@
   }
 
   body {
-    background: #150324;
+    background: #0a0f1e;
   }
 
   :focus-visible {
@@ -77,9 +77,9 @@
     @apply w-full rounded-lg border border-line bg-bg px-4 py-3 font-body text-sm text-text outline-none transition-colors focus:border-accent focus:ring-1 focus:ring-accent/25 placeholder:text-text-dimmer;
   }
 
-  .btn-primary {
-    @apply rounded-lg bg-accent px-6 py-3 font-body text-sm font-extrabold text-white transition-all hover:bg-accent-bright hover:shadow-glow active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
-  }
+.btn-primary {
+  @apply rounded-lg bg-accent px-6 py-3 font-body text-sm font-black text-[#1d1400] transition-all hover:bg-accent-bright hover:shadow-glow active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+}
 
   .btn-secondary {
     @apply rounded-lg border border-white/15 bg-surface px-6 py-3 font-body text-sm font-bold text-text transition-all hover:border-accent/50 hover:bg-surface-elevated;
@@ -118,13 +118,15 @@
   }
 }
 
-/* Hero background — multi-layer purple gradient (Premier League style) */
+/* Hero background — dark navy broadcast look (Saudi Pro League style) */
 .hero-bg {
   background:
-    radial-gradient(55% 80% at 85% 10%, rgba(150,60,255,0.45), transparent 60%),
-    radial-gradient(45% 70% at 10% 85%, rgba(233,0,82,0.35), transparent 55%),
-    radial-gradient(40% 60% at 50% 110%, rgba(0,240,255,0.12), transparent 60%),
-    linear-gradient(160deg, #37003c 0%, #2a0544 40%, #150324 100%);
+    radial-gradient(60% 82% at 88% 8%, rgba(46, 123, 255, 0.28), transparent 62%),
+    radial-gradient(48% 72% at 8% 88%, rgba(245, 197, 24, 0.14), transparent 58%),
+    radial-gradient(46% 66% at 35% 118%, rgba(16, 62, 114, 0.6), transparent 62%),
+    radial-gradient(32% 46% at 108% 106%, rgba(253, 115, 1, 0.13), transparent 55%),
+    linear-gradient(165deg, #0d1830 0%, #0a0f1e 48%, #050810 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .hero-glow-orb {
@@ -132,6 +134,47 @@
   border-radius: 9999px;
   filter: blur(70px);
   pointer-events: none;
+}
+
+/* Broadcast-style text gradients */
+.text-gradient-hero {
+  background: linear-gradient(120deg, #ffe066 0%, #f5c518 28%, #dce7ff 55%, #2e7bff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(120deg, #ffe066 0%, #f5c518 45%, #e8a100 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Vivid club-tile gradients (SPL style) */
+.tile-gold {
+  background: linear-gradient(135deg, #f5c518 0%, #b8860b 55%, #7a5a04 100%);
+}
+.tile-blue {
+  background: linear-gradient(135deg, #103e72 0%, #0d3a6b 45%, #082c55 100%);
+}
+.tile-sky {
+  background: linear-gradient(135deg, #2e7bff 0%, #1246b5 55%, #0a2c7d 100%);
+}
+.tile-green {
+  background: linear-gradient(135deg, #017f53 0%, #067a4e 45%, #04452d 100%);
+}
+.tile-red {
+  background: linear-gradient(135deg, #7e2423 0%, #6b1f1e 50%, #461314 100%);
+}
+.tile-orange {
+  background: linear-gradient(135deg, #fd7301 0%, #d14a00 55%, #8f2d00 100%);
+}
+.tile-navy {
+  background: linear-gradient(135deg, #16315c 0%, #102443 55%, #0a1830 100%);
+}
+.tile-slate {
+  background: linear-gradient(160deg, #1b2c4f 0%, #121f3a 55%, #0a1226 100%);
 }
 
 /* Live score pulse */
@@ -200,6 +243,6 @@
 
 /* Gradient accent line */
 .gradient-accent {
-  background: linear-gradient(90deg, transparent, rgba(233,0,82,0.35), rgba(150,60,255,0.35), transparent);
+  background: linear-gradient(90deg, transparent, rgba(245, 197, 24, 0.4), rgba(46, 123, 255, 0.4), transparent);
   height: 1px;
 }
