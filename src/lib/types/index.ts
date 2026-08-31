@@ -94,17 +94,14 @@ export interface HomeStatsVM {
   registeredPlayers: number;
 }
 
-export type TeamOfWeekPosition = "GK" | "DEF" | "MID" | "FW";
+export type RatingTierKey = "green" | "diamond" | "gold" | "silver" | "base";
 
-export interface TeamOfWeekPlayerVM {
+export interface TeamOfTheWeekPlayerVM {
   playerId: string;
   name: string;
   photoUrl: string | null;
   jerseyNumber: number | null;
-  position: TeamOfWeekPosition;
-  sortOrder: number;
-  goals: number;
-  assists: number;
+  rating: number;
   team: {
     id: string;
     name: string;
@@ -113,10 +110,35 @@ export interface TeamOfWeekPlayerVM {
   };
 }
 
-export interface TeamOfWeekVM {
-  tournamentId: string;
+export interface TeamOfTheWeekSlotVM {
+  positionSlot: string;
+  label: string;
+  band: number; // pitch row, 0 = GK … higher = attack
+  captain: boolean;
+  player: TeamOfTheWeekPlayerVM;
+}
+
+export interface TeamOfTheWeekVM {
+  id: string;
+  weekLabel: string;
+  formation: string;
+  weekStart: Date | null;
+  weekEnd: Date | null;
   tournamentName: string;
-  players: TeamOfWeekPlayerVM[];
+  slots: TeamOfTheWeekSlotVM[];
+}
+
+/** A pickable player in the admin lineup builder (grouped per team). */
+export interface TOTWCandidateVM {
+  playerId: string;
+  name: string;
+  photoUrl: string | null;
+  jerseyNumber: number | null;
+  rating: number | null;
+  teamId: string;
+  teamName: string;
+  shortName: string;
+  crestUrl: string | null;
 }
 
 // --- Tournament view models -------------------------------------------------

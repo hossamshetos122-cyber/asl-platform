@@ -31,14 +31,15 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  playerProfile Player?
-  ownedTeams    Team[]           @relation("TeamOwner")
-  managedTeams  Team[]           @relation("TeamManagers")
+  playerProfile    Player?
+  ownedTeams       Team[]          @relation("TeamOwner")
+  managedTeams     Team[]          @relation("TeamManagers")
   organizedTournaments Tournament[] @relation("TournamentOrganizers")
-  refereeProfile Referee?
-  sessions      Session[]
-  notifications Notification[]
-  auditLogs     AuditLog[]
+  refereeProfile   Referee?
+  sessions         Session[]
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+  createdTOTWs     TeamOfTheWeek[] @relation("TOTWCreator")
 
   @@index([email])
   @@index([role])
@@ -90,6 +91,7 @@ model Player {
   photoUrl     String?
   jerseyNumber Int?
   position     String   @default("MIDFIELDER") // GOALKEEPER | DEFENDER | MIDFIELDER | FORWARD
+  rating       Int?     // 0..100 — auto-computed from match stats, admin-adjustable
   dateOfBirth  DateTime?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -99,7 +101,7 @@ model Player {
   matchEvents  MatchEvent[]
   manOfTheMatchAwards MatchAward[]
   matchSquadEntries MatchSquadPlayer[]
-  teamOfWeekSelections TeamOfWeekPlayer[]
+  teamOfTheWeekSelections TeamOfTheWeekPlayer[]
 
   @@index([userId])
 }
@@ -154,7 +156,7 @@ model Tournament {
   seasons    Season[]
   teams      TournamentTeam[]
   matches    Match[]
-  teamOfWeekPlayers TeamOfWeekPlayer[]
+  teamOfTheWeeks TeamOfTheWeek[]
 
   @@index([status])
 }
@@ -185,19 +187,37 @@ model TournamentTeam {
   @@index([tournamentId])
 }
 
-model TeamOfWeekPlayer {
-  id           String   @id @default(cuid())
+model TeamOfTheWeek {
+  id           String        @id @default(cuid())
+  weekLabel    String
+  weekStart    DateTime?
+  weekEnd      DateTime?
+  formation    String // "4-4-2" | "4-3-3" | "3-5-2" | ...
   tournamentId String
-  playerId     String
-  position     String   // GK | DEF | MID | FW
-  sortOrder    Int      // 1..11 slot in the starting XI
-  createdAt    DateTime @default(now())
+  createdById  String
+  createdAt    DateTime      @default(now())
 
-  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
-  player     Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  tournament Tournament       @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  createdBy  User             @relation("TOTWCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  slots      TeamOfTheWeekPlayer[]
 
-  @@unique([tournamentId, playerId])
-  @@index([tournamentId, sortOrder])
+  @@index([createdAt])
+}
+
+model TeamOfTheWeekPlayer {
+  id              String        @id @default(cuid())
+  teamOfTheWeekId String
+  playerId        String
+  positionSlot    String // "GK" | "CB1" | "LW" | ... per formation
+  sortOrder       Int // slot index inside the formation
+  captain         Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+
+  teamOfTheWeek TeamOfTheWeek @relation(fields: [teamOfTheWeekId], references: [id], onDelete: Cascade)
+  player        Player        @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([teamOfTheWeekId, playerId])
+  @@index([teamOfTheWeekId, sortOrder])
 }
 
 // ---------------------------------------------------------------------------
