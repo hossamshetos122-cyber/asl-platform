@@ -21,25 +21,27 @@ datasource db {
 // ---------------------------------------------------------------------------
 
 model User {
-  id            String     @id @default(cuid())
-  email         String     @unique
-  passwordHash  String
-  fullName      String
-  phone         String?
-  avatarUrl     String?
-  role          String     @default("FAN") // PLAYER | TEAM_MANAGER | TOURNAMENT_ORGANIZER | REFEREE | ADMIN | FAN
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id              String     @id @default(cuid())
+  email           String     @unique
+  passwordHash    String
+  fullName        String
+  phone           String?
+  avatarUrl       String?
+  role            String     @default("FAN") // PLAYER | TEAM_MANAGER | TOURNAMENT_ORGANIZER | REFEREE | ADMIN | FAN
+  emailVerifiedAt DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
-  playerProfile    Player?
-  ownedTeams       Team[]          @relation("TeamOwner")
-  managedTeams     Team[]          @relation("TeamManagers")
+  playerProfile      Player?
+  ownedTeams         Team[]          @relation("TeamOwner")
+  managedTeams       Team[]          @relation("TeamManagers")
   organizedTournaments Tournament[] @relation("TournamentOrganizers")
-  refereeProfile   Referee?
-  sessions         Session[]
-  notifications    Notification[]
-  auditLogs        AuditLog[]
-  createdTOTWs     TeamOfTheWeek[] @relation("TOTWCreator")
+  refereeProfile     Referee?
+  sessions           Session[]
+  notifications      Notification[]
+  auditLogs          AuditLog[]
+  createdTOTWs       TeamOfTheWeek[] @relation("TOTWCreator")
+  verificationTokens VerificationToken[]
 
   @@index([email])
   @@index([role])
@@ -55,6 +57,22 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([token])
+}
+
+// Email-verification & password-reset tokens (single-use, expiring)
+model VerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  type      String // PASSWORD_RESET | EMAIL_VERIFICATION
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
   @@index([token])
 }
 
@@ -345,4 +363,22 @@ model AuditLog {
   actor User @relation(fields: [actorId], references: [id], onDelete: Restrict)
 
   @@index([actorId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// News & media
+// ---------------------------------------------------------------------------
+
+model News {
+  id          String   @id @default(cuid())
+  title       String
+  excerpt     String?
+  body        String
+  imageUrl    String?
+  authorName  String?
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([publishedAt])
 }

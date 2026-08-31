@@ -186,6 +186,7 @@ export async function loginAction(
     redirect(
       user.role === "ADMIN" ? "/admin" :
       user.role === "TEAM_MANAGER" ? "/manage" :
+      user.role === "REFEREE" ? "/referee" :
       "/dashboard"
     );
   } catch (error) {

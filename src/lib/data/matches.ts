@@ -2,12 +2,17 @@ import { prisma } from "@/lib/prisma";
 import type { Result, MatchSummaryVM, MatchDetailVM, MatchSquadVM, MatchSquadPlayerVM } from "@/lib/types";
 
 
-export async function getMatches(statusFilter?: string): Promise<Result<MatchSummaryVM[]>> {
+export async function getMatches(statusFilter?: string, teamId?: string): Promise<Result<MatchSummaryVM[]>> {
   try {
     const matches = await prisma.match.findMany({
-      where: statusFilter
-        ? { status: statusFilter }
-        : { status: { notIn: ["CANCELLED"] } },
+      where: teamId
+        ? {
+            status: statusFilter ?? { notIn: ["CANCELLED"] },
+            OR: [{ homeTeamId: teamId }, { awayTeamId: teamId }],
+          }
+        : statusFilter
+          ? { status: statusFilter }
+          : { status: { notIn: ["CANCELLED"] } },
       orderBy: { kickoffAt: "desc" },
       include: {
         homeTeam: true,

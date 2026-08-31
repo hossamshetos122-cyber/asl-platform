@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { hashPassword } from "@/lib/auth";
-import { createManagerAccountSchema, cuid } from "@/lib/validation";
+import { createManagerAccountSchema, createRefereeAccountSchema, cuid } from "@/lib/validation";
 import { auditLog } from "@/lib/audit";
 
 export type AccountActionResult = { ok: boolean; error?: string };
@@ -57,6 +57,54 @@ export async function createManagerAccount(formData: FormData): Promise<AccountA
   });
 
   revalidatePath("/admin/accounts");
+  return { ok: true };
+}
+
+export async function createRefereeAccount(formData: FormData): Promise<AccountActionResult> {
+  const user = await requireAdmin();
+
+  const parsed = createRefereeAccountSchema.safeParse({
+    fullName: formData.get("fullName"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+    licenseNo: formData.get("licenseNo"),
+  });
+
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    return { ok: false, error: first?.message ?? "بيانات غير صالحة" };
+  }
+
+  const { fullName, email, password, licenseNo } = parsed.data;
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) return { ok: false, error: "هذا البريد مسجّل بالفعل" };
+
+  const passwordHash = await hashPassword(password);
+
+  try {
+    const refereeUser = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        fullName,
+        role: "REFEREE",
+        refereeProfile: { create: { licenseNo: licenseNo || null } },
+      },
+    });
+    await auditLog({
+      actorId: user.id,
+      action: "CREATE_REFEREE",
+      targetId: refereeUser.id,
+      metadata: { email, fullName, licenseNo: licenseNo || null },
+    });
+  } catch (error) {
+    console.error("[createRefereeAccount]", error);
+    return { ok: false, error: "تعذّر إنشاء الحساب. حاول مرة أخرى." };
+  }
+
+  revalidatePath("/admin/accounts");
+  revalidatePath("/admin/matches");
   return { ok: true };
 }
 

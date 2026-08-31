@@ -22,6 +22,7 @@ const NAV_LINKS = [
   { href: "/top-scorers", label: "الهدافين" },
   { href: "/teams", label: "الفرق" },
   { href: "/players", label: "اللاعبون" },
+  { href: "/news", label: "الأخبار" },
 ] as const;
 
 export function MobileMenu() {

@@ -303,3 +303,28 @@ export interface PlayerListItemVM {
 export type FullStandingRowVM = StandingRowVM;
 export type FullTopScorerVM = TopScorerVM;
 export type FullTopAssisterVM = TopAssisterVM;
+
+// --- News -------------------------------------------------------------------
+
+export interface NewsVM {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  body: string;
+  imageUrl: string | null;
+  authorName: string | null;
+  publishedAt: Date;
+  createdAt: Date;
+}
+
+// --- Live polling -----------------------------------------------------------
+
+/** Lightweight snapshot polled by the client while a match is live. */
+export interface MatchLiveSnapshotVM {
+  id: string;
+  status: string;
+  homeScore: number;
+  awayScore: number;
+  minute: number | null;
+  updatedAt: string;
+}

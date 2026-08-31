@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getFeaturedLiveMatch } from "@/lib/data/home";
 import { ImageDisplay } from "@/components/ui/image-display";
+import { LiveMatchUI } from "@/components/live/live-match-ui";
 
 export async function LiveMatchBanner() {
   const result = await getFeaturedLiveMatch();
@@ -8,7 +9,12 @@ export async function LiveMatchBanner() {
   if (result.status !== "success") return null;
 
   const match = result.data;
-  const statusLabel = match.status === "HALFTIME" ? "الشوط الأول انتهى" : "مباشر الآن";
+  const liveInitial = {
+    status: match.status,
+    homeScore: match.homeScore,
+    awayScore: match.awayScore,
+    minute: match.minute,
+  };
 
   return (
     <section className="relative border-y border-live/20 overflow-hidden bg-surface">
@@ -17,13 +23,7 @@ export async function LiveMatchBanner() {
       <div className="page-container relative py-5 sm:py-7">
         {/* Status */}
         <div className="mb-4 flex items-center justify-center gap-2.5">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-live/25 bg-live/8 px-3 py-1 font-utility text-[10px] tracking-[0.15em] text-live uppercase">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-live opacity-70" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-live" />
-            </span>
-            <span className={match.status === "LIVE" ? "live-word" : ""}>{statusLabel}</span>
-          </span>
+          <LiveMatchUI matchId={match.id} initial={liveInitial} role="pill" />
           <span className="font-utility text-[10px] tracking-wider text-text-dimmer uppercase">{match.tournamentName}</span>
           {match.venue && (
             <span className="inline-flex items-center gap-1.5 font-body text-[11px] text-text-dimmer">
@@ -50,16 +50,7 @@ export async function LiveMatchBanner() {
 
             {/* Score */}
             <div className="flex flex-col items-center gap-1">
-              <div className="font-num text-4xl sm:text-5xl lg:text-6xl font-bold text-text score-live tabular-nums">
-                {match.homeScore}
-                <span className="mx-1.5 sm:mx-2 text-xl sm:text-2xl text-text-dimmer">-</span>
-                {match.awayScore}
-              </div>
-              {match.minute !== null && (
-                <div className="rounded bg-surface-elevated px-2.5 py-0.5 font-num text-[11px] font-bold text-text-dim border border-line">
-                  {match.minute}&#39;
-                </div>
-              )}
+              <LiveMatchUI matchId={match.id} initial={liveInitial} role="score" />
             </div>
 
             {/* Away */}

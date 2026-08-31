@@ -1,11 +1,13 @@
 import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { prisma } from "@/lib/prisma";
 import { getMatches } from "@/lib/data/matches";
 import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { ImageDisplay } from "@/components/ui/image-display";
+import { MatchFilters } from "./match-filters";
 import Link from "next/link";
 import { formatCalendarDate } from "@/lib/dates";
 
@@ -25,8 +27,8 @@ const STATUS_CLASSES: Record<string, string> = {
   FINISHED: "badge-success", POSTPONED: "badge-muted", CANCELLED: "badge-muted",
 };
 
-async function MatchesList({ filter }: { filter?: string }) {
-  const result = await getMatches(filter);
+async function MatchesList({ filter, teamId }: { filter?: string; teamId?: string }) {
+  const result = await getMatches(filter, teamId);
 
   if (result.status === "error") return <ErrorState message={result.message} />;
   if (result.status === "empty") return <EmptyState message="لا توجد مباريات حالياً." />;
@@ -91,29 +93,43 @@ async function MatchesList({ filter }: { filter?: string }) {
 }
 
 interface MatchesPageProps {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; team?: string }>;
 }
 
 export default async function MatchesPage({ searchParams }: MatchesPageProps) {
-  const { status } = await searchParams;
+  const { status, team } = await searchParams;
+
+  const teams = await prisma.team.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
 
   return (
     <>
       <Navbar />
       <main className="page-container page-padding">
         <SectionHeader title="المباريات" tag="MATCHES" bordered={false} />
-        <Suspense fallback={<div className="space-y-6">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="space-y-2">
-              <div className="h-3 w-24 animate-pulse rounded bg-line" />
-              <div className="h-16 animate-pulse rounded-xl border border-line bg-surface" />
-            </div>
-          ))}
-        </div>}>
-          <MatchesList filter={status} />
+        <div className="mb-6">
+          <MatchFilters teams={teams} />
+        </div>
+        <Suspense fallback={<MatchFilterSkeleton />}>
+          <MatchesList filter={status} teamId={team} />
         </Suspense>
       </main>
       <Footer />
     </>
+  );
+}
+
+function MatchFilterSkeleton() {
+  return (
+    <div className="space-y-6">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="space-y-2">
+          <div className="h-3 w-24 animate-pulse rounded bg-line" />
+          <div className="h-16 animate-pulse rounded-xl border border-line bg-surface" />
+        </div>
+      ))}
+    </div>
   );
 }

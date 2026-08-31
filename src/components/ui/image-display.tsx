@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 
-type ImageType = "team-logo" | "player" | "tournament" | "cover" | "avatar";
+type ImageType = "team-logo" | "player" | "tournament" | "cover" | "avatar" | "news";
 
 interface ImageDisplayProps {
   src: string | null | undefined;
@@ -87,6 +87,8 @@ function getFallback(type: ImageType, size: string, shortCode?: string, alt?: st
       return <TournamentFallback size={size} />;
     case "cover":
       return <CoverFallback size={size} />;
+    case "news":
+      return <CoverFallback size={size} />;
     case "avatar":
       return <AvatarFallback name={alt || ""} size={size} />;
     default:
@@ -123,7 +125,7 @@ export function ImageDisplay({
     type === "avatar" ? "rounded-full" :
     "rounded-xl";
 
-  const objectFit = type === "player" || type === "cover" ? "object-cover" : "object-contain";
+  const objectFit = type === "player" || type === "cover" || type === "news" ? "object-cover" : "object-contain";
 
   if (fill) {
     return (

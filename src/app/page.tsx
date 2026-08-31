@@ -5,6 +5,7 @@ import { Hero } from "@/components/home/hero";
 import { LiveMatchBanner } from "@/components/home/live-match-banner";
 import { UpcomingMatches } from "@/components/home/upcoming-matches";
 import { LatestResults } from "@/components/home/latest-results";
+import { NewsSection } from "@/components/home/news-section";
 import { TeamOfWeek } from "@/components/home/team-of-week";
 import { StandingsTable } from "@/components/home/standings-table";
 import { TopScorers } from "@/components/home/top-scorers";
@@ -38,6 +39,15 @@ export default async function HomePage() {
       <LiveMatchBanner />
       <UpcomingMatches />
       <LatestResults />
+      <section className="page-container editorial-section">
+        <Suspense fallback={<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-72 animate-pulse rounded-xl border border-line bg-surface" />
+          ))}
+        </div>}>
+          <NewsSection />
+        </Suspense>
+      </section>
       <TeamOfWeek />
       <section className="page-container editorial-section">
         <Suspense fallback={<div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.3fr_1fr]">

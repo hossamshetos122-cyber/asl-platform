@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { ImageDisplay } from "@/components/ui/image-display";
+import { VerifyEmailBanner } from "@/components/auth/verify-email-banner";
 import Link from "next/link";
 
 export default async function DashboardPage() {
@@ -45,6 +46,7 @@ export default async function DashboardPage() {
       </section>
 
       <main className="page-container page-padding">
+        {!user.emailVerifiedAt && <VerifyEmailBanner />}
         <div className="mb-5 grid grid-cols-3 gap-2.5">
           <div className="rounded-xl border border-line bg-surface p-4 text-center">
             <div className="font-body text-[11px] font-bold text-accent">{user.fullName}</div>

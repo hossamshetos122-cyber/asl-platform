@@ -100,6 +100,54 @@ export async function requireUser(): Promise<User> {
 }
 
 /**
+ * Require a logged-in user with the REFEREE role (admins pass too).
+ * Throws "UNAUTHORIZED" / "FORBIDDEN" otherwise.
+ */
+export async function requireReferee(): Promise<User> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error("UNAUTHORIZED");
+  if (user.role === "ADMIN") return user;
+  if (user.role !== "REFEREE") throw new Error("FORBIDDEN");
+  return user;
+}
+
+/**
+ * One-time, expiring token for password reset / email verification.
+ */
+export async function createVerificationToken(
+  userId: string,
+  type: "PASSWORD_RESET" | "EMAIL_VERIFICATION",
+): Promise<string> {
+  const token = crypto.randomBytes(32).toString("hex");
+  await prisma.verificationToken.create({
+    data: {
+      userId,
+      token,
+      type,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+    },
+  });
+  return token;
+}
+
+/**
+ * Validate + consume a single-use token. Returns the record or null.
+ */
+export async function consumeVerificationToken(
+  token: string,
+  type: "PASSWORD_RESET" | "EMAIL_VERIFICATION",
+): Promise<{ userId: string; type: string } | null> {
+  const record = await prisma.verificationToken.findUnique({ where: { token } });
+  if (!record || record.type !== type) return null;
+  if (record.usedAt || record.expiresAt < new Date()) return null;
+  await prisma.verificationToken.update({
+    where: { id: record.id },
+    data: { usedAt: new Date() },
+  });
+  return { userId: record.userId, type: record.type };
+}
+
+/**
  * Fetch the teams a user manages (via the TeamManagers many-to-many link).
  */
 export async function getManagedTeams(userId: string) {

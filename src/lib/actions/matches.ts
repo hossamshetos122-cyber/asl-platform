@@ -22,6 +22,7 @@ export async function createMatch(formData: FormData) {
     tournamentId: formData.get("tournamentId"),
     homeTeamId: formData.get("homeTeamId"),
     awayTeamId: formData.get("awayTeamId"),
+    refereeId: formData.get("refereeId") || undefined,
     kickoffAt: formData.get("kickoffAt"),
     venue: formData.get("venue") || undefined,
     venueImageUrl: formData.get("venueImageUrl") || undefined,
@@ -34,7 +35,7 @@ export async function createMatch(formData: FormData) {
     throw new Error(first?.message ?? "بيانات غير صالحة");
   }
 
-  const { tournamentId, homeTeamId, awayTeamId, kickoffAt, venue, venueImageUrl, round, status } = parsed.data;
+  const { tournamentId, homeTeamId, awayTeamId, kickoffAt, venue, venueImageUrl, round, status, refereeId } = parsed.data;
 
   // Verify tournament exists
   const tournament = await prisma.tournament.findUnique({ where: { id: tournamentId }, select: { id: true } });
@@ -63,11 +64,18 @@ export async function createMatch(formData: FormData) {
   if (!homeEntry) throw new Error("الفريق المضيف غير مسجّل في هذه البطولة");
   if (!awayEntry) throw new Error("الفريق الضيف غير مسجّل في هذه البطولة");
 
+  // Verify the assigned referee exists when provided.
+  if (refereeId) {
+    const referee = await prisma.referee.findUnique({ where: { id: refereeId }, select: { id: true } });
+    if (!referee) throw new Error("الحكم غير موجود");
+  }
+
   const match = await prisma.match.create({
     data: {
       tournamentId,
       homeTeamId,
       awayTeamId,
+      refereeId: refereeId ?? null,
       kickoffAt: new Date(kickoffAt),
       venue,
       venueImageUrl: venueImageUrl ?? null,
@@ -80,7 +88,7 @@ export async function createMatch(formData: FormData) {
     actorId: user.id,
     action: "CREATE_MATCH",
     targetId: match.id,
-    metadata: { tournamentId, homeTeamId, awayTeamId },
+    metadata: { tournamentId, homeTeamId, awayTeamId, refereeId: refereeId ?? null },
   });
 
   revalidatePath("/matches");

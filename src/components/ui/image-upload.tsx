@@ -15,6 +15,63 @@ interface ImageUploadProps {
   className?: string;
 }
 
+const MAX_DIMENSION = 1400;
+const COMPRESSION_THRESHOLD_BYTES = 250 * 1024;
+
+/** Downscales + re-encodes a raster image (best effort) so large photos and
+ *  covers stay within size limits when stored as data URIs.  */
+async function compressImage(file: File): Promise<File> {
+  if (file.size < COMPRESSION_THRESHOLD_BYTES) return file;
+
+  const load = (): Promise<HTMLImageElement> =>
+    new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = document.createElement("img");
+      img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("decode-failed")); };
+      img.src = url;
+    });
+
+  let img: HTMLImageElement;
+  try {
+    img = await load();
+  } catch {
+    return file;
+  }
+
+  const longest = Math.max(img.naturalWidth, img.naturalHeight);
+  if (longest <= MAX_DIMENSION && file.type !== "image/jpeg") return file;
+
+  const scale = Math.min(1, MAX_DIMENSION / longest);
+  const w = Math.max(1, Math.round(img.naturalWidth * scale));
+  const h = Math.max(1, Math.round(img.naturalHeight * scale));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+  ctx.drawImage(img, 0, 0, w, h);
+
+  const hasAlpha = file.type === "image/png" || file.type === "image/webp";
+  const mime = hasAlpha && "image/webp" in window ? "image/webp" : "image/jpeg";
+
+  const toBlob = (quality: number): Promise<Blob | null> =>
+    new Promise((resolve) => canvas.toBlob(resolve, mime, quality));
+
+  let blob = await toBlob(0.78);
+  if (!blob) return file;
+  if (blob.size > file.size && file.size <= 2 * 1024 * 1024) return file;
+  if (blob.size > 650 * 1024) {
+    const tighter = await toBlob(0.55);
+    if (tighter && tighter.size < blob.size) blob = tighter;
+  }
+
+  const ext = mime === "image/webp" ? "webp" : "jpg";
+  const base = file.name.replace(/\.[^.]+$/, "") || "image";
+  return new File([blob], `${base}.${ext}`, { type: mime });
+}
+
 export function ImageUpload({
   name,
   purpose = "general",
@@ -48,8 +105,10 @@ export function ImageUpload({
     setUploading(true);
 
     try {
+      const compressed = file.size > COMPRESSION_THRESHOLD_BYTES ? await compressImage(file) : file;
+
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", compressed);
       formData.append("purpose", purpose);
 
       const res = await fetch("/api/upload", {
@@ -146,7 +205,7 @@ export function ImageUpload({
           {uploading ? (
             <div className="flex flex-col items-center gap-2">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" />
-              <span className="font-body text-xs text-text-dim">جارِ الرفع...</span>
+              <span className="font-body text-xs text-text-dim">جارِ الضغط والرفع...</span>
             </div>
           ) : (
             <>
@@ -154,7 +213,7 @@ export function ImageUpload({
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
               </svg>
               <span className="font-body text-xs text-text-dim">اضغط أو اسحب صورة هنا</span>
-              <span className="font-utility text-[9px] tracking-wider text-text-dimmer">JPG, PNG, WebP · حد أقصى {maxSizeMB}MB</span>
+              <span className="font-utility text-[9px] tracking-wider text-text-dimmer">JPG, PNG, WebP · حد أقصى {maxSizeMB}MB · ضغط تلقائي</span>
             </>
           )}
           <input

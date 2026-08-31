@@ -6,7 +6,7 @@ export const metadata = {
 };
 
 export default async function AdminMatchesPage() {
-  const [matches, teams, tournaments] = await Promise.all([
+  const [matches, teams, tournaments, referees] = await Promise.all([
     prisma.match.findMany({
       orderBy: { kickoffAt: "desc" },
       include: {
@@ -23,7 +23,12 @@ export default async function AdminMatchesPage() {
       orderBy: { startDate: "desc" },
       select: { id: true, name: true },
     }),
+    prisma.referee.findMany({
+      include: { user: { select: { fullName: true } } },
+      orderBy: { user: { fullName: "asc" } },
+    }),
   ]);
+  const refereesOptions = referees.map((r) => ({ id: r.id, fullName: r.user.fullName }));
 
   const matchIds = matches.map((m) => m.id);
 
@@ -87,6 +92,7 @@ export default async function AdminMatchesPage() {
         matches={matches.map((m) => ({ ...m, kickoffAt: m.kickoffAt.toISOString() }))}
         teams={teams}
         tournaments={tournaments}
+        referees={refereesOptions}
         playersByTeam={playersByTeam}
         eventsByMatch={eventsByMatch}
       />

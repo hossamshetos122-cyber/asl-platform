@@ -76,7 +76,7 @@ const isOverdueMatch = (m: { status: string; kickoffAt: string }) =>
   (m.status === "SCHEDULED" || m.status === "POSTPONED") &&
   new Date(m.kickoffAt).getTime() < Date.now();
 
-function InlineCreateForm({ teams, tournaments }: { teams: TeamOption[]; tournaments: TournamentOption[] }) {
+function InlineCreateForm({ teams, tournaments, referees }: { teams: TeamOption[]; tournaments: TournamentOption[]; referees: { id: string; fullName: string }[] }) {
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [venueImage, setVenueImage] = useState<string | null>(null);
@@ -139,6 +139,15 @@ function InlineCreateForm({ teams, tournaments }: { teams: TeamOption[]; tournam
           <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الجولة</label>
           <input name="round" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent" placeholder="الأسبوع 1" />
         </div>
+        {referees.length > 0 && (
+          <div>
+            <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">الحكم (اختياري)</label>
+            <select name="refereeId" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent">
+              <option value="">بدون إسناد</option>
+              {referees.map((r) => (<option key={r.id} value={r.id}>{r.fullName}</option>))}
+            </select>
+          </div>
+        )}
       </div>
       {error && <div className="mb-4 rounded-lg border border-live/30 bg-live/10 px-4 py-2 font-body text-[12px] text-live">{error}</div>}
       <div className="flex items-center gap-3">
@@ -660,10 +669,11 @@ function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, s
   );
 }
 
-export default function MatchesTable({ matches, teams, tournaments, playersByTeam = {}, eventsByMatch = {} }: {
+export default function MatchesTable({ matches, teams, tournaments, referees = [], playersByTeam = {}, eventsByMatch = {} }: {
   matches: MatchRow[];
   teams: TeamOption[];
   tournaments: TournamentOption[];
+  referees?: { id: string; fullName: string }[];
   playersByTeam?: Record<string, GoalPlayerOption[]>;
   eventsByMatch?: Record<string, EventLite[]>;
 }) {
@@ -673,7 +683,7 @@ export default function MatchesTable({ matches, teams, tournaments, playersByTea
 
   return (
     <>
-      <InlineCreateForm teams={teams} tournaments={tournaments} />
+      <InlineCreateForm teams={teams} tournaments={tournaments} referees={referees} />
       {overdueCount > 0 && (
         <div className="flex items-start gap-3 rounded-xl border border-live/30 bg-live/10 px-4 py-3.5">
           <span className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-live/20 font-num text-[12px] font-bold text-live">{overdueCount}</span>

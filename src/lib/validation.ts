@@ -110,6 +110,56 @@ export const createManagerAccountSchema = z.object({
   teamId: cuid,
 });
 
+export const createRefereeAccountSchema = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .min(2, "الاسم يجب أن يكون حرفين على الأقل")
+    .max(100, "الاسم طويل جداً"),
+  email: z.string().trim().email("البريد الإلكتروني غير صالح").max(254),
+  password: z
+    .string()
+    .min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل")
+    .max(128, "كلمة المرور طويلة جداً"),
+  licenseNo: z.string().trim().max(50, "رقم الرخصة طويل جداً").nullable().optional(),
+});
+
+// ---------------------------------------------------------------------------
+// Password recovery / email verification schemas
+// ---------------------------------------------------------------------------
+
+export const requestPasswordResetSchema = z.object({
+  email: z.string().trim().email("البريد الإلكتروني غير صالح").max(254),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(16, "الرمز غير صالح").max(128),
+    password: z
+      .string()
+      .min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل")
+      .max(128, "كلمة المرور طويلة جداً"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "كلمتا المرور غير متطابقتين",
+    path: ["confirmPassword"],
+  });
+
+// ---------------------------------------------------------------------------
+// News schemas
+// ---------------------------------------------------------------------------
+
+export const newsSchema = z.object({
+  id: cuid.optional(),
+  title: z.string().trim().min(3, "العنوان مطلوب ومكوّن من 3 أحرف على الأقل").max(200, "العنوان طويل جداً"),
+  excerpt: z.string().trim().max(400, "الملخص طويل جداً").nullable().optional(),
+  body: z.string().trim().min(10, "الخبر مطلوب ومكوّن من 10 أحرف على الأقل"),
+  imageUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
+  authorName: z.string().trim().max(100, "اسم الكاتب طويل جداً").nullable().optional(),
+  publishedAt: z.string().trim().optional(),
+});
+
 // ---------------------------------------------------------------------------
 // Team schemas
 // ---------------------------------------------------------------------------
@@ -221,6 +271,7 @@ export const createMatchSchema = z
     tournamentId: cuid,
     homeTeamId: cuid,
     awayTeamId: cuid,
+    refereeId: cuid.nullable().optional(),
     kickoffAt: z.string().min(1, "موعد المباراة مطلوب"),
     venue: z.string().trim().min(1, "اسم الملعب مطلوب").max(200, "اسم الملعب طويل جداً"),
     venueImageUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),

@@ -36,6 +36,15 @@ function LoginForm() {
           <input id="password" name="password" type="password" required className="input-field" placeholder="••••••••" />
           {state.fieldErrors?.password && <p className="mt-1 font-body text-xs text-live">{state.fieldErrors.password}</p>}
         </div>
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-2 font-body text-xs text-text-dim cursor-pointer select-none">
+            <input type="checkbox" name="remember" className="h-3.5 w-3.5 accent-accent" />
+            تذكرني
+          </label>
+          <Link href="/forgot-password" className="inline-block font-body text-xs font-bold text-accent hover:text-accent-bright transition-colors">
+            نسيت كلمة المرور؟
+          </Link>
+        </div>
         <button type="submit" disabled={pending} className="btn-primary w-full">
           {pending ? "جارٍ تسجيل الدخول..." : "تسجيل الدخول"}
         </button>

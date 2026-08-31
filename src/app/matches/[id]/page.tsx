@@ -4,12 +4,12 @@ import { Footer } from "@/components/layout/footer";
 import { getMatchById } from "@/lib/data/matches";
 import { TeamBadge } from "@/components/ui/team-badge";
 import { ImageDisplay } from "@/components/ui/image-display";
+import { LiveMatchUI } from "@/components/live/live-match-ui";
 import { notFound } from "next/navigation";
 import type { MatchSquadVM } from "@/lib/types";
 import { formatMatchDateTime } from "@/lib/dates";
 
 const STATUS_LABELS: Record<string, string> = { SCHEDULED: "مجدولة", LIVE: "مباشر", HALFTIME: "استراحة", FINISHED: "انتهت", POSTPONED: "مؤجلة", CANCELLED: "ملغاة" };
-const STATUS_CLASSES: Record<string, string> = { SCHEDULED: "badge-muted", LIVE: "badge-live", HALFTIME: "badge-accent", FINISHED: "badge-success", POSTPONED: "badge-muted", CANCELLED: "badge-muted" };
 const EVENT_LABELS: Record<string, string> = { GOAL: "هدف", OWN_GOAL: "هدف عكسي", ASSIST: "تمريرة حاسمة", YELLOW_CARD: "بطاقة صفراء", RED_CARD: "بطاقة حمراء", PENALTY_SCORED: "هدف من ركلة جزاء", PENALTY_MISSED: "ضائع ركلة جزاء", SUBSTITUTION_IN: "دخول", SUBSTITUTION_OUT: "خروج" };
 const STATUS_LABELS_SQUAD: Record<string, string> = { PENDING: "قيد الانتظار", CONFIRMED: "مؤكدة", ABSENT: "غائبة" };
 const STATUS_COLORS_SQUAD: Record<string, string> = { PENDING: "badge-muted", CONFIRMED: "badge-success", ABSENT: "badge-live" };
@@ -82,6 +82,12 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
   if (result.status === "error" || result.status === "empty") notFound();
 
   const match = result.data;
+  const liveInitial = {
+    status: match.status,
+    homeScore: match.homeScore,
+    awayScore: match.awayScore,
+    minute: match.minute,
+  };
 
   return (
     <>
@@ -95,10 +101,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
         {/* Match Hero */}
         <div className="mb-5 rounded-xl border border-line bg-surface overflow-hidden animate-fade-up">
           <div className="flex items-center justify-center gap-2 px-4 py-2.5 border-b border-line bg-surface-elevated/30">
-            <span className={STATUS_CLASSES[match.status] ?? "badge-muted"}>
-              {match.status === "LIVE" && <span className="ml-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-live inline-block" />}
-              {STATUS_LABELS[match.status] ?? match.status}
-            </span>
+            <LiveMatchUI matchId={match.id} initial={liveInitial} role="pill" variant="hero" />
             <span className="badge-muted">{match.tournamentName}</span>
             {match.round && <span className="badge-muted">{match.round}</span>}
           </div>
@@ -109,11 +112,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
                 <div className="font-display text-sm sm:text-base font-black text-text">{match.homeTeam.name}</div>
               </div>
               <div className="flex flex-col items-center gap-1.5">
-                <div className="font-num text-4xl sm:text-5xl lg:text-6xl font-bold text-text tabular-nums">
-                  {match.homeScore}
-                  <span className="mx-1.5 sm:mx-2 text-xl sm:text-2xl text-text-dimmer">-</span>
-                  {match.awayScore}
-                </div>
+                <LiveMatchUI matchId={match.id} initial={liveInitial} role="score" />
                 <div className="font-body text-[11px] text-text-dim">{formatDate(match.kickoffAt)}</div>
               </div>
               <div className="flex flex-col items-center gap-2.5">

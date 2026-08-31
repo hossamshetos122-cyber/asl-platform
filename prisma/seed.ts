@@ -519,6 +519,7 @@ interface MatchInput {
   minute?: number;
   round: string;
   venue?: string;
+  refereeId?: string;
 }
 
 interface GoalEvent {
@@ -545,6 +546,7 @@ async function upsertMatch(m: MatchInput) {
       homeTeamId: m.homeId, awayTeamId: m.awayId, status: m.status,
       kickoffAt: m.kickoffAt, homeScore: m.homeScore, awayScore: m.awayScore,
       minute: m.minute, round: m.round, venue: m.venue ?? seedVenueFor(m.id),
+      refereeId: m.refereeId ?? null,
     },
   });
 }
@@ -584,6 +586,16 @@ async function main(): Promise<void> {
   await prisma.user.upsert({
     where: { id: "user-organizer" }, update: {},
     create: { id: "user-organizer", email: "organizer@asl.local", passwordHash: organizerPasswordHash, fullName: "منظم البطولة", role: "TOURNAMENT_ORGANIZER" },
+  });
+
+  // --- Referee demo account ----------------------------------------------
+  await prisma.user.upsert({
+    where: { id: "user-ref-1" }, update: {},
+    create: { id: "user-ref-1", email: "referee@asl.local", passwordHash: adminPasswordHash, fullName: "محمد عبد الفتاح", role: "REFEREE" },
+  });
+  await prisma.referee.upsert({
+    where: { id: "referee-1" }, update: {},
+    create: { id: "referee-1", userId: "user-ref-1", licenseNo: "FR-EG-2024-0115" },
   });
 
   // --- Teams -------------------------------------------------------------
@@ -663,6 +675,7 @@ async function main(): Promise<void> {
   await upsertMatch({
     id: "lg-m15", tournamentId: league.id, seasonId: leagueSeason.id, homeId: "team-karnak", awayId: "team-agamy",
     status: "LIVE", kickoffAt: new Date(), homeScore: 2, awayScore: 1, minute: 67, round: "الأسبوع 4",
+    venue: "ستاد الإسكندرية المركزي", refereeId: "referee-1",
   });
 
   const leagueUpcoming: MatchInput[] = [
@@ -919,6 +932,68 @@ async function main(): Promise<void> {
   await createMatchSquad(partialMatch.matchId, partialMatch.away, "CONFIRMED", 11);
 
   // ======================================================================
+  // News
+  // ======================================================================
+
+  const newsItems = [
+    {
+      id: "news-n1",
+      title: "قمة الجولة الرابعة: كرنك يضرب العجمي بثنائية في ملعب التتويج",
+      excerpt: "ثلاثية أهداف في الشوط الأول أكدت جاهزية «سيد جابر» للمنافسة على اللقب أمام جماهيرها.",
+      body:
+        "شهد ستاد الإسكندرية المركزي قمة الجولة الرابعة من دوري الإسكندرية الممتاز، حيث واصل فريق سيدي جابر توسّعه على صدارة الترتيب بعد فوزٍ مُقنع على العجمي.\n\n" +
+        "انتهى الشوط الأول بتقدم أصحاب الأرض بهدفين مقابل هدف، قبل أن تُحسم المباراة بالأهداف الثلاثة المثيرة في الدقائق الأخيرة.\n\n" +
+        "أكد الجهاز الفني أن الدوريات التالية ستشهد إراحة عدد من اللاعبين الأساسيين استعداداً للمواجهات الحاسمة المؤهلة للأدوار الإقصائية.",
+      authorName: "المركز الإعلامي — دوري الإسكندرية",
+      publishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      imageUrl: null,
+    },
+    {
+      id: "news-n2",
+      title: "انطلاق النسخة الشتوية من كأس الإسكندرية الشهر المقبل",
+      excerpt: "التسجيل مفتوح للأندية الهاوية في المحافظة وسط إقبال قياسي من الأحياء العشرين.",
+      body:
+        "أعلن منظمو البطولات المحلية انطلاق النسخة الشتوية من كأس الإسكندرية مطلع الشهر المقبل بنظام المجموعات والأدوار الإقصائية.\n\n" +
+        "تستقبل اللجنة المنظمة طلبات الاشتراك عبر لوحة تحكم الأندية حتى نهاية الأسبوع الجاري، مع اشتراط استكمال بيانات اللاعبين والملاعب.\n\n" +
+        "تُقام القرعة الرسمية في ستاد المنتزه بحضور ممثلي الأندية المشاركة.",
+      authorName: "لجنة المسابقات",
+      publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      imageUrl: null,
+    },
+    {
+      id: "news-n3",
+      title: "رصد حضور قياسي: محافظ الإسكندرية يشيد بمنظومة الدوريات الهاوية",
+      excerpt: "زيارة ميدانية لملاعب الأحياء تواكب تنظيم المباريات وتسجيل النتائج إلكترونياً لأول مرة.",
+      body:
+        "أشاد محافظ الإسكندرية خلال جولة على الملاعب المشاركة في دوري الأحياء بمنظومة التنظيم الرقمية، التي يتيح فيها النظام متابعة النتائج والترتيبات لحظياً.\n\n" +
+        "شملت الجولة ملعب كرموز وستاد المنتزه، حيث تابع المسؤولون تجربة تسجيل الأحداث داخل المباراة ولحظة تحديث الترتيب تلقائياً بعد انتهاء اللقاءات.\n\n" +
+        "أعلن المسؤولون عن توسعة البرنامج ليشمل أبطال الأحياء الثلاثة الأوائل في بطولة سوبر المقاطعات المقبلة.",
+      authorName: "مكتب المحافظ",
+      publishedAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000),
+      imageUrl: null,
+    },
+    {
+      id: "news-n4",
+      title: "المنتزه يحقق انطلاقة قوية بعد ثلاثية نظيفة على فلمنج",
+      excerpt: "دوري الهاوية يشهد تألق الحارس الشاب الذي حافظ على نظافة شباكه للمرة الثالثة هذا الموسم.",
+      body:
+        "واصل فريق المنتزه حصد النقاط الكاملة بعد تفوقه بثلاثية نظيفة على فلمنج في ختام مباريات الأسبوع الثاني.\n\n" +
+        "قاد حارس المنتزه فريقه للفوز بتصدٍّ مزدوج مذهل قبل مرور نصف ساعة، فيما أنهى الهداف سامي أحمد المباراة بهدفين.\n\n" +
+        "بهذه النتيجة يرتقي المنتزه للمركز الثاني في ترتيب المجموعة الشرقية بفارق الأهداف.",
+      authorName: "المركز الإعلامي — دوري الإسكندرية",
+      publishedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000),
+      imageUrl: null,
+    },
+  ];
+  for (const item of newsItems) {
+    await prisma.news.upsert({
+      where: { id: item.id },
+      update: {},
+      create: { ...item },
+    });
+  }
+
+  // ======================================================================
   // Summary
   // ======================================================================
 
@@ -928,6 +1003,7 @@ async function main(): Promise<void> {
 
   const totalSquads = await prisma.matchSquad.count();
   const totalSquadPlayers = await prisma.matchSquadPlayer.count();
+  const articleCount = newsItems.length;
 
   console.log(
     `Seed complete:\n` +
@@ -936,7 +1012,8 @@ async function main(): Promise<void> {
     `  ${totalPlayers} players (with photos)\n` +
     `  ${totalMatches} matches\n` +
     `  ${totalEvents} goal events\n` +
-    `  ${totalSquads} match squads (${totalSquadPlayers} squad players)` +
+    `  ${articleCount} news articles\n` +
+    `  1 referee demo account (referee@asl.local / same as admin)` +
     `\nAdmin email: ${SEED_ADMIN_EMAIL}` +
     `\nAdmin password: ${SEED_ADMIN_PASSWORD}` +
     `\n[On a live/production DB, use scripts/rotate-admin-credentials.ts to apply real credentials.]`,
