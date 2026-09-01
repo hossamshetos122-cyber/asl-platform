@@ -39,3 +39,6 @@ prisma/dev.db-journal
 
 # Vercel
 .vercel
+
+# opencode memory note
+opencode-memory-live-search.md
