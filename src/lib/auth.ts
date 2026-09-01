@@ -112,11 +112,11 @@ export async function requireReferee(): Promise<User> {
 }
 
 /**
- * One-time, expiring token for password reset / email verification.
+ * One-time, expiring token for password reset / email verification / admin invite.
  */
 export async function createVerificationToken(
   userId: string,
-  type: "PASSWORD_RESET" | "EMAIL_VERIFICATION",
+  type: "PASSWORD_RESET" | "EMAIL_VERIFICATION" | "ADMIN_INVITE",
 ): Promise<string> {
   const token = crypto.randomBytes(32).toString("hex");
   await prisma.verificationToken.create({
@@ -135,7 +135,7 @@ export async function createVerificationToken(
  */
 export async function consumeVerificationToken(
   token: string,
-  type: "PASSWORD_RESET" | "EMAIL_VERIFICATION",
+  type: "PASSWORD_RESET" | "EMAIL_VERIFICATION" | "ADMIN_INVITE",
 ): Promise<{ userId: string; type: string } | null> {
   const record = await prisma.verificationToken.findUnique({ where: { token } });
   if (!record || record.type !== type) return null;

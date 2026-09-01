@@ -147,6 +147,29 @@ export const resetPasswordSchema = z
   });
 
 // ---------------------------------------------------------------------------
+// Admin invite schemas
+// ---------------------------------------------------------------------------
+
+export const adminInviteSchema = z.object({
+  email: z.string().trim().email("البريد الإلكتروني غير صالح").max(254),
+});
+
+export const acceptAdminInviteSchema = z
+  .object({
+    token: z.string().min(16, "الرمز غير صالح").max(128),
+    fullName: z.string().trim().min(2, "الاسم يجب أن يكون حرفين على الأقل").max(100, "الاسم طويل جداً"),
+    password: z
+      .string()
+      .min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل")
+      .max(128, "كلمة المرور طويلة جداً"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "كلمتا المرور غير متطابقتين",
+    path: ["confirmPassword"],
+  });
+
+// ---------------------------------------------------------------------------
 // News schemas
 // ---------------------------------------------------------------------------
 

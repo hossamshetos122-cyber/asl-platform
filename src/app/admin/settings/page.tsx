@@ -1,5 +1,8 @@
 import { getSiteConfig } from "@/lib/data/site-config";
+import { getCurrentUser } from "@/lib/auth";
+import { getAdmins } from "@/lib/actions/admin-admins";
 import SettingsForm from "./settings-form";
+import { AdminsPanel } from "./admins-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +11,11 @@ export const metadata = {
 };
 
 export default async function AdminSettingsPage() {
-  const cfg = await getSiteConfig();
+  const [cfg, currentUser, admins] = await Promise.all([
+    getSiteConfig(),
+    getCurrentUser(),
+    getAdmins(),
+  ]);
 
   return (
     <div className="space-y-5">
@@ -30,6 +37,8 @@ export default async function AdminSettingsPage() {
         accentColor={cfg.accentColor}
         bgColor={cfg.primaryColor}
       />
+
+      <AdminsPanel currentAdminId={currentUser?.id ?? ""} admins={admins} />
     </div>
   );
 }
