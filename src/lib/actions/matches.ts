@@ -207,9 +207,13 @@ const playerIdToken = /^[a-zA-Z0-9_-]{2,50}$/;
 
 /**
  * Records a FINISHED result together with the goal scorers and any cards.
- * Old GOAL / YELLOW_CARD / RED_CARD events for the match are wiped and
- * recreated from the selections, so re-saving with an edited score stays
+ * Old GOAL / ASSIST / YELLOW_CARD / RED_CARD events for the match are wiped
+ * and recreated from the selections, so re-saving with an edited score stays
  * consistent. Card arrays are optional and default to empty.
+ *
+ * Each goal can carry its own minute plus an own-goal / penalty flag. Own
+ * goals are stored as OWN_GOAL (they do not count toward a scorer's tally);
+ * penalties are stored as PENALTY_SCORED (they do count, at the given minute).
  */
 export async function setMatchResultWithGoals(
   id: string,
@@ -217,6 +221,12 @@ export async function setMatchResultWithGoals(
   awayScore: number,
   homeGoalPlayerIds: string[],
   awayGoalPlayerIds: string[],
+  homeGoalMinutes: number[] = [],
+  awayGoalMinutes: number[] = [],
+  homeOwnGoalFlags: boolean[] = [],
+  awayOwnGoalFlags: boolean[] = [],
+  homePenaltyFlags: boolean[] = [],
+  awayPenaltyFlags: boolean[] = [],
   homeYellowPlayerIds: string[] = [],
   awayYellowPlayerIds: string[] = [],
   homeRedPlayerIds: string[] = [],
@@ -254,6 +264,26 @@ export async function setMatchResultWithGoals(
   const awayRedIds = Array.isArray(awayRedPlayerIds) ? awayRedPlayerIds : [];
   const homeAssistIds = Array.isArray(homeAssistPlayerIds) ? homeAssistPlayerIds.filter((s) => s !== "") : [];
   const awayAssistIds = Array.isArray(awayAssistPlayerIds) ? awayAssistPlayerIds.filter((s) => s !== "") : [];
+
+  const homeGoalMins = Array.isArray(homeGoalMinutes) ? homeGoalMinutes : [];
+  const awayGoalMins = Array.isArray(awayGoalMinutes) ? awayGoalMinutes : [];
+  const homeOwn = Array.isArray(homeOwnGoalFlags) ? homeOwnGoalFlags : [];
+  const awayOwn = Array.isArray(awayOwnGoalFlags) ? awayOwnGoalFlags : [];
+  const homePens = Array.isArray(homePenaltyFlags) ? homePenaltyFlags : [];
+  const awayPens = Array.isArray(awayPenaltyFlags) ? awayPenaltyFlags : [];
+
+  const clampMinute = (m: number): number => {
+    if (typeof m !== "number" || Number.isNaN(m)) return 0;
+    return Math.min(120, Math.max(0, Math.round(m)));
+  };
+
+  const goalEvent = (playerId: string, teamId: string, idx: number, own: boolean[], pens: boolean[], mins: number[]) => ({
+    matchId,
+    playerId,
+    teamId,
+    type: own[idx] ? "OWN_GOAL" : pens[idx] ? "PENALTY_SCORED" : "GOAL",
+    minute: clampMinute(mins[idx] ?? 0),
+  });
 
   // A card that has no player selected (placeholder "اختر اللاعب") must block the
   // save instead of being silently dropped or reaching the DB with a bad id.
@@ -323,7 +353,10 @@ export async function setMatchResultWithGoals(
     });
 
     await tx.matchEvent.deleteMany({
-      where: { matchId, type: { in: [GOAL_TYPE, ASSIST_TYPE, YELLOW_CARD_TYPE, RED_CARD_TYPE] } },
+      where: {
+        matchId,
+        type: { in: [GOAL_TYPE, ASSIST_TYPE, YELLOW_CARD_TYPE, RED_CARD_TYPE, "OWN_GOAL", "PENALTY_SCORED"] },
+      },
     });
 
     const events: {
@@ -333,12 +366,8 @@ export async function setMatchResultWithGoals(
       type: string;
       minute: number;
     }[] = [
-      ...homeGoalIds.map((playerId) => ({
-        matchId, playerId, teamId: match.homeTeamId, type: GOAL_TYPE, minute: 0,
-      })),
-      ...awayGoalIds.map((playerId) => ({
-        matchId, playerId, teamId: match.awayTeamId, type: GOAL_TYPE, minute: 0,
-      })),
+      ...homeGoalIds.map((playerId, i) => goalEvent(playerId, match.homeTeamId, i, homeOwn, homePens, homeGoalMins)),
+      ...awayGoalIds.map((playerId, i) => goalEvent(playerId, match.awayTeamId, i, awayOwn, awayPens, awayGoalMins)),
       ...homeAssistIds.map((playerId) => ({
         matchId, playerId, teamId: match.homeTeamId, type: ASSIST_TYPE, minute: 0,
       })),

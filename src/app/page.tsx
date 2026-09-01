@@ -26,7 +26,7 @@ async function FeaturedTournamentPanels() {
   return (
     <div className="grid grid-cols-1 gap-5 lg:gap-6 lg:grid-cols-[1.3fr_1fr]">
       <StandingsTable tournamentId={tournamentId} />
-      <TopScorers tournamentId={tournamentId} />
+      <TopScorers />
     </div>
   );
 }

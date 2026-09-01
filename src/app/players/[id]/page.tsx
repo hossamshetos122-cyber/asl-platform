@@ -114,7 +114,7 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
 
       <main className="page-container page-padding">
         {/* Stats */}
-        <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-5 stagger-children">
+        <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7 stagger-children">
           <div className="animate-fade-up rounded-xl border border-line bg-surface p-4 text-center">
             <div className="font-num text-2xl font-bold text-emerald-500">{player.goals}</div>
             <div className="font-utility text-[8px] tracking-[0.12em] text-text-dimmer uppercase mt-0.5">هدف</div>
@@ -124,8 +124,16 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
             <div className="font-utility text-[8px] tracking-[0.12em] text-text-dimmer uppercase mt-0.5">أسيست</div>
           </div>
           <div className="animate-fade-up rounded-xl border border-line bg-surface p-4 text-center">
+            <div className="font-num text-2xl font-bold text-accent">{player.goals + player.assists}</div>
+            <div className="font-utility text-[8px] tracking-[0.12em] text-text-dimmer uppercase mt-0.5">مساهمة (G+A)</div>
+          </div>
+          <div className="animate-fade-up rounded-xl border border-line bg-surface p-4 text-center">
             <div className="font-num text-2xl font-bold text-text">{player.matchesPlayed}</div>
             <div className="font-utility text-[8px] tracking-[0.12em] text-text-dimmer uppercase mt-0.5">مباراة</div>
+          </div>
+          <div className="animate-fade-up rounded-xl border border-line bg-surface p-4 text-center">
+            <div className="font-num text-2xl font-bold" style={{ color: role.hex }}>{player.cleanSheets}</div>
+            <div className="font-utility text-[8px] tracking-[0.12em] text-text-dimmer uppercase mt-0.5">شباك نظيفة</div>
           </div>
           <div className="animate-fade-up rounded-xl border border-line bg-surface p-4 text-center">
             <div className="flex items-center justify-center gap-2">
@@ -145,6 +153,35 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
             <div className="font-utility text-[8px] tracking-[0.12em] text-text-dimmer uppercase mt-0.5">المركز</div>
           </div>
         </div>
+
+        {/* Match log */}
+        {player.matchLog.length > 0 && (
+          <div className="mb-5 animate-fade-in rounded-xl border border-line bg-surface overflow-hidden">
+            <div className="border-b border-line px-4 py-3">
+              <h2 className="font-display text-base font-black text-text">سجل المباريات</h2>
+            </div>
+            <div className="divide-y divide-line/40">
+              {player.matchLog.map((m) => (
+                <Link key={m.matchId} href={`/matches/${m.matchId}`} className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-surface-elevated/30">
+                  <div className="min-w-0">
+                    <div className="truncate font-body text-[12px] font-bold text-text">
+                      {m.homeTeam} <span className="text-text-dimmer">-</span> {m.awayTeam}
+                    </div>
+                    <div className="font-utility text-[9px] tracking-wider text-text-dimmer uppercase">{m.tournamentName} · {formatMatchDateTime(m.kickoffAt)}</div>
+                  </div>
+                  <div className="flex flex-shrink-0 items-center gap-2">
+                    {m.goals > 0 && <span className="rounded-md bg-emerald-500/10 px-1.5 py-0.5 font-num text-[11px] font-bold text-emerald-500">هدف {m.goals}</span>}
+                    {m.assists > 0 && <span className="rounded-md bg-amber-400/10 px-1.5 py-0.5 font-num text-[11px] font-bold text-amber-400">أسيست {m.assists}</span>}
+                    <span className={`rounded-md px-1.5 py-0.5 font-num text-[11px] font-bold ${m.ownTeamIsHome ? "text-accent" : "text-text-dim"}`} dir="ltr">
+                      {m.homeScore} - {m.awayScore}
+                    </span>
+                    <span className={`h-2 w-2 flex-shrink-0 rounded-full ${m.won ? "bg-emerald-500" : m.drew ? "bg-amber-400" : "bg-red-500"}`} />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Info */}
         <div className="animate-fade-in rounded-xl border border-line bg-surface p-4 sm:p-5">

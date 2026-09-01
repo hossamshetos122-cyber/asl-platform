@@ -89,6 +89,19 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
     minute: match.minute,
   };
 
+  const isGoalEvent = (t: string) => t === "GOAL" || t === "PENALTY_SCORED" || t === "OWN_GOAL";
+  let runningHome = 0;
+  let runningAway = 0;
+  const timeline = match.events.map((event) => {
+    if (isGoalEvent(event.type)) {
+      const scoresHome = event.type === "OWN_GOAL" ? event.teamId === match.awayTeam.id : event.teamId === match.homeTeam.id;
+      if (scoresHome) runningHome += 1;
+      else runningAway += 1;
+      return { ...event, runningHome, runningAway };
+    }
+    return { ...event, runningHome, runningAway };
+  });
+
   return (
     <>
       <Navbar />
@@ -158,7 +171,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
               <h2 className="font-display text-base font-black text-text">أحداث المباراة</h2>
             </div>
             <div className="divide-y divide-line/40">
-              {match.events.map((event) => (
+              {timeline.map((event) => (
                 <div key={event.id} className="flex items-center gap-2.5 px-4 py-3 transition-colors hover:bg-surface-elevated/20">
                   <span className="font-num text-[12px] font-bold text-accent w-8 text-center">{event.minute}&#39;</span>
                   <div className="flex-1 flex items-center gap-2">
@@ -168,6 +181,9 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
                       <span className="mr-1.5 font-body text-[10px] text-text-dim">{event.teamName}</span>
                     </div>
                   </div>
+                  {isGoalEvent(event.type) && (
+                    <span className="font-num text-[12px] font-bold text-text-dim w-16 text-center">{event.runningHome} - {event.runningAway}</span>
+                  )}
                   <span className={event.type === "GOAL" || event.type === "PENALTY_SCORED" ? "badge-success" : event.type === "RED_CARD" || event.type === "PENALTY_MISSED" ? "badge-live" : event.type === "YELLOW_CARD" ? "badge-accent" : "badge-muted"}>
                     {EVENT_LABELS[event.type] ?? event.type}
                   </span>

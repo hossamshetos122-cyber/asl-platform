@@ -75,6 +75,8 @@ export interface TopScorerVM {
   teamName: string;
   teamId: string | null;
   goals: number;
+  assists: number;
+  contributions: number;
 }
 
 export interface TopAssisterVM {
@@ -85,6 +87,8 @@ export interface TopAssisterVM {
   teamName: string;
   teamId: string | null;
   assists: number;
+  goals: number;
+  contributions: number;
 }
 
 export interface HomeStatsVM {
@@ -279,12 +283,31 @@ export interface PlayerProfileVM {
   goals: number;
   assists: number;
   matchesPlayed: number;
+  cleanSheets: number;
   yellows: number;
   reds: number;
   suspendedNext: boolean;
   suspendedReason: "RED" | "SECOND_YELLOW" | null;
   /** The player's next fixture, when the team has one that is a suspension target. */
   nextFixture: { id: string; kickoffAt: Date; venue: string | null } | null;
+  /** Recent finished matches, with this player's contribution in each. */
+  matchLog: {
+    matchId: string;
+    tournamentName: string;
+    kickoffAt: Date;
+    homeTeam: string;
+    awayTeam: string;
+    homeScore: number;
+    awayScore: number;
+    ownTeamIsHome: boolean;
+    teamName: string;
+    teamScore: number;
+    opponentScore: number;
+    won: boolean;
+    drew: boolean;
+    goals: number;
+    assists: number;
+  }[];
 }
 
 export interface PlayerListItemVM {

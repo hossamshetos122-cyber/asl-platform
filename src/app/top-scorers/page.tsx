@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { getFeaturedTournamentId, getTopAssisters, getTopScorers } from "@/lib/stats";
+import { getTopAssisters, getTopScorers } from "@/lib/stats";
 import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
@@ -11,13 +11,9 @@ import { ImageDisplay } from "@/components/ui/image-display";
 export const dynamic = "force-dynamic";
 
 async function FullTopScorers() {
-  const tournamentResult = await getFeaturedTournamentId();
-  if (tournamentResult.status === "error") return <ErrorState message={tournamentResult.message} />;
-  if (tournamentResult.status === "empty") return <EmptyState message="لا توجد بطولة جارية حاليًا." />;
-
-  const result = await getTopScorers(tournamentResult.data, 50);
+  const result = await getTopScorers(undefined, 50);
   if (result.status === "error") return <ErrorState message={result.message} />;
-  if (result.status === "empty") return <EmptyState message="لا يوجد هدافون مسجّلون بعد هذا الموسم." />;
+  if (result.status === "empty") return <EmptyState message="لا يوجد هدافون مسجّلون بعد." />;
 
   return (
     <div className="rounded-xl border border-line bg-surface overflow-hidden">
@@ -28,6 +24,7 @@ async function FullTopScorers() {
               <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase w-10">#</th>
               <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">اللاعب</th>
               <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase hidden sm:table-cell">الفريق</th>
+              <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-sky-400 uppercase hidden md:table-cell">مساهمة</th>
               <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-emerald-500 uppercase">الأهداف</th>
             </tr>
           </thead>
@@ -50,6 +47,9 @@ async function FullTopScorers() {
                 </td>
                 <td className="px-3 py-2.5 font-body text-[12px] text-text-dim hidden sm:table-cell">{scorer.teamName}</td>
                 <td className="px-3 py-2.5 text-center">
+                  <span className="font-num text-[12px] font-bold text-sky-400">{scorer.assists}+{scorer.goals}</span>
+                </td>
+                <td className="px-3 py-2.5 text-center">
                   <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded bg-emerald-500/10 px-1.5 font-num text-[12px] font-bold text-emerald-500">{scorer.goals}</span>
                 </td>
               </tr>
@@ -62,13 +62,9 @@ async function FullTopScorers() {
 }
 
 async function FullTopAssisters() {
-  const tournamentResult = await getFeaturedTournamentId();
-  if (tournamentResult.status === "error") return <ErrorState message={tournamentResult.message} />;
-  if (tournamentResult.status === "empty") return <EmptyState message="لا توجد بطولة جارية حاليًا." />;
-
-  const result = await getTopAssisters(tournamentResult.data, 50);
+  const result = await getTopAssisters(undefined, 50);
   if (result.status === "error") return <ErrorState message={result.message} />;
-  if (result.status === "empty") return <EmptyState message="لا يوجد صنّاع أهداف مسجّلون بعد هذا الموسم." />;
+  if (result.status === "empty") return <EmptyState message="لا يوجد صنّاع أهداف مسجّلون بعد." />;
 
   return (
     <div className="rounded-xl border border-line bg-surface overflow-hidden">
@@ -79,6 +75,7 @@ async function FullTopAssisters() {
               <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase w-10">#</th>
               <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">اللاعب</th>
               <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase hidden sm:table-cell">الفريق</th>
+              <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-sky-400 uppercase hidden md:table-cell">مساهمة</th>
               <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-amber-400 uppercase">الأسيست</th>
             </tr>
           </thead>
@@ -100,6 +97,9 @@ async function FullTopAssisters() {
                   </Link>
                 </td>
                 <td className="px-3 py-2.5 font-body text-[12px] text-text-dim hidden sm:table-cell">{assister.teamName}</td>
+                <td className="px-3 py-2.5 text-center">
+                  <span className="font-num text-[12px] font-bold text-sky-400">{assister.goals}+{assister.assists}</span>
+                </td>
                 <td className="px-3 py-2.5 text-center">
                   <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded bg-amber-400/10 px-1.5 font-num text-[12px] font-bold text-amber-400">{assister.assists}</span>
                 </td>

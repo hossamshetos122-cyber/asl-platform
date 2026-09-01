@@ -6,7 +6,7 @@ import { ErrorState } from "@/components/ui/error-state";
 import { ImageDisplay } from "@/components/ui/image-display";
 
 interface TopScorersProps {
-  tournamentId: string;
+  tournamentId?: string;
 }
 
 export async function TopScorers({ tournamentId }: TopScorersProps) {
@@ -19,7 +19,7 @@ export async function TopScorers({ tournamentId }: TopScorersProps) {
       </div>
 
       {result.status === "error" && <div className="px-4 pb-4"><ErrorState message={result.message} /></div>}
-      {result.status === "empty" && <div className="px-4 pb-4"><EmptyState message="لا يوجد هدافون مسجّلون بعد هذا الموسم." /></div>}
+      {result.status === "empty" && <div className="px-4 pb-4"><EmptyState message="لا يوجد هدافون مسجّلون بعد." /></div>}
 
       {result.status === "success" && (
         <div className="divide-y divide-line/40">

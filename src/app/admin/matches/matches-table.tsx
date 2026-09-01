@@ -15,12 +15,13 @@ export interface GoalPlayerOption {
   jerseyNumber: number | null;
 }
 
-export type EventType = "GOAL" | "ASSIST" | "YELLOW_CARD" | "RED_CARD";
+export type EventType = "GOAL" | "ASSIST" | "YELLOW_CARD" | "RED_CARD" | "OWN_GOAL" | "PENALTY_SCORED";
 
 export interface EventLite {
   playerId: string;
   teamId: string;
   type: EventType;
+  minute: number;
 }
 
 interface MatchRow {
@@ -220,13 +221,19 @@ function PlayerPickerSheet({ title, options, onSelect, onClose }: {
     </div>
   );
 }
-function GoalAssignPanel({ match, prefix, homePlayers, awayPlayers, existingHome, existingAway, existingHomeAssists, existingAwayAssists, existingHomeYellow, existingAwayYellow, existingHomeRed, existingAwayRed, onClose }: {
+function GoalAssignPanel({ match, prefix, homePlayers, awayPlayers, existingHome, existingAway, existingHomeGoalMins, existingAwayGoalMins, existingHomeOwn, existingAwayOwn, existingHomePens, existingAwayPens, existingHomeAssists, existingAwayAssists, existingHomeYellow, existingAwayYellow, existingHomeRed, existingAwayRed, onClose }: {
   match: MatchRow;
   prefix: string;
   homePlayers: GoalPlayerOption[];
   awayPlayers: GoalPlayerOption[];
   existingHome: string[];
   existingAway: string[];
+  existingHomeGoalMins: number[];
+  existingAwayGoalMins: number[];
+  existingHomeOwn: boolean[];
+  existingAwayOwn: boolean[];
+  existingHomePens: boolean[];
+  existingAwayPens: boolean[];
   existingHomeAssists: string[];
   existingAwayAssists: string[];
   existingHomeYellow: string[];
@@ -243,6 +250,24 @@ function GoalAssignPanel({ match, prefix, homePlayers, awayPlayers, existingHome
   const [awaySel, setAwaySel] = useState<string[]>(() =>
     Array.from({ length: Math.max(match.awayScore, 0) }, (_, i) => existingAway[i] ?? "")
   );
+  const [homeSelMin, setHomeSelMin] = useState<number[]>(() =>
+    Array.from({ length: Math.max(match.homeScore, 0) }, (_, i) => existingHomeGoalMins[i] ?? 0)
+  );
+  const [awaySelMin, setAwaySelMin] = useState<number[]>(() =>
+    Array.from({ length: Math.max(match.awayScore, 0) }, (_, i) => existingAwayGoalMins[i] ?? 0)
+  );
+  const [homeSelOwn, setHomeSelOwn] = useState<boolean[]>(() =>
+    Array.from({ length: Math.max(match.homeScore, 0) }, (_, i) => existingHomeOwn[i] ?? false)
+  );
+  const [awaySelOwn, setAwaySelOwn] = useState<boolean[]>(() =>
+    Array.from({ length: Math.max(match.awayScore, 0) }, (_, i) => existingAwayOwn[i] ?? false)
+  );
+  const [homeSelPen, setHomeSelPen] = useState<boolean[]>(() =>
+    Array.from({ length: Math.max(match.homeScore, 0) }, (_, i) => existingHomePens[i] ?? false)
+  );
+  const [awaySelPen, setAwaySelPen] = useState<boolean[]>(() =>
+    Array.from({ length: Math.max(match.awayScore, 0) }, (_, i) => existingAwayPens[i] ?? false)
+  );
   const [homeAssistSel, setHomeAssistSel] = useState<string[]>(() =>
     Array.from({ length: Math.max(match.homeScore, 0) }, (_, i) => existingHomeAssists[i] ?? "")
   );
@@ -258,19 +283,25 @@ function GoalAssignPanel({ match, prefix, homePlayers, awayPlayers, existingHome
   const [activeTab, setActiveTab] = useState<"home" | "away">("home");
   const [picker, setPicker] = useState<{ team: "home" | "away"; kind: "goal" | "assist" | "yellow" | "red"; slot: number } | null>(null);
 
-  const resize = (list: string[], n: number, setter: (v: string[]) => void) => {
+  const resize = <T,>(list: T[], n: number, setter: (v: T[]) => void) => {
     if (n === list.length) return;
-    if (n > list.length) setter([...list, ...Array.from({ length: n - list.length }, () => "")]);
+    if (n > list.length) setter([...list, ...Array.from({ length: n - list.length }, () => "" as unknown as T)]);
     else setter(list.slice(0, n));
   };
 
   useEffect(() => {
   resize(homeSel, homeScore, setHomeSel);
   resize(homeAssistSel, homeScore, setHomeAssistSel);
+  resize(homeSelMin, homeScore, setHomeSelMin);
+  resize(homeSelOwn, homeScore, setHomeSelOwn);
+  resize(homeSelPen, homeScore, setHomeSelPen);
 }, [homeScore]); // eslint-disable-line react-hooks/exhaustive-deps
 useEffect(() => {
   resize(awaySel, awayScore, setAwaySel);
   resize(awayAssistSel, awayScore, setAwayAssistSel);
+  resize(awaySelMin, awayScore, setAwaySelMin);
+  resize(awaySelOwn, awayScore, setAwaySelOwn);
+  resize(awaySelPen, awayScore, setAwaySelPen);
 }, [awayScore]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canSaveWithGoals =
@@ -346,6 +377,9 @@ useEffect(() => {
       if (withEvents) {
         await setMatchResultWithGoals(
           match.id, homeScore, awayScore, homeSel, awaySel,
+          homeSelMin, awaySelMin,
+          homeSelOwn, awaySelOwn,
+          homeSelPen, awaySelPen,
           homeYellowSel.filter((s) => s !== ""),
           awayYellowSel.filter((s) => s !== ""),
           homeRedSel.filter((s) => s !== ""),
@@ -403,6 +437,9 @@ useEffect(() => {
         const players = playersFor(t);
         const score = t === "home" ? homeScore : awayScore;
         const goals = t === "home" ? homeSel : awaySel;
+        const goalMins = t === "home" ? homeSelMin : awaySelMin;
+        const goalOwn = t === "home" ? homeSelOwn : awaySelOwn;
+        const goalPens = t === "home" ? homeSelPen : awaySelPen;
         const assists = t === "home" ? homeAssistSel : awayAssistSel;
         const yellows = t === "home" ? homeYellowSel : awayYellowSel;
         const reds = t === "home" ? homeRedSel : awayRedSel;
@@ -423,14 +460,55 @@ useEffect(() => {
                     const id = goals[idx] ?? "";
                     const player = players.find((p) => p.id === id);
                     return (
-                      <div key={idx} className="flex items-center gap-2 rounded-lg border border-line/60 bg-surface-elevated/40 p-2">
-                        <span className="w-6 flex-shrink-0 text-center font-num text-[12px] text-text-dimmer">{idx + 1}</span>
-                        <button type="button" onClick={() => setPicker({ team: t, kind: "goal", slot: idx })} disabled={saving}
-                          className="min-h-[44px] flex-1 truncate rounded-lg border border-accent/30 bg-bg px-3 text-right font-body text-[13px] font-bold text-text transition-colors hover:border-accent">
-                          {player ? playerLabel(player) : "اختر اللاعب"}
-                        </button>
-                        <button type="button" onClick={() => removeAtKind("goal", t, idx)} disabled={saving} aria-label="إزالة الهدف"
-                          className="btn-icon h-11 w-11 flex-shrink-0 border border-live/30 text-live transition-colors hover:bg-live/10">×</button>
+                      <div key={idx} className="rounded-lg border border-line/60 bg-surface-elevated/40 p-2">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 flex-shrink-0 text-center font-num text-[12px] text-text-dimmer">{idx + 1}</span>
+                          <button type="button" onClick={() => setPicker({ team: t, kind: "goal", slot: idx })} disabled={saving}
+                            className="min-h-[44px] flex-1 truncate rounded-lg border border-accent/30 bg-bg px-3 text-right font-body text-[13px] font-bold text-text transition-colors hover:border-accent">
+                            {player ? playerLabel(player) : "اختر اللاعب"}
+                          </button>
+                          <button type="button" onClick={() => removeAtKind("goal", t, idx)} disabled={saving} aria-label="إزالة الهدف"
+                            className="btn-icon h-11 w-11 flex-shrink-0 border border-live/30 text-live transition-colors hover:bg-live/10">×</button>
+                        </div>
+                        <div className="mt-2 flex flex-wrap items-center gap-2 pl-1">
+                          <label className="flex items-center gap-1.5 font-body text-[10px] font-bold text-text-dim">
+                            <span className="w-9">الدقيقة</span>
+                            <input
+                              type="number"
+                              min={0}
+                              max={120}
+                              value={goalMins[idx] ?? 0}
+                              onChange={(e) => {
+                                const v = Math.min(120, Math.max(0, Number(e.target.value) || 0));
+                                const next = [...goalMins];
+                                next[idx] = v;
+                                if (t === "home") setHomeSelMin(next); else setAwaySelMin(next);
+                              }}
+                              disabled={saving}
+                              className="w-16 rounded-md border border-line bg-bg px-2 py-1.5 text-center font-num text-[12px] font-bold text-text outline-none focus:border-accent"
+                            />
+                          </label>
+                          <button type="button"
+                            onClick={() => {
+                              const next = [...goalPens];
+                              next[idx] = !(goalPens[idx] ?? false);
+                              if (t === "home") setHomeSelPen(next); else setAwaySelPen(next);
+                            }}
+                            disabled={saving}
+                            className={`min-h-11 rounded-md px-2.5 font-body text-[10px] font-bold transition-colors ${goalPens[idx] ? "bg-sky-500 text-white" : "border border-line text-text-dim hover:border-sky-400"}`}>
+                            جزاء
+                          </button>
+                          <button type="button"
+                            onClick={() => {
+                              const next = [...goalOwn];
+                              next[idx] = !(goalOwn[idx] ?? false);
+                              if (t === "home") setHomeSelOwn(next); else setAwaySelOwn(next);
+                            }}
+                            disabled={saving}
+                            className={`min-h-11 rounded-md px-2.5 font-body text-[10px] font-bold transition-colors ${goalOwn[idx] ? "bg-live text-white" : "border border-line text-text-dim hover:border-live"}`}>
+                            هدف عكسي
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -772,8 +850,18 @@ export default function MatchesTable({ matches, teams, tournaments, referees = [
         const match = filtered.find((m) => m.id === goalRowId);
         if (!match) return null;
         const existingEvents = eventsByMatch[match.id] ?? [];
-        const existingHomeGoals = existingEvents.filter((g) => g.type === "GOAL" && g.teamId === match.homeTeamId).map((g) => g.playerId);
-        const existingAwayGoals = existingEvents.filter((g) => g.type === "GOAL" && g.teamId === match.awayTeamId).map((g) => g.playerId);
+        const goalTypeOf = (e: EventLite, teamId: string) =>
+          (e.type === "GOAL" || e.type === "PENALTY_SCORED" || e.type === "OWN_GOAL") && e.teamId === teamId;
+        const existingHomeGoalEvents = existingEvents.filter((g) => goalTypeOf(g, match.homeTeamId));
+        const existingAwayGoalEvents = existingEvents.filter((g) => goalTypeOf(g, match.awayTeamId));
+        const existingHomeGoals = existingHomeGoalEvents.map((g) => g.playerId);
+        const existingAwayGoals = existingAwayGoalEvents.map((g) => g.playerId);
+        const existingHomeGoalMins = existingHomeGoalEvents.map((g) => g.minute);
+        const existingAwayGoalMins = existingAwayGoalEvents.map((g) => g.minute);
+        const existingHomeOwn = existingHomeGoalEvents.map((g) => g.type === "OWN_GOAL");
+        const existingAwayOwn = existingAwayGoalEvents.map((g) => g.type === "OWN_GOAL");
+        const existingHomePens = existingHomeGoalEvents.map((g) => g.type === "PENALTY_SCORED");
+        const existingAwayPens = existingAwayGoalEvents.map((g) => g.type === "PENALTY_SCORED");
         const existingHomeAssists = existingEvents.filter((e) => e.type === "ASSIST" && e.teamId === match.homeTeamId).map((e) => e.playerId);
         const existingAwayAssists = existingEvents.filter((e) => e.type === "ASSIST" && e.teamId === match.awayTeamId).map((e) => e.playerId);
         const existingHomeYellow = existingEvents.filter((e) => e.type === "YELLOW_CARD" && e.teamId === match.homeTeamId).map((e) => e.playerId);
@@ -789,6 +877,12 @@ export default function MatchesTable({ matches, teams, tournaments, referees = [
               awayPlayers={playersByTeam[match.awayTeamId] ?? []}
               existingHome={existingHomeGoals}
               existingAway={existingAwayGoals}
+              existingHomeGoalMins={existingHomeGoalMins}
+              existingAwayGoalMins={existingAwayGoalMins}
+              existingHomeOwn={existingHomeOwn}
+              existingAwayOwn={existingAwayOwn}
+              existingHomePens={existingHomePens}
+              existingAwayPens={existingAwayPens}
               existingHomeAssists={existingHomeAssists}
               existingAwayAssists={existingAwayAssists}
               existingHomeYellow={existingHomeYellow}

@@ -107,23 +107,21 @@ export async function getFeaturedSeasonLabel(): Promise<string | null> {
 
 /**
  * Canonical player goal count: GOAL + PENALTY_SCORED events inside FINISHED
- * matches of the featured tournament. Returns a Map playerId -> goals so a
- * single query serves lists, profiles and rosters identically.
+ * matches, across ALL tournaments (not just the featured one). Returns a
+ * Map playerId -> goals so a single query serves lists, profiles and rosters
+ * identically.
  */
 export async function getPlayerGoalCounts(
   playerIds: string[]
 ): Promise<Map<string, number>> {
   if (playerIds.length === 0) return new Map<string, number>();
 
-  const featured = await getFeaturedTournament();
-  if (featured.status !== "success") return new Map<string, number>();
-
   const grouped = await prisma.matchEvent.groupBy({
     by: ["playerId"],
     where: {
       playerId: { in: playerIds },
       type: { in: [...GOAL_EVENT_TYPES] },
-      match: { tournamentId: featured.data.id, status: OFFICIAL_MATCH_STATUS },
+      match: { status: OFFICIAL_MATCH_STATUS },
     },
     _count: { playerId: true },
   });
@@ -137,23 +135,20 @@ export async function getPlayerGoalCounts(
 
 /**
  * Canonical player assist count: ASSIST events inside FINISHED matches of
- * the featured tournament. Same contract as getPlayerGoalCounts so lists,
- * profiles and rosters share one definition.
+ * ALL tournaments (not just the featured one). Same contract as
+ * getPlayerGoalCounts so lists, profiles and rosters share one definition.
  */
 export async function getPlayerAssistCounts(
   playerIds: string[]
 ): Promise<Map<string, number>> {
   if (playerIds.length === 0) return new Map<string, number>();
 
-  const featured = await getFeaturedTournament();
-  if (featured.status !== "success") return new Map<string, number>();
-
   const grouped = await prisma.matchEvent.groupBy({
     by: ["playerId"],
     where: {
       playerId: { in: playerIds },
       type: ASSIST_EVENT_TYPE,
-      match: { tournamentId: featured.data.id, status: OFFICIAL_MATCH_STATUS },
+      match: { status: OFFICIAL_MATCH_STATUS },
     },
     _count: { playerId: true },
   });
@@ -166,23 +161,20 @@ export async function getPlayerAssistCounts(
 }
 
 /**
- * Canonical player matches-played: distinct FINISHED matches of the featured
- * tournament where the player was on a CONFIRMED squad (not PENDING/ABSENT).
+ * Canonical player matches-played: distinct FINISHED matches (across ALL
+ * tournaments) where the player was on a CONFIRMED squad (not PENDING/ABSENT).
  */
 export async function getPlayerMatchesPlayedCounts(
   playerIds: string[]
 ): Promise<Map<string, number>> {
   if (playerIds.length === 0) return new Map<string, number>();
 
-  const featured = await getFeaturedTournament();
-  if (featured.status !== "success") return new Map<string, number>();
-
   const entries = await prisma.matchSquadPlayer.findMany({
     where: {
       playerId: { in: playerIds },
       squad: {
         status: "CONFIRMED",
-        match: { tournamentId: featured.data.id, status: OFFICIAL_MATCH_STATUS },
+        match: { status: OFFICIAL_MATCH_STATUS },
       },
     },
     select: {
@@ -204,18 +196,15 @@ export async function getPlayerMatchesPlayedCounts(
 
 /**
  * Canonical total goals shown on the home hero: every goal event inside
- * FINISHED matches of the featured tournament (equals the sum of all player
- * goal counts).
+ * FINISHED matches across ALL tournaments (equals the sum of all player goal
+ * counts).
  */
 export async function getFeaturedGoalsCount(): Promise<number> {
-  const featured = await getFeaturedTournament();
-  if (featured.status !== "success") return 0;
-
   try {
     return await prisma.matchEvent.count({
       where: {
         type: { in: [...GOAL_EVENT_TYPES] },
-        match: { tournamentId: featured.data.id, status: OFFICIAL_MATCH_STATUS },
+        match: { status: OFFICIAL_MATCH_STATUS },
       },
     });
   } catch (error) {
@@ -369,20 +358,26 @@ export async function getStandings(
 }
 
 /**
- * Canonical top scorers: GOAL + PENALTY_SCORED events inside FINISHED matches
- * of the given tournament. The same definition powers the home panel and the
- * full top-scorers page, and matches the per-player goal counts.
+ * Canonical top scorers: GOAL + PENALTY_SCORED events inside FINISHED matches.
+ * When tournamentId is omitted, counts across ALL tournaments; when provided,
+ * scopes to that tournament. The same definition powers the home panel and the
+ * full top-scorers page, and matches the per-player goal counts. Also carries
+ * the player's assists so pages can show goals+assists (G+A) contribution.
  */
 export async function getTopScorers(
-  tournamentId: string,
+  tournamentId?: string,
   limit = 4
 ): Promise<Result<TopScorerVM[]>> {
   try {
+    const matchWhere = tournamentId
+      ? { tournamentId, status: OFFICIAL_MATCH_STATUS }
+      : { status: OFFICIAL_MATCH_STATUS };
+
     const grouped = await prisma.matchEvent.groupBy({
       by: ["playerId"],
       where: {
         type: { in: [...GOAL_EVENT_TYPES] },
-        match: { tournamentId, status: OFFICIAL_MATCH_STATUS },
+        match: matchWhere,
       },
       _count: { playerId: true },
       orderBy: { _count: { playerId: "desc" } },
@@ -394,19 +389,31 @@ export async function getTopScorers(
     }
 
     const playerIds = grouped.map((g) => g.playerId);
-    const players = await prisma.player.findMany({
-      where: { id: { in: playerIds } },
-      include: {
-        user: { select: { fullName: true } },
-        memberships: {
-          where: { status: "ACTIVE" },
-          include: { team: { select: { id: true, name: true } } },
-          take: 1,
+    const [players, assistsGrouped] = await Promise.all([
+      prisma.player.findMany({
+        where: { id: { in: playerIds } },
+        include: {
+          user: { select: { fullName: true } },
+          memberships: {
+            where: { status: "ACTIVE" },
+            include: { team: { select: { id: true, name: true } } },
+            take: 1,
+          },
         },
-      },
-    });
+      }),
+      prisma.matchEvent.groupBy({
+        by: ["playerId"],
+        where: {
+          playerId: { in: playerIds },
+          type: ASSIST_EVENT_TYPE,
+          match: matchWhere,
+        },
+        _count: { playerId: true },
+      }),
+    ]);
 
     const playerById = new Map(players.map((p) => [p.id, p]));
+    const assistById = new Map(assistsGrouped.map((a) => [a.playerId, a._count.playerId]));
 
     const rows: TopScorerVM[] = grouped
       .map((g) => {
@@ -414,6 +421,8 @@ export async function getTopScorers(
         if (!player) return null;
         const teamName = player.memberships[0]?.team.name ?? "بدون فريق";
         const teamId = player.memberships[0]?.team.id ?? null;
+        const assists = assistById.get(player.id) ?? 0;
+        const goals = g._count.playerId;
         const row: TopScorerVM = {
           rank: 0,
           playerId: player.id,
@@ -421,7 +430,9 @@ export async function getTopScorers(
           photoUrl: player.photoUrl,
           teamName,
           teamId,
-          goals: g._count.playerId,
+          goals,
+          assists,
+          contributions: goals + assists,
         };
         return row;
       })
@@ -436,19 +447,25 @@ export async function getTopScorers(
 }
 
 /**
- * Canonical top assisters: ASSIST events inside FINISHED matches of the given
- * tournament, mirroring getTopScorers so both tables agree on every page.
+ * Canonical top assisters: ASSIST events inside FINISHED matches. When
+ * tournamentId is omitted, counts across ALL tournaments; when provided,
+ * scopes to that tournament. Mirrors getTopScorers so both tables agree on
+ * every page, and carries goals so G+A contribution can be shown.
  */
 export async function getTopAssisters(
-  tournamentId: string,
+  tournamentId?: string,
   limit = 8
 ): Promise<Result<TopAssisterVM[]>> {
   try {
+    const matchWhere = tournamentId
+      ? { tournamentId, status: OFFICIAL_MATCH_STATUS }
+      : { status: OFFICIAL_MATCH_STATUS };
+
     const grouped = await prisma.matchEvent.groupBy({
       by: ["playerId"],
       where: {
         type: ASSIST_EVENT_TYPE,
-        match: { tournamentId, status: OFFICIAL_MATCH_STATUS },
+        match: matchWhere,
       },
       _count: { playerId: true },
       orderBy: { _count: { playerId: "desc" } },
@@ -460,19 +477,31 @@ export async function getTopAssisters(
     }
 
     const playerIds = grouped.map((g) => g.playerId);
-    const players = await prisma.player.findMany({
-      where: { id: { in: playerIds } },
-      include: {
-        user: { select: { fullName: true } },
-        memberships: {
-          where: { status: "ACTIVE" },
-          include: { team: { select: { id: true, name: true } } },
-          take: 1,
+    const [players, goalsGrouped] = await Promise.all([
+      prisma.player.findMany({
+        where: { id: { in: playerIds } },
+        include: {
+          user: { select: { fullName: true } },
+          memberships: {
+            where: { status: "ACTIVE" },
+            include: { team: { select: { id: true, name: true } } },
+            take: 1,
+          },
         },
-      },
-    });
+      }),
+      prisma.matchEvent.groupBy({
+        by: ["playerId"],
+        where: {
+          playerId: { in: playerIds },
+          type: { in: [...GOAL_EVENT_TYPES] },
+          match: matchWhere,
+        },
+        _count: { playerId: true },
+      }),
+    ]);
 
     const playerById = new Map(players.map((p) => [p.id, p]));
+    const goalById = new Map(goalsGrouped.map((g) => [g.playerId, g._count.playerId]));
 
     const rows: TopAssisterVM[] = grouped
       .map((g) => {
@@ -480,6 +509,8 @@ export async function getTopAssisters(
         if (!player) return null;
         const teamName = player.memberships[0]?.team.name ?? "بدون فريق";
         const teamId = player.memberships[0]?.team.id ?? null;
+        const assists = g._count.playerId;
+        const goals = goalById.get(player.id) ?? 0;
         const row: TopAssisterVM = {
           rank: 0,
           playerId: player.id,
@@ -487,7 +518,9 @@ export async function getTopAssisters(
           photoUrl: player.photoUrl,
           teamName,
           teamId,
-          assists: g._count.playerId,
+          assists,
+          goals,
+          contributions: assists + goals,
         };
         return row;
       })
