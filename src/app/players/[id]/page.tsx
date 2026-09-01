@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/footer";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { getPlayerById } from "@/lib/data/players";
 import { formatLongDate, formatMatchDateTime } from "@/lib/dates";
+import { ClaimPlayerAccount } from "@/components/players/claim-player-account";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -113,6 +114,12 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
       </section>
 
       <main className="page-container page-padding">
+        {player.accountClaimable && (
+          <div className="mb-5 animate-fade-in">
+            <ClaimPlayerAccount playerId={player.id} phoneSet={player.phoneSet} />
+          </div>
+        )}
+
         {/* Stats */}
         <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7 stagger-children">
           <div className="animate-fade-up rounded-xl border border-line bg-surface p-4 text-center">

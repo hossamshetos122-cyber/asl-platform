@@ -83,6 +83,12 @@ export async function getPlayerMatchLog(
   return { cleanSheets, matchLog };
 }
 
+const FAKE_EMAIL_SUFFIX = "@asl-platform.local";
+
+function hasRealPlayerEmail(email: string): boolean {
+  return !email.toLowerCase().endsWith(FAKE_EMAIL_SUFFIX);
+}
+
 export async function getPlayersList(): Promise<Result<PlayerListItemVM[]>> {
   try {
     const players = await prisma.player.findMany({
@@ -128,7 +134,7 @@ export async function getPlayerById(id: string): Promise<Result<PlayerProfileVM>
     const player = await prisma.player.findUnique({
       where: { id },
       include: {
-        user: { select: { fullName: true } },
+        user: { select: { fullName: true, email: true, phone: true } },
         memberships: {
           where: { status: "ACTIVE" },
           include: { team: { select: { id: true, name: true, crestUrl: true } } },
@@ -172,6 +178,8 @@ export async function getPlayerById(id: string): Promise<Result<PlayerProfileVM>
       suspendedReason: discipline.reason,
       nextFixture: discipline.suspendedNext ? discipline.nextFixture : null,
       matchLog: history.matchLog,
+      accountClaimable: !hasRealPlayerEmail(player.user.email),
+      phoneSet: Boolean(player.user.phone),
     };
 
     return { status: "success", data: vm };

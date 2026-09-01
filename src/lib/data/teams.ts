@@ -54,13 +54,18 @@ export async function getTeamById(id: string): Promise<Result<TeamDetailVM>> {
       return { status: "empty" };
     }
 
-    const [goalCounts, assistCounts, discipline] = await Promise.all([
+    const [goalCounts, assistCounts, discipline, pending] = await Promise.all([
       getPlayerGoalCounts(team.memberships.map((m) => m.player.id)),
       getPlayerAssistCounts(team.memberships.map((m) => m.player.id)),
       getTeamDiscipline(
         team.id,
         team.memberships.map((m) => m.player.id)
       ),
+      prisma.teamMembership.findMany({
+        where: { teamId: id, status: "PENDING" },
+        include: { player: { include: { user: { select: { fullName: true } } } } },
+        orderBy: { createdAt: "asc" },
+      }),
     ]);
 
     const vm: TeamDetailVM = {
@@ -98,6 +103,12 @@ export async function getTeamById(id: string): Promise<Result<TeamDetailVM>> {
       tournaments: team.tournamentEntries.map((te) => ({
         id: te.tournament.id,
         name: te.tournament.name,
+      })),
+      pendingRequests: pending.map((m) => ({
+        id: m.id,
+        playerId: m.playerId,
+        name: m.player.user.fullName,
+        requestedAt: m.createdAt,
       })),
     };
 

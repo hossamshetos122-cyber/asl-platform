@@ -223,6 +223,7 @@ export const dateOfBirthField = z
 export const createPlayerSchema = z.object({
   teamId: cuid,
   fullName: z.string().trim().min(1, "اسم اللاعب مطلوب").max(100, "اسم اللاعب طويل جداً"),
+  email: z.string().trim().email("البريد الإلكتروني غير صالح").max(254).optional(),
   phone: z.string().trim().max(20, "رقم الهاتف طويل جداً").nullable().optional(),
   photoUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
   jerseyNumber: z
@@ -243,6 +244,7 @@ export const createPlayerSchema = z.object({
 export const updatePlayerSchema = z.object({
   id: cuid,
   fullName: z.string().trim().min(1, "اسم اللاعب مطلوب").max(100, "اسم اللاعب طويل جداً"),
+  email: z.string().trim().email("البريد الإلكتروني غير صالح").max(254).optional(),
   phone: z.string().trim().max(20, "رقم الهاتف طويل جداً").nullable().optional(),
   photoUrl: z.string().max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى").nullable().optional(),
   jerseyNumber: z
@@ -258,6 +260,17 @@ export const updatePlayerSchema = z.object({
     ),
   position: PlayerPosition.optional(),
   dateOfBirth: dateOfBirthField,
+});
+
+/**
+ * Self-service "I am this player" claim: the player provides their real email
+ * (and phone when one is on file) so the platform can bind the account and
+ * send them a one-time password-setup link.
+ */
+export const claimPlayerSchema = z.object({
+  playerId: cuid,
+  email: z.string().trim().email("البريد الإلكتروني غير صالح").max(254),
+  phone: z.string().trim().max(20, "رقم الهاتف طويل جداً").optional(),
 });
 
 // ---------------------------------------------------------------------------

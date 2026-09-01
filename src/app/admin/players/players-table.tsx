@@ -127,9 +127,13 @@ function InlineCreateForm({ teams }: { teams: TeamOption[] }) {
             ))}
           </select>
         </div>
+        <div>
+          <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">بريد اللاعب (اختياري)</label>
+          <input name="email" type="email" dir="ltr" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent" placeholder="player@example.com" />
+        </div>
       </div>
       <div className="mb-3 rounded-lg border border-line bg-surface-elevated/50 px-4 py-2 font-body text-[11px] text-text-dim">
-        سيتم إنشاء حساب تسجيل دخول تلقائي للاعب عند الإضافة.
+        سيتم إنشاء حساب تسجيل دخول للاعب عند الإضافة. مع بريد إلكتروني يُرسل له رابط التفعيل مباشرة؛ وبدونه يفعّل اللاعب حسابه بنفسه من صفحته.
       </div>
       {error && <div className="mb-3 rounded-lg border border-live/30 bg-live/10 px-4 py-2 font-body text-[12px] text-live">{error}</div>}
       <div className="flex items-center gap-3">
@@ -205,6 +209,10 @@ function InlineEditForm({ player, onClose }: { player: PlayerRow; onClose: () =>
             <div>
               <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">رقم الهاتف</label>
               <input name="phone" type="tel" className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-accent" dir="ltr" placeholder="+20..." />
+            </div>
+            <div>
+              <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">بريد اللاعب</label>
+              <input name="email" type="email" defaultValue={player.user.email} className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none focus:border-accent" dir="ltr" />
             </div>
           </div>
           {error && <div className="mt-3 rounded-lg border border-live/30 bg-live/10 px-4 py-2 font-body text-[12px] text-live">{error}</div>}

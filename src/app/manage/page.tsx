@@ -6,6 +6,8 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { formatMatchDateTime } from "@/lib/dates";
+import { getUserNotifications } from "@/lib/notify";
+import { NotificationsList } from "@/components/notifications/notifications-list";
 import { ConfirmSquadButton } from "./confirm-squad-button";
 
 export const dynamic = "force-dynamic";
@@ -76,6 +78,8 @@ export default async function ManagePage() {
   }
   if (!teams || teams.length === 0) redirect("/dashboard");
 
+  const notifications = await getUserNotifications(user.id);
+
   const now = new Date();
 
   const snapshots = await Promise.all(
@@ -145,6 +149,17 @@ export default async function ManagePage() {
       </section>
 
       <main className="page-container page-padding space-y-6">
+        {notifications.length > 0 && (
+          <div className="overflow-hidden rounded-xl border border-line bg-surface">
+            <div className="border-b border-line px-4 py-3">
+              <h2 className="font-display text-base font-black text-text">الإشعارات</h2>
+            </div>
+            <div className="p-4">
+              <NotificationsList notifications={notifications} />
+            </div>
+          </div>
+        )}
+
         {snapshots.map(({ team, matches, results, liveNow, pendingSquads }) => (
           <div key={team.id} className="overflow-hidden rounded-xl border border-line bg-surface">
             <div className="flex flex-wrap items-center gap-3 border-b border-line bg-surface-elevated/30 px-4 py-3">

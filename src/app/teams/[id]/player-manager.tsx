@@ -42,6 +42,7 @@ export function PlayerManager({
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [successInfo, setSuccessInfo] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const router = useRouter();
 
@@ -59,6 +60,7 @@ export function PlayerManager({
             const res = await createPlayer({ success: false }, formData);
             if (res.success) {
               setSuccess(true);
+              setSuccessInfo(res.info ?? null);
               setShowForm(false);
               setPhotoUrl(null);
               router.refresh();
@@ -75,7 +77,9 @@ export function PlayerManager({
           <div className="rounded border border-live/30 bg-live/10 px-3 py-2 font-body text-sm text-live">{error}</div>
         )}
         {success && (
-          <div className="rounded border border-green-500/30 bg-green-500/10 px-3 py-2 font-body text-sm text-green-400">تم إضافة اللاعب بنجاح</div>
+          <div className="rounded border border-green-500/30 bg-green-500/10 px-3 py-2 font-body text-sm text-green-400">
+            تم إضافة اللاعب بنجاح. {successInfo ? successInfo : "لم يصل الرابط؟ يمكن للاعب تفعيل حسابه من صفحته بالضغط على «هذا اللاعب؟ فعّل حسابك»."}
+          </div>
         )}
         <ImageUpload
           name="photoUrl"
@@ -104,6 +108,10 @@ export function PlayerManager({
           <div>
             <label className="mb-1 block font-body text-xs font-bold text-text-dim">رقم الهاتف (اختياري)</label>
             <input name="phone" type="tel" className="input-field w-full" dir="ltr" placeholder="+20..." />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1 block font-body text-xs font-bold text-text-dim">البريد الإلكتروني (اختياري — لتفعيل حساب اللاعب)</label>
+            <input name="email" type="email" dir="ltr" className="input-field w-full text-left" placeholder="player@example.com" />
           </div>
         </div>
         <div className="flex gap-2">

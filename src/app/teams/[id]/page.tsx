@@ -6,8 +6,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { formatYear, formatMatchDateTime } from "@/lib/dates";
+import { prisma } from "@/lib/prisma";
 import { TeamEditForm, TeamDeleteButton } from "./team-owner-actions";
 import { PlayerManager, RemovePlayerButton } from "./player-manager";
+import { TeamJoinButton, LoginToJoinButton } from "@/components/team/team-join-button";
+import { PendingRequestsPanel } from "@/components/team/pending-requests";
 
 const POSITION_LABELS: Record<string, string> = {
   GOALKEEPER: "حارس مرمى", DEFENDER: "مدافع", MIDFIELDER: "لاعب وسط", FORWARD: "مهاجم",
@@ -26,6 +29,15 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
   const team = result.data;
   const isOwner = currentUser && team.ownerId === currentUser.id;
   const isAdmin = currentUser?.role === "ADMIN";
+
+  let viewerStatus: "ACTIVE" | "PENDING" | "NONE" = "NONE";
+  if (currentUser) {
+    const membership = await prisma.teamMembership.findFirst({
+      where: { teamId: id, player: { userId: currentUser.id } },
+      select: { status: true },
+    });
+    if (membership) viewerStatus = membership.status === "ACTIVE" ? "ACTIVE" : "PENDING";
+  }
 
   return (
     <>
@@ -64,6 +76,18 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
                   ))}
                 </div>
               )}
+              <div className="mt-4 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                {viewerStatus === "ACTIVE" ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-2 font-body text-[12px] font-bold text-green-400">
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
+                    أنت عضو في هذا الفريق
+                  </span>
+                ) : currentUser ? (
+                  <TeamJoinButton teamId={team.id} viewerStatus={viewerStatus} />
+                ) : (
+                  <LoginToJoinButton redirectTo={`/teams/${team.id}`} />
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -93,6 +117,13 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             <h3 className="mb-2.5 font-display text-sm font-black text-accent">إدارة الفريق</h3>
             <TeamEditForm teamId={team.id} initialName={team.name} initialShortName={team.shortCode} initialCity={team.city} initialCrestUrl={team.crestUrl} />
             <div className="mt-2"><TeamDeleteButton teamId={team.id} /></div>
+          </div>
+        )}
+
+        {/* Pending join requests */}
+        {(isOwner || isAdmin) && (
+          <div className="mb-5 animate-fade-in">
+            <PendingRequestsPanel teamId={team.id} requests={team.pendingRequests} />
           </div>
         )}
 

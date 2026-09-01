@@ -14,6 +14,67 @@ import {
   cuid,
 } from "@/lib/validation";
 import { auditLog } from "@/lib/audit";
+import { notifyUser } from "@/lib/notify";
+
+/**
+ * In-app notifications after a FINISHED result is saved: the owners/managers
+ * of both teams and all players on a confirmed squad of either side.
+ */
+async function notifyMatchResult(matchId: string): Promise<void> {
+  try {
+    const match = await prisma.match.findUnique({
+      where: { id: matchId },
+      select: {
+        homeScore: true,
+        awayScore: true,
+        homeTeam: {
+          select: {
+            name: true,
+            ownerId: true,
+            managers: { select: { id: true } },
+          },
+        },
+        awayTeam: {
+          select: {
+            name: true,
+            ownerId: true,
+            managers: { select: { id: true } },
+          },
+        },
+        tournament: { select: { name: true } },
+        squads: {
+          select: {
+            status: true,
+            players: { select: { player: { select: { userId: true } } } },
+          },
+        },
+      },
+    });
+    if (!match) return;
+
+    const userIds = new Set<string>();
+    for (const team of [match.homeTeam, match.awayTeam]) {
+      if (team.ownerId) userIds.add(team.ownerId);
+      for (const manager of team.managers) userIds.add(manager.id);
+    }
+    for (const squad of match.squads) {
+      if (squad.status === "CONFIRMED") {
+        for (const entry of squad.players) {
+          if (entry.player.userId) userIds.add(entry.player.userId);
+        }
+      }
+    }
+
+    const title = "تم تسجيل نتيجة المباراة";
+    const body = `${match.homeTeam.name} ${match.homeScore} - ${match.awayScore} ${match.awayTeam.name} (${match.tournament.name})`;
+
+    for (const userId of userIds) {
+      await notifyUser(userId, title, body);
+    }
+  } catch (error) {
+    console.error("[notifyMatchResult] failed:", error);
+  }
+}
 
 export async function createMatch(formData: FormData) {
   const user = await requireAdmin();
@@ -186,6 +247,8 @@ export async function setMatchResult(id: string, homeScore: number, awayScore: n
     targetId: parsed.data.matchId,
     metadata: { homeScore: parsed.data.homeScore, awayScore: parsed.data.awayScore },
   });
+
+  await notifyMatchResult(parsed.data.matchId);
 
   revalidatePath("/matches");
   revalidatePath(`/matches/${parsed.data.matchId}`);
@@ -410,6 +473,8 @@ export async function setMatchResultWithGoals(
       awayRedPlayerIds,
     },
   });
+
+  await notifyMatchResult(matchId);
 
   revalidatePath("/matches");
   revalidatePath(`/matches/${matchId}`);

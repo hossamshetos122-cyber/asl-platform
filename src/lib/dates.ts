@@ -53,3 +53,16 @@ export function formatYear(date: Date): string {
     year: "numeric",
   }).format(date);
 }
+
+/** Simple Arabic relative time for notifications/feed ("منذ 5 دقائق"). */
+export function formatRelativeTime(date: Date): string {
+  const diffMs = Date.now() - new Date(date).getTime();
+  const minutes = Math.floor(diffMs / 60_000);
+  if (minutes < 1) return "الآن";
+  if (minutes < 60) return `منذ ${minutes} دقيقة`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `منذ ${hours} ساعة`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `منذ ${days} يوم`;
+  return formatCalendarDate(date);
+}

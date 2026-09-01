@@ -254,6 +254,15 @@ export interface TeamDetailVM {
   tournaments: { id: string; name: string }[];
   /** The team's next fixture still to be played (null when none is left). */
   nextFixture: { id: string; kickoffAt: Date; venue: string | null } | null;
+  /** Open (PENDING) join requests, shown to owners/managers for approval. */
+  pendingRequests: PendingRequestVM[];
+}
+
+export interface PendingRequestVM {
+  id: string;
+  playerId: string;
+  name: string;
+  requestedAt: Date;
 }
 
 export interface TeamPlayerVM {
@@ -290,6 +299,10 @@ export interface PlayerProfileVM {
   suspendedReason: "RED" | "SECOND_YELLOW" | null;
   /** The player's next fixture, when the team has one that is a suspension target. */
   nextFixture: { id: string; kickoffAt: Date; venue: string | null } | null;
+  /** True when the linked user account has no real email yet and can be claimed. */
+  accountClaimable: boolean;
+  /** True when a phone number is on file (used to verify account claims). */
+  phoneSet: boolean;
   /** Recent finished matches, with this player's contribution in each. */
   matchLog: {
     matchId: string;
@@ -350,4 +363,14 @@ export interface MatchLiveSnapshotVM {
   awayScore: number;
   minute: number | null;
   updatedAt: string;
+}
+
+// --- Notifications ----------------------------------------------------------
+
+export interface NotificationVM {
+  id: string;
+  title: string;
+  body: string;
+  readAt: Date | null;
+  createdAt: Date;
 }
