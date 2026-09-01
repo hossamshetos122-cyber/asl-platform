@@ -6,7 +6,7 @@ export const metadata = {
 };
 
 export default async function AdminMatchesPage() {
-  const [matches, teams, tournaments, referees] = await Promise.all([
+  const [matches, teams, tournaments, referees, memberships] = await Promise.all([
     prisma.match.findMany({
       orderBy: { kickoffAt: "desc" },
       include: {
@@ -27,12 +27,6 @@ export default async function AdminMatchesPage() {
       include: { user: { select: { fullName: true } } },
       orderBy: { user: { fullName: "asc" } },
     }),
-  ]);
-  const refereesOptions = referees.map((r) => ({ id: r.id, fullName: r.user.fullName }));
-
-  const matchIds = matches.map((m) => m.id);
-
-  const [memberships, events] = await Promise.all([
     prisma.teamMembership.findMany({
       where: { status: "ACTIVE" },
       select: {
@@ -46,15 +40,19 @@ export default async function AdminMatchesPage() {
         },
       },
     }),
-    prisma.matchEvent.findMany({
-      where: {
-        matchId: { in: matchIds },
-        type: { in: ["GOAL", "ASSIST", "YELLOW_CARD", "RED_CARD"] },
-      },
-      select: { matchId: true, playerId: true, teamId: true, type: true },
-      orderBy: { createdAt: "asc" },
-    }),
   ]);
+  const refereesOptions = referees.map((r) => ({ id: r.id, fullName: r.user.fullName }));
+
+  const matchIds = matches.map((m) => m.id);
+
+  const events = await prisma.matchEvent.findMany({
+    where: {
+      matchId: { in: matchIds },
+      type: { in: ["GOAL", "ASSIST", "YELLOW_CARD", "RED_CARD"] },
+    },
+    select: { matchId: true, playerId: true, teamId: true, type: true },
+    orderBy: { createdAt: "asc" },
+  });
 
   const playersByTeam: Record<string, GoalPlayerOption[]> = {};
   for (const mb of memberships) {

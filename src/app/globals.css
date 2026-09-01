@@ -133,6 +133,20 @@
     @apply rounded-lg border border-live/25 bg-live/5 px-4 py-2 font-body text-sm font-bold text-live transition-all hover:bg-live/10;
   }
 
+  .btn-danger-outline {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-live/40 bg-live/5 px-4 min-h-[44px] font-body text-[13px] font-bold text-live transition-colors hover:bg-live/15 hover:border-live/60;
+  }
+
+  /* Compact action button that still keeps a >=44px mobile touch target. */
+  .btn-sm {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg min-h-[44px] px-4 font-body text-[13px] font-bold whitespace-nowrap;
+  }
+
+  /* Icon-only button with a guaranteed 44px touch target. */
+  .btn-icon {
+    @apply inline-flex h-11 w-11 items-center justify-center rounded-lg;
+  }
+
   .table-header {
     @apply border-b border-line pb-3 font-utility text-[10px] sm:text-[11px] font-normal tracking-wider uppercase text-text-dimmer;
   }

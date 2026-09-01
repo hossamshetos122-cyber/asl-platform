@@ -448,7 +448,7 @@ export function TeamOfWeekForm({
                                 <button
                                   type="button"
                                   onClick={() => removePlayer(def.key)}
-                                  className="h-5 w-5 rounded border border-live/30 bg-live/10 font-num text-[10px] font-black text-live transition-colors hover:bg-live/20"
+                                  className="flex h-11 w-11 items-center justify-center rounded-lg border border-live/30 bg-live/10 font-num text-sm font-black text-live transition-colors hover:bg-live/20"
                                   title="مسح"
                                 >
                                   ×
@@ -508,7 +508,7 @@ export function TeamOfWeekForm({
                       <button
                         onClick={() => handleDeleteHistory(h.id)}
                         disabled={isPending}
-                        className="rounded border border-live/30 px-2 py-1 font-body text-[10px] font-bold text-live transition-colors hover:bg-live/10"
+                        className="rounded-lg border border-live/30 px-2.5 font-body text-[10px] font-bold text-live transition-colors hover:bg-live/10 min-h-11"
                       >
                         حذف
                       </button>

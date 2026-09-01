@@ -253,7 +253,7 @@ function TeamDeleteRow({ team, onEdit }: { team: TeamRow; onEdit: () => void }) 
       <td className="px-4 py-3 font-num text-sm font-bold text-text">{team._count.memberships}</td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
-          <button onClick={onEdit} className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">تعديل</button>
+          <button onClick={onEdit} className="rounded-lg border border-accent/30 bg-accent/10 px-3 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11">تعديل</button>
           <form action={async (formData) => {
             try {
               await deleteTeam(formData);

@@ -303,7 +303,7 @@ function FeaturedButton({ tournament }: { tournament: TournamentRow }) {
           });
         }}
         disabled={isPending}
-        className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20"
+        className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11"
       >
         {isPending ? "..." : "اجعلها المميزة"}
       </button>
@@ -379,7 +379,7 @@ export default function TournamentsTable({ tournaments, allTeams = [] }: { tourn
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <FeaturedButton tournament={tournament} />
-                          <button onClick={() => setEditingId(tournament.id)} className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">تعديل</button>
+                          <button onClick={() => setEditingId(tournament.id)} className="rounded-lg border border-accent/30 bg-accent/10 px-3 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11">تعديل</button>
                           <TournamentDeleteRow tournamentId={tournament.id} />
                         </div>
                       </td>

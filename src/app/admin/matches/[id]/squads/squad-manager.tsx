@@ -136,13 +136,13 @@ export function SquadManager({ matchId, side, team, initialSquad, roster }: Squa
                   </td>
                   <td className="px-3 py-2 font-body text-text-dim">{POSITION_LABELS[player.position] ?? player.position}</td>
                   <td className="px-3 py-2 text-center">
-                    <button onClick={() => togglePlayer(player.id)} className={`mx-auto flex h-6 w-6 items-center justify-center rounded border transition-colors ${inSquad ? "border-accent bg-accent text-white" : "border-line bg-transparent text-text-dim hover:border-accent/50"}`}>
-                      {inSquad && <svg className="h-3.5 w-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2.5 6l2.5 2.5 4.5-5" /></svg>}
+                    <button onClick={() => togglePlayer(player.id)} className={`mx-auto flex h-11 w-11 items-center justify-center rounded-lg border transition-colors ${inSquad ? "border-accent bg-accent text-white" : "border-line bg-transparent text-text-dim hover:border-accent/50"}`}>
+                      {inSquad && <svg className="h-4 w-4" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2.5 6l2.5 2.5 4.5-5" /></svg>}
                     </button>
                   </td>
                   <td className="px-3 py-2 text-center">
-                    <button onClick={() => inSquad && toggleStarter(player.id)} disabled={!inSquad} className={`mx-auto flex h-6 w-6 items-center justify-center rounded border transition-colors ${isStarter ? "border-emerald-400 bg-emerald-400 text-bg" : inSquad ? "border-line bg-transparent text-text-dim hover:border-emerald-400/50" : "border-line/30 bg-transparent text-text-dimmer cursor-not-allowed"}`}>
-                      {isStarter && <svg className="h-3.5 w-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2.5 6l2.5 2.5 4.5-5" /></svg>}
+                    <button onClick={() => inSquad && toggleStarter(player.id)} disabled={!inSquad} className={`mx-auto flex h-11 w-11 items-center justify-center rounded-lg border transition-colors ${isStarter ? "border-emerald-400 bg-emerald-400 text-bg" : inSquad ? "border-line bg-transparent text-text-dim hover:border-emerald-400/50" : "border-line/30 bg-transparent text-text-dimmer cursor-not-allowed"}`}>
+                      {isStarter && <svg className="h-4 w-4" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2.5 6l2.5 2.5 4.5-5" /></svg>}
                     </button>
                   </td>
                 </tr>

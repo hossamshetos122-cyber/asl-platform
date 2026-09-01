@@ -210,11 +210,11 @@ function NewsCard({ row, onEdit, onDeleted }: { row: NewsRow; onEdit: () => void
         </div>
         {row.imageUrl && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={row.imageUrl} alt="" className="h-16 w-24 rounded-lg border border-line object-cover shrink-0" />
+          <img src={row.imageUrl} alt="" loading="lazy" width={96} height={64} className="h-16 w-24 shrink-0 rounded-lg border border-line object-cover" />
         )}
       </div>
       <div className="flex items-center justify-end gap-2 border-t border-line px-4 py-2.5">
-        <button onClick={onEdit} className="rounded-lg border border-line px-3 py-1.5 font-body text-[11px] font-bold text-text-dim transition-colors hover:border-accent/40 hover:text-accent">
+        <button onClick={onEdit} className="rounded-lg border border-line px-3 font-body text-[11px] font-bold text-text-dim transition-colors hover:border-accent/40 hover:text-accent min-h-11">
           تعديل
         </button>
         {confirming ? (
@@ -228,11 +228,11 @@ function NewsCard({ row, onEdit, onDeleted }: { row: NewsRow; onEdit: () => void
           >
             <input type="hidden" name="id" value={row.id} />
             <span className="font-body text-[11px] text-live">متأكد؟</span>
-            <button className="rounded-lg bg-live px-3 py-1.5 font-body text-[11px] font-bold text-white transition-colors hover:bg-live/85">حذف</button>
-            <button type="button" onClick={() => setConfirming(false)} className="rounded-lg border border-line px-3 py-1.5 font-body text-[11px] font-bold text-text-dim">إلغاء</button>
+            <button className="rounded-lg bg-live px-3 font-body text-[11px] font-bold text-white transition-colors hover:bg-live/85 min-h-11">حذف</button>
+            <button type="button" onClick={() => setConfirming(false)} className="rounded-lg border border-line px-3 font-body text-[11px] font-bold text-text-dim min-h-11">إلغاء</button>
           </form>
         ) : (
-          <button onClick={() => setConfirming(true)} className="rounded-lg border border-live/30 px-3 py-1.5 font-body text-[11px] font-bold text-live transition-colors hover:bg-live/10">
+          <button onClick={() => setConfirming(true)} className="rounded-lg border border-live/30 px-3 font-body text-[11px] font-bold text-live transition-colors hover:bg-live/10 min-h-11">
             حذف
           </button>
         )}

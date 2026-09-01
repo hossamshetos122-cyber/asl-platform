@@ -254,12 +254,13 @@ export default function SettingsForm(props: SettingsProps) {
           <button
             type="button"
             onClick={resetPreview}
-            className="rounded-lg border border-line px-3 py-1.5 font-body text-[11px] font-bold text-text-dim transition-colors hover:text-text"
+            className="rounded-lg border border-line px-3 font-body text-[11px] font-bold text-text-dim transition-colors hover:text-text min-h-11"
           >
             إعادة اللون الافتراضي
           </button>
         </div>
         <div className="rounded-lg border border-line bg-surface p-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={logoUrl || "/images/league-logo.jpg"}
             alt=""

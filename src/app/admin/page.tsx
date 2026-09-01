@@ -3,32 +3,31 @@ import { prisma } from "@/lib/prisma";
 import { getSuspendedPlayers } from "@/lib/discipline";
 
 export default async function AdminDashboard() {
-  const overdueMatches = await prisma.match.findMany({
-    where: {
-      status: { in: ["SCHEDULED", "POSTPONED"] },
-      kickoffAt: { lt: new Date() },
-    },
-    orderBy: { kickoffAt: "asc" },
-    include: {
-      homeTeam: { select: { name: true } },
-      awayTeam: { select: { name: true } },
-      tournament: { select: { name: true } },
-    },
-  });
-
-  const [teamCount, playerCount, matchCount, tournamentCount, recentMatches] = await Promise.all([
-    prisma.team.count(),
-    prisma.player.count(),
-    prisma.match.count(),
-    prisma.tournament.count(),
-    prisma.match.findMany({
-      orderBy: { kickoffAt: "desc" },
-      take: 5,
-      include: { homeTeam: true, awayTeam: true, tournament: { select: { name: true } } },
-    }),
-  ]);
-
-  const suspended = await getSuspendedPlayers();
+  const [overdueMatches, teamCount, playerCount, matchCount, tournamentCount, recentMatches, suspended] =
+    await Promise.all([
+      prisma.match.findMany({
+        where: {
+          status: { in: ["SCHEDULED", "POSTPONED"] },
+          kickoffAt: { lt: new Date() },
+        },
+        orderBy: { kickoffAt: "asc" },
+        include: {
+          homeTeam: { select: { name: true } },
+          awayTeam: { select: { name: true } },
+          tournament: { select: { name: true } },
+        },
+      }),
+      prisma.team.count(),
+      prisma.player.count(),
+      prisma.match.count(),
+      prisma.tournament.count(),
+      prisma.match.findMany({
+        orderBy: { kickoffAt: "desc" },
+        take: 5,
+        include: { homeTeam: true, awayTeam: true, tournament: { select: { name: true } } },
+      }),
+      getSuspendedPlayers(),
+    ]);
 
   const stats = [
     { label: "البطولات", value: tournamentCount, href: "/admin/tournaments", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },

@@ -162,69 +162,62 @@ function playerLabel(p: GoalPlayerOption): string {
   return p.jerseyNumber !== null ? `${p.name} — ${p.jerseyNumber}` : p.name;
 }
 
-interface CardGroupProps {
-  label: string;
-  color: "yellow" | "red";
-  teamName: string;
-  players: GoalPlayerOption[];
-  values: string[];
-  prefix: string;
-  onAdd: () => void;
-  onRemove: (idx: number) => void;
-  onChange: (idx: number, value: string) => void;
-}
+function PlayerPickerSheet({ title, options, onSelect, onClose }: {
+  title: string;
+  options: GoalPlayerOption[];
+  onSelect: (id: string) => void;
+  onClose: () => void;
+}) {
+  const [query, setQuery] = useState("");
 
-function CardGroup({ label, color, teamName, players, values, prefix, onAdd, onRemove, onChange }: CardGroupProps) {
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? options.filter((p) =>
+        p.name.toLowerCase().includes(q) ||
+        (p.jerseyNumber !== null && String(p.jerseyNumber).includes(q))
+      )
+    : options;
+
   return (
-    <div className="rounded-lg border border-line/60 bg-surface-elevated/30 px-3 py-2.5">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <p className="font-body text-[11px] font-bold text-text">
-          <span className={`ml-1.5 inline-block h-2.5 w-2.5 rounded-sm ${color === "yellow" ? "bg-yellow-400" : "bg-red-500"}`} />
-          {label} — {teamName}
-        </p>
-        <button
-          type="button"
-          onClick={onAdd}
-          disabled={players.length === 0}
-          className={`rounded-md border px-2 py-0.5 font-body text-[10px] font-bold transition-colors ${color === "yellow" ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-300 hover:bg-yellow-400/20" : "border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500/20"} disabled:cursor-not-allowed disabled:opacity-40`}
-        >
-          + كارت {color === "yellow" ? "أصفر" : "أحمر"}
-        </button>
-      </div>
-      {players.length === 0 ? (
-        <p className="font-body text-[10px] text-text-dimmer">لا يوجد لاعبون مسجّلون في هذا الفريق.</p>
-      ) : values.length === 0 ? (
-        <p className="font-body text-[10px] text-text-dimmer">لا توجد كروت — اضغط «+ كارت» لاختيار اللاعب.</p>
-      ) : (
-        <div className="space-y-1.5">
-          {values.map((v, idx) => (
-            <div key={idx} className="flex items-center gap-2">
-              <span className={`h-3 w-3 flex-shrink-0 rounded-sm ${color === "yellow" ? "bg-yellow-400" : "bg-red-500"}`} />
-              <select
-                name={`${prefix}-${color}-${idx}`}
-                value={v}
-                onChange={(e) => onChange(idx, e.target.value)}
-                className="w-full rounded-lg border border-line bg-bg px-2.5 py-1.5 font-body text-[12px] text-text outline-none focus:border-accent"
-              >
-                <option value="">كارت {color === "yellow" ? "أصفر" : "أحمر"}: اختر اللاعب</option>
-                {players.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
-              </select>
-              <button
-                type="button"
-                onClick={() => onRemove(idx)}
-                className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md border border-line font-body text-[12px] text-text-dim transition-colors hover:border-live/40 hover:text-live"
-                aria-label="حذف الكارت"
-              >
-                ×
-              </button>
-            </div>
-          ))}
+    <div className="fixed inset-0 z-50 lg:absolute">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="absolute inset-x-0 bottom-0 max-h-[78vh] overflow-hidden rounded-t-2xl border-t border-line bg-surface shadow-2xl lg:inset-x-auto lg:bottom-auto lg:top-1/2 lg:left-1/2 lg:w-[420px] lg:-translate-x-1/2 lg:-translate-y-1/2 lg:rounded-2xl">
+        <div className="flex items-center justify-between border-b border-line px-4 py-3">
+          <span className="font-body text-sm font-bold text-text">{title}</span>
+          <button type="button" onClick={onClose} aria-label="إغلاق" className="btn-icon font-body text-lg text-text-dim transition-colors hover:bg-surface-elevated hover:text-text">×</button>
         </div>
-      )}
+        <div className="border-b border-line p-3">
+          <input
+            autoFocus
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="ابحث بالاسم أو رقم القميص..."
+            className="input-field !py-3"
+          />
+        </div>
+        <div className="max-h-[52vh] overflow-y-auto p-2">
+          {filtered.length === 0 ? (
+            <p className="px-3 py-6 text-center font-body text-[13px] text-text-dimmer">لا يوجد لاعبون مطابقون.</p>
+          ) : (
+            <div className="space-y-1">
+              {filtered.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => onSelect(p.id)}
+                  className="flex min-h-[48px] w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-right font-body text-[14px] font-bold text-text transition-colors hover:bg-surface-elevated"
+                >
+                  <span className="truncate">{p.name}</span>
+                  {p.jerseyNumber !== null && <span className="font-num text-[12px] text-text-dim">{p.jerseyNumber}</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
-
 function GoalAssignPanel({ match, prefix, homePlayers, awayPlayers, existingHome, existingAway, existingHomeAssists, existingAwayAssists, existingHomeYellow, existingAwayYellow, existingHomeRed, existingAwayRed, onClose }: {
   match: MatchRow;
   prefix: string;
@@ -260,6 +253,8 @@ function GoalAssignPanel({ match, prefix, homePlayers, awayPlayers, existingHome
   const [awayRedSel, setAwayRedSel] = useState<string[]>(() => [...existingAwayRed]);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<"home" | "away">("home");
+  const [picker, setPicker] = useState<{ team: "home" | "away"; kind: "goal" | "assist" | "yellow" | "red"; slot: number } | null>(null);
 
   const resize = (list: string[], n: number, setter: (v: string[]) => void) => {
     if (n === list.length) return;
@@ -276,10 +271,6 @@ useEffect(() => {
   resize(awayAssistSel, awayScore, setAwayAssistSel);
 }, [awayScore]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const add = (list: string[], setter: (v: string[]) => void) => setter([...list, ""]);
-  const removeAt = (list: string[], setter: (v: string[]) => void, idx: number) =>
-    setter(list.filter((_, i) => i !== idx));
-
   const canSaveWithGoals =
     (homeScore === 0 || homeSel.every((s) => s !== "")) &&
     (awayScore === 0 || awaySel.every((s) => s !== ""));
@@ -289,6 +280,57 @@ useEffect(() => {
     awayYellowSel.some((s) => s === "") ||
     homeRedSel.some((s) => s === "") ||
     awayRedSel.some((s) => s === "");
+
+  const homeList = homePlayers;
+  const awayList = awayPlayers;
+
+  const playersFor = (team: "home" | "away") => (team === "home" ? homePlayers : awayPlayers);
+  const listFor = (kind: "goal" | "assist" | "yellow" | "red", team: "home" | "away") => {
+    if (team === "home") {
+      return kind === "goal" ? [homeSel, setHomeSel] as const
+        : kind === "assist" ? [homeAssistSel, setHomeAssistSel] as const
+        : kind === "yellow" ? [homeYellowSel, setHomeYellowSel] as const
+        : [homeRedSel, setHomeRedSel] as const;
+    }
+    return kind === "goal" ? [awaySel, setAwaySel] as const
+      : kind === "assist" ? [awayAssistSel, setAwayAssistSel] as const
+      : kind === "yellow" ? [awayYellowSel, setAwayYellowSel] as const
+      : [awayRedSel, setAwayRedSel] as const;
+  };
+
+  function applyPicker(pid: string) {
+    if (!picker) return;
+    const [list, setter] = listFor(picker.kind, picker.team);
+    const next = [...list];
+    if (picker.kind === "goal" || picker.kind === "assist") {
+      next[picker.slot] = pid;
+    } else {
+      // cards: ensure the slot exists (fill an added placeholder)
+      while (next.length <= picker.slot) next.push("");
+      next[picker.slot] = pid;
+    }
+    setter(next);
+    setPicker(null);
+  }
+
+  function removeAtKind(kind: "goal" | "assist" | "yellow" | "red", team: "home" | "away", idx: number) {
+    const [, setter] = listFor(kind, team);
+    const [list] = listFor(kind, team);
+    setter(list.filter((_, i) => i !== idx));
+  }
+
+  function addCard(kind: "yellow" | "red", team: "home" | "away") {
+    const [list] = listFor(kind, team);
+    if (playersFor(team).length === 0) return;
+    setPicker({ team, kind, slot: list.length });
+  }
+
+  function bumpScore(team: "home" | "away", delta: number) {
+    if (team === "home") setHomeScore(Math.max(0, Math.min(30, homeScore + delta)));
+    else setAwayScore(Math.max(0, Math.min(30, awayScore + delta)));
+  }
+
+  const teamLabel = (team: "home" | "away") => (team === "home" ? match.homeTeam.name : match.awayTeam.name);
 
   async function save(withEvents: boolean) {
     setSaving(true);
@@ -319,176 +361,167 @@ useEffect(() => {
     }
   }
 
-  const homeList = homePlayers;
-  const awayList = awayPlayers;
-
   return (
     <div className="rounded-xl border border-accent/20 bg-surface p-4">
       <div className="mb-3 flex items-center justify-between">
         <p className="font-body text-[13px] font-bold text-text">
           تسجيل نتيجة {match.homeTeam.name} - {match.awayTeam.name}
         </p>
-        <button onClick={onClose} className="font-body text-[11px] font-bold text-text-dim transition-colors hover:text-text">إغلاق</button>
+        <button onClick={onClose} aria-label="إغلاق" className="btn-icon font-body text-lg text-text-dim transition-colors hover:bg-surface-elevated hover:text-text">×</button>
       </div>
 
-      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="flex items-center gap-3 rounded-lg border border-line bg-surface-elevated/50 px-3 py-2.5">
-          <label className="whitespace-nowrap font-body text-[12px] font-bold text-text">{match.homeTeam.name}</label>
-          <input type="number" value={homeScore} min={0} max={30} onChange={(e) => setHomeScore(Math.max(0, parseInt(e.target.value || "0", 10) || 0))} className="w-16 rounded-lg border border-line bg-bg px-2 py-1.5 text-center font-num text-lg font-bold text-text outline-none focus:border-accent" />
-        </div>
-        <div className="flex items-center gap-3 rounded-lg border border-line bg-surface-elevated/50 px-3 py-2.5">
-          <label className="whitespace-nowrap font-body text-[12px] font-bold text-text">{match.awayTeam.name}</label>
-          <input type="number" value={awayScore} min={0} max={30} onChange={(e) => setAwayScore(Math.max(0, parseInt(e.target.value || "0", 10) || 0))} className="w-16 rounded-lg border border-line bg-bg px-2 py-1.5 text-center font-num text-lg font-bold text-text outline-none focus:border-accent" />
-        </div>
-      </div>
-
-      {homeScore > 0 && (
-        <div className="mb-4">
-          <p className="mb-2 font-body text-[12px] font-bold text-accent">أهداف {match.homeTeam.name} ({homeScore})</p>
-          {homeList.length === 0 ? (
-            <p className="rounded-lg border border-line bg-surface-elevated/40 px-3 py-2 font-body text-[11px] text-text-dim">
-              لا يوجد لاعبون مسجّلون في {match.homeTeam.name} — أضف لاعبين من صفحة إدارة اللاعبين أو فعّل القوائم في صفحة المباراة.
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {homeSel.map((sel, idx) => (
-                <div key={idx} className="flex flex-col gap-1.5 rounded-lg border border-line/60 bg-surface-elevated/40 p-2">
-                  <select name={`${prefix}-goal-${idx}`} value={sel} onChange={(e) => {
-                    const next = [...homeSel];
-                    next[idx] = e.target.value;
-                    setHomeSel(next);
-                  }} className="rounded-lg border border-line bg-bg px-2.5 py-1.5 font-body text-[12px] text-text outline-none focus:border-accent">
-                    <option value="">الهدف {idx + 1}: اختر اللاعب</option>
-                    {homeList.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
-                  </select>
-                  <select name={`${prefix}-assist-${idx}`} value={homeAssistSel[idx] ?? ""} onChange={(e) => {
-                    const next = [...homeAssistSel];
-                    next[idx] = e.target.value;
-                    setHomeAssistSel(next);
-                  }} className="rounded-lg border border-line/70 bg-surface-elevated px-2.5 py-1.5 font-body text-[12px] text-text-dim outline-none focus:border-accent">
-                    <option value="">صانع الهدف {idx + 1} (اختياري)</option>
-                    {homeList.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
-                  </select>
-                </div>
-              ))}
+      {/* Score steppers for both teams */}
+      <div className="mb-4 grid grid-cols-2 gap-2.5">
+        {(["home", "away"] as const).map((t) => (
+          <div key={t} className="rounded-lg border border-line bg-surface-elevated/50 p-2">
+            <p className="truncate text-center font-body text-[12px] font-bold text-text">{teamLabel(t)}</p>
+            <div className="mt-2 flex items-center justify-center gap-2.5">
+              <button type="button" onClick={() => bumpScore(t, -1)} disabled={saving} aria-label="تقليل الهدف"
+                className="flex h-11 w-11 items-center justify-center rounded-lg border border-accent/30 bg-accent/10 text-xl font-black text-accent transition-colors hover:bg-accent/20 disabled:opacity-40">-</button>
+              <span className="w-9 text-center font-num text-2xl font-bold text-text">{t === "home" ? homeScore : awayScore}</span>
+              <button type="button" onClick={() => bumpScore(t, 1)} disabled={saving} aria-label="زيادة الهدف"
+                className="flex h-11 w-11 items-center justify-center rounded-lg border border-accent/30 bg-accent/10 text-xl font-black text-accent transition-colors hover:bg-accent/20 disabled:opacity-40">+</button>
             </div>
-          )}
-        </div>
-      )}
-
-      {awayScore > 0 && (
-        <div className="mb-4">
-          <p className="mb-2 font-body text-[12px] font-bold text-accent">أهداف {match.awayTeam.name} ({awayScore})</p>
-          {awayList.length === 0 ? (
-            <p className="rounded-lg border border-line bg-surface-elevated/40 px-3 py-2 font-body text-[11px] text-text-dim">
-              لا يوجد لاعبون مسجّلون في {match.awayTeam.name} — أضف لاعبين من صفحة إدارة اللاعبين أو فعّل القوائم في صفحة المباراة.
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {awaySel.map((sel, idx) => (
-                <div key={idx} className="flex flex-col gap-1.5 rounded-lg border border-line/60 bg-surface-elevated/40 p-2">
-                  <select name={`${prefix}-goal-${idx}`} value={sel} onChange={(e) => {
-                    const next = [...awaySel];
-                    next[idx] = e.target.value;
-                    setAwaySel(next);
-                  }} className="rounded-lg border border-line bg-bg px-2.5 py-1.5 font-body text-[12px] text-text outline-none focus:border-accent">
-                    <option value="">الهدف {idx + 1}: اختر اللاعب</option>
-                    {awayList.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
-                  </select>
-                  <select name={`${prefix}-assist-${idx}`} value={awayAssistSel[idx] ?? ""} onChange={(e) => {
-                    const next = [...awayAssistSel];
-                    next[idx] = e.target.value;
-                    setAwayAssistSel(next);
-                  }} className="rounded-lg border border-line/70 bg-surface-elevated px-2.5 py-1.5 font-body text-[12px] text-text-dim outline-none focus:border-accent">
-                    <option value="">صانع الهدف {idx + 1} (اختياري)</option>
-                    {awayList.map((p) => (<option key={p.id} value={p.id}>{playerLabel(p)}</option>))}
-                  </select>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <div className="space-y-2">
-          <CardGroup
-            label="الكروت الصفراء"
-            color="yellow"
-            teamName={match.homeTeam.name}
-            players={homeList}
-            values={homeYellowSel}
-            prefix={`${match.id}-home`}
-            onAdd={() => add(homeYellowSel, setHomeYellowSel)}
-            onRemove={(idx) => removeAt(homeYellowSel, setHomeYellowSel, idx)}
-            onChange={(idx, value) => {
-              const next = [...homeYellowSel];
-              next[idx] = value;
-              setHomeYellowSel(next);
-            }}
-          />
-          <CardGroup
-            label="الكروت الحمراء"
-            color="red"
-            teamName={match.homeTeam.name}
-            players={homeList}
-            values={homeRedSel}
-            prefix={`${match.id}-home`}
-            onAdd={() => add(homeRedSel, setHomeRedSel)}
-            onRemove={(idx) => removeAt(homeRedSel, setHomeRedSel, idx)}
-            onChange={(idx, value) => {
-              const next = [...homeRedSel];
-              next[idx] = value;
-              setHomeRedSel(next);
-            }}
-          />
-        </div>
-        <div className="space-y-2">
-          <CardGroup
-            label="الكروت الصفراء"
-            color="yellow"
-            teamName={match.awayTeam.name}
-            players={awayList}
-            values={awayYellowSel}
-            prefix={`${match.id}-away`}
-            onAdd={() => add(awayYellowSel, setAwayYellowSel)}
-            onRemove={(idx) => removeAt(awayYellowSel, setAwayYellowSel, idx)}
-            onChange={(idx, value) => {
-              const next = [...awayYellowSel];
-              next[idx] = value;
-              setAwayYellowSel(next);
-            }}
-          />
-          <CardGroup
-            label="الكروت الحمراء"
-            color="red"
-            teamName={match.awayTeam.name}
-            players={awayList}
-            values={awayRedSel}
-            prefix={`${match.id}-away`}
-            onAdd={() => add(awayRedSel, setAwayRedSel)}
-            onRemove={(idx) => removeAt(awayRedSel, setAwayRedSel, idx)}
-            onChange={(idx, value) => {
-              const next = [...awayRedSel];
-              next[idx] = value;
-              setAwayRedSel(next);
-            }}
-          />
-        </div>
+          </div>
+        ))}
       </div>
+
+      {/* Team tabs */}
+      <div className="mb-4 grid grid-cols-2 gap-1 rounded-xl border border-line bg-surface-elevated/40 p-1">
+        {(["home", "away"] as const).map((t) => (
+          <button key={t} type="button" onClick={() => setActiveTab(t)}
+            className={`min-h-[44px] truncate rounded-lg px-2 font-body text-[13px] font-bold transition-colors ${activeTab === t ? "bg-accent text-white" : "text-text-dim hover:text-text"}`}>
+            {teamLabel(t)}
+          </button>
+        ))}
+      </div>
+
+      {(() => {
+        const t = activeTab;
+        const players = playersFor(t);
+        const score = t === "home" ? homeScore : awayScore;
+        const goals = t === "home" ? homeSel : awaySel;
+        const assists = t === "home" ? homeAssistSel : awayAssistSel;
+        const yellows = t === "home" ? homeYellowSel : awayYellowSel;
+        const reds = t === "home" ? homeRedSel : awayRedSel;
+
+        return (
+          <div className="space-y-4">
+            <div>
+              <p className="mb-2 font-body text-[12px] font-bold text-accent">أهداف {teamLabel(t)} ({score})</p>
+              {players.length === 0 ? (
+                <p className="rounded-lg border border-line bg-surface-elevated/40 px-3 py-2 font-body text-[11px] text-text-dim">
+                  لا يوجد لاعبون مسجّلون في {teamLabel(t)} — أضف لاعبين من صفحة إدارة اللاعبين.
+                </p>
+              ) : score === 0 ? (
+                <p className="font-body text-[11px] text-text-dimmer">زد النتيجة بالأعلى لتسجيل الأهداف.</p>
+              ) : (
+                <div className="space-y-2">
+                  {Array.from({ length: score }, (_, idx) => {
+                    const id = goals[idx] ?? "";
+                    const player = players.find((p) => p.id === id);
+                    return (
+                      <div key={idx} className="flex items-center gap-2 rounded-lg border border-line/60 bg-surface-elevated/40 p-2">
+                        <span className="w-6 flex-shrink-0 text-center font-num text-[12px] text-text-dimmer">{idx + 1}</span>
+                        <button type="button" onClick={() => setPicker({ team: t, kind: "goal", slot: idx })} disabled={saving}
+                          className="min-h-[44px] flex-1 truncate rounded-lg border border-accent/30 bg-bg px-3 text-right font-body text-[13px] font-bold text-text transition-colors hover:border-accent">
+                          {player ? playerLabel(player) : "اختر اللاعب"}
+                        </button>
+                        <button type="button" onClick={() => removeAtKind("goal", t, idx)} disabled={saving} aria-label="إزالة الهدف"
+                          className="btn-icon h-11 w-11 flex-shrink-0 border border-live/30 text-live transition-colors hover:bg-live/10">×</button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {players.length > 0 && score > 0 && (
+                <div className="mt-2 space-y-2 pr-8">
+                  {Array.from({ length: score }, (_, idx) => {
+                    if (!(goals[idx] ?? "")) return null;
+                    const assistId = assists[idx] ?? "";
+                    const assister = assistId ? players.find((p) => p.id === assistId) : undefined;
+                    return (
+                      <div key={idx} className="flex items-center gap-2">
+                        <button type="button" onClick={() => setPicker({ team: t, kind: "assist", slot: idx })} disabled={saving}
+                          className="min-h-[44px] flex-1 truncate rounded-lg border border-line bg-surface px-3 text-right font-body text-[12px] font-bold text-text-dim transition-colors hover:border-accent">
+                          {assister ? `المساعد: ${playerLabel(assister)}` : `+ صانع الهدف ${idx + 1} (اختياري)`}
+                        </button>
+                        {assistId && (
+                          <button type="button" onClick={() => removeAtKind("assist", t, idx)} disabled={saving} aria-label="إزالة الصانع"
+                            className="btn-icon h-11 w-11 flex-shrink-0 border border-line text-text-dim transition-colors hover:border-live/40 hover:text-live">×</button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              {(["yellow", "red"] as const).map((color) => {
+                const cards = color === "yellow" ? yellows : reds;
+                return (
+                  <div key={color} className="rounded-lg border border-line/60 bg-surface-elevated/30 p-2.5">
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <p className="font-body text-[11px] font-bold text-text">
+                        <span className={`ml-1.5 inline-block h-2.5 w-2.5 rounded-sm ${color === "yellow" ? "bg-yellow-400" : "bg-red-500"}`} />
+                        الكروت {color === "yellow" ? "الصفراء" : "الحمراء"}
+                      </p>
+                      <button type="button" onClick={() => addCard(color, t)} disabled={saving || players.length === 0}
+                        className={`btn-sm px-3 border ${color === "yellow" ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-300 hover:bg-yellow-400/20" : "border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500/20"} disabled:opacity-40`}>
+                        + كارت
+                      </button>
+                    </div>
+                    {players.length === 0 ? (
+                      <p className="font-body text-[10px] text-text-dimmer">لا يوجد لاعبون مسجّلون في هذا الفريق.</p>
+                    ) : cards.length === 0 ? (
+                      <p className="font-body text-[10px] text-text-dimmer">لا توجد كروت.</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {cards.map((v, idx) => {
+                          const player = players.find((p) => p.id === v);
+                          return (
+                            <div key={idx} className="flex items-center gap-2">
+                              <span className={`h-3 w-3 flex-shrink-0 rounded-sm ${color === "yellow" ? "bg-yellow-400" : "bg-red-500"}`} />
+                              <button type="button" onClick={() => setPicker({ team: t, kind: color, slot: idx })} disabled={saving}
+                                className="min-h-[44px] flex-1 truncate rounded-lg border border-line bg-bg px-3 text-right font-body text-[12px] font-bold text-text transition-colors hover:border-accent">
+                                {player ? playerLabel(player) : "اختر اللاعب"}
+                              </button>
+                              <button type="button" onClick={() => removeAtKind(color, t, idx)} disabled={saving} aria-label="حذف الكارت"
+                                className="btn-icon h-11 w-11 flex-shrink-0 border border-line text-text-dim transition-colors hover:border-live/40 hover:text-live">×</button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {error && <p className="mb-3 rounded-lg border border-live/30 bg-live/10 px-3 py-2 font-body text-[12px] text-live">{error}</p>}
 
       <div className="flex flex-wrap items-center gap-2.5">
-        <button onClick={() => save(true)} disabled={saving || !canSaveWithGoals} className="btn-primary text-[12px]">
+        <button onClick={() => save(true)} disabled={saving || !canSaveWithGoals} className="btn-primary text-[13px]">
           {saving ? "جارِ الحفظ..." : "حفظ النتيجة والأهداف"}
         </button>
-        <button onClick={() => save(false)} disabled={saving} className="rounded-lg border border-line px-3 py-1.5 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">
-          حفظ النتيجة فقط
-        </button>
-        <button onClick={onClose} disabled={saving} className="rounded-lg border border-line px-3 py-1.5 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>
+        <button onClick={() => save(false)} disabled={saving} className="btn-sm border border-line text-text-dim hover:text-text">حفظ النتيجة فقط</button>
+        <button onClick={onClose} disabled={saving} className="btn-sm border border-line text-text-dim hover:text-text">إلغاء</button>
       </div>
       <p className="mt-2 font-body text-[10px] text-text-dimmer">الأهداف تُحتسب تلقائياً في جدول الهدافين وصفحة اللاعب، والكروت تظهر في سجل الانضباط وتُحسب الإيقافات تلقائياً (حمراء = إيقاف مباراة، كارتان أصفراوان في مباراتين = إيقاف مباراة). إذا غيرت النتيجة لاحقاً، تُعاد اختيارات الأهداف والكروت وستُستبدل السابقة.</p>
+
+      {picker && playersFor(picker.team).length > 0 && (
+        <PlayerPickerSheet
+          title={`${picker.kind === "assist" ? "اختر صانع الهدف" : picker.kind === "yellow" ? "اختر لاعب الكارت الأصفر" : picker.kind === "red" ? "اختر لاعب الكارت الأحمر" : "اختر مسجل الهدف"} — ${teamLabel(picker.team)}`}
+          options={playersFor(picker.team)}
+          onSelect={applyPicker}
+          onClose={() => setPicker(null)}
+        />
+      )}
     </div>
   );
 }
@@ -498,7 +531,7 @@ function GoalEntryButton({ match, isOpen, onClick }: { match: MatchRow; isOpen: 
     ? "إدخال النتيجة والأهداف"
     : "تحديث النتيجة والأهداف";
   return (
-    <button onClick={onClick} className={`rounded-lg border px-2.5 py-1 font-body text-[11px] font-bold transition-colors ${isOpen ? "border-accent/50 bg-accent/20 text-accent-bright" : "border-accent/30 bg-accent/10 text-accent hover:bg-accent/20"}`}>
+    <button onClick={onClick} className={`rounded-lg border px-2.5 font-body text-[11px] font-bold transition-colors min-h-11 ${isOpen ? "border-accent/50 bg-accent/20 text-accent-bright" : "border-accent/30 bg-accent/10 text-accent hover:bg-accent/20"}`}>
       {label}
     </button>
   );
@@ -648,8 +681,8 @@ function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, s
               {match.status !== "CANCELLED" && (
                 <GoalEntryButton match={match} isOpen={goalsOpen} onClick={() => setGoalRowId(goalsOpen ? null : match.id)} />
               )}
-              <button onClick={() => { setEditingSchedule(match.id); setGoalRowId(null); }} className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">الموعد</button>
-              <Link href={`/admin/matches/${match.id}/squads`} className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20">القوائم</Link>
+              <button onClick={() => { setEditingSchedule(match.id); setGoalRowId(null); }} className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11">الموعد</button>
+              <Link href={`/admin/matches/${match.id}/squads`} className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11 inline-flex items-center">القوائم</Link>
               <MatchDeleteRow matchId={match.id} />
             </div>
           </td>

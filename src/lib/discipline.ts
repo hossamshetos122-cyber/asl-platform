@@ -270,25 +270,96 @@ export async function getSuspendedPlayers(): Promise<SuspendedPlayerRow[]> {
     },
   });
 
+  const teamIds = teams.map((t) => t.id);
+
+  const fixtures = await prisma.match.findMany({
+    where: {
+      OR: [{ homeTeamId: { in: teamIds } }, { awayTeamId: { in: teamIds } }],
+    },
+    orderBy: { kickoffAt: "asc" },
+    select: {
+      id: true,
+      status: true,
+      homeTeamId: true,
+      awayTeamId: true,
+      kickoffAt: true,
+      venue: true,
+    },
+  });
+
+  const fixtureIds = fixtures.map((f) => f.id);
+
+  const events =
+    fixtureIds.length > 0
+      ? await prisma.matchEvent.findMany({
+          where: {
+            matchId: { in: fixtureIds },
+            type: { in: [...CARD_TYPES] },
+          },
+          select: { matchId: true, playerId: true, type: true },
+        })
+      : [];
+
+  const finishedIds = new Set(
+    fixtures.filter((f) => f.status === "FINISHED").map((f) => f.id)
+  );
+
+  const fixturesByTeam = new Map<string, (typeof fixtures)[number][]>();
+  for (const teamId of teamIds) {
+    fixturesByTeam.set(
+      teamId,
+      fixtures.filter((f) => f.homeTeamId === teamId || f.awayTeamId === teamId)
+    );
+  }
+
+  const eventsByPlayer = new Map<string, Map<string, { yellows: number; reds: number }>>();
+  const totalsByPlayer = new Map<string, { yellows: number; reds: number }>();
+  for (const team of teams) {
+    for (const membership of team.memberships) {
+      const pid = membership.player.id;
+      if (!eventsByPlayer.has(pid)) {
+        eventsByPlayer.set(pid, new Map());
+        totalsByPlayer.set(pid, { yellows: 0, reds: 0 });
+      }
+    }
+  }
+
+  for (const ev of events) {
+    const perMatch = eventsByPlayer.get(ev.playerId);
+    if (!perMatch) continue;
+    const bucket = perMatch.get(ev.matchId) ?? { yellows: 0, reds: 0 };
+    if (ev.type === "YELLOW_CARD") bucket.yellows++;
+    if (ev.type === "RED_CARD") bucket.reds++;
+    perMatch.set(ev.matchId, bucket);
+    if (finishedIds.has(ev.matchId)) {
+      const total = totalsByPlayer.get(ev.playerId);
+      if (total && ev.type === "YELLOW_CARD") total.yellows++;
+      if (total && ev.type === "RED_CARD") total.reds++;
+    }
+  }
+
   const rows: SuspendedPlayerRow[] = [];
   for (const team of teams) {
-    const ids = team.memberships.map((m) => m.player.id);
-    if (ids.length === 0) continue;
-    const result = await getTeamDiscipline(team.id, ids);
+    const teamFixtureList = fixturesByTeam.get(team.id) ?? [];
+    const nextFixture =
+      teamFixtureList.find((f) => f.status === "SCHEDULED" || f.status === "POSTPONED") ?? null;
+
     for (const membership of team.memberships) {
-      const data = result.byPlayer.get(membership.player.id);
-      if (!data?.suspendedNext || !data.reason) continue;
+      const pid = membership.player.id;
+      const total = totalsByPlayer.get(pid) ?? { yellows: 0, reds: 0 };
+      const suspension = computeSuspension(teamFixtureList, eventsByPlayer.get(pid) ?? new Map());
+      if (!suspension.suspendedNext || !suspension.reason) continue;
       rows.push({
-        playerId: membership.player.id,
+        playerId: pid,
         playerName: membership.player.user.fullName,
         jerseyNumber: membership.player.jerseyNumber,
         teamId: team.id,
         teamName: team.name,
-        reason: data.reason,
-        yellows: data.yellows,
-        reds: data.reds,
-        nextFixtureId: result.nextFixture?.id ?? null,
-        nextFixtureKickoffAt: result.nextFixture?.kickoffAt ?? null,
+        reason: suspension.reason,
+        yellows: total.yellows,
+        reds: total.reds,
+        nextFixtureId: nextFixture?.id ?? null,
+        nextFixtureKickoffAt: nextFixture?.kickoffAt ?? null,
       });
     }
   }
