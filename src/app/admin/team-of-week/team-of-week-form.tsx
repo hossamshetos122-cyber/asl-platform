@@ -407,7 +407,7 @@ export function TeamOfWeekForm({
                           </p>
 
                           {player && (
-                            <div className="mt-1 space-y-1">
+                            <div className="mt-1 w-full space-y-1">
                               <div className="flex items-center gap-1">
                                 <input
                                   type="number"
@@ -416,22 +416,22 @@ export function TeamOfWeekForm({
                                   value={slot.rating ?? ""}
                                   placeholder="ـ"
                                   onChange={(e) => setRating(def.key, e.target.value)}
-                                  className="h-5 w-10 rounded border border-line bg-bg px-0.5 text-center font-num text-[10px] font-black text-text outline-none transition-colors focus:border-accent"
+                                  className="h-11 w-12 rounded border border-line bg-bg px-1 text-center font-num text-[12px] font-black text-text outline-none transition-colors focus:border-accent"
                                 />
                                 <button
                                   type="button"
                                   onClick={() => handleAutoRate(def.key, player.playerId)}
                                   disabled={autoLoading === def.key}
-                                  className="h-5 rounded border border-accent/30 bg-accent/10 px-1.5 font-body text-[8px] font-black text-accent-bright transition-colors hover:bg-accent/20"
+                                  className="min-h-11 flex-1 rounded border border-accent/30 bg-accent/10 px-1 font-body text-[10px] font-black text-accent-bright transition-colors hover:bg-accent/20"
                                 >
                                   {autoLoading === def.key ? "..." : "تلقائي"}
                                 </button>
                               </div>
-                              <div className="flex items-center gap-1">
+                              <div className="flex flex-wrap items-center gap-1">
                                 <button
                                   type="button"
                                   onClick={() => toggleCaptain(def.key)}
-                                  className={`h-5 w-5 rounded font-display text-[9px] font-black transition-colors ${
+                                  className={`h-11 w-11 rounded font-display text-[11px] font-black transition-colors ${
                                     slot.captain ? "bg-accent text-white" : "border border-line bg-surface-elevated text-text-dimmer hover:text-text"
                                   }`}
                                   title="كابتن"
@@ -440,18 +440,18 @@ export function TeamOfWeekForm({
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() => openPicker(def.key)}
-                                  className="h-5 flex-1 rounded border border-line bg-surface-elevated font-body text-[8px] font-bold text-text-dim transition-colors hover:text-text"
-                                >
-                                  تبديل
-                                </button>
-                                <button
-                                  type="button"
                                   onClick={() => removePlayer(def.key)}
                                   className="flex h-11 w-11 items-center justify-center rounded-lg border border-live/30 bg-live/10 font-num text-sm font-black text-live transition-colors hover:bg-live/20"
                                   title="مسح"
                                 >
                                   ×
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => openPicker(def.key)}
+                                  className="min-h-11 w-full rounded border border-line bg-surface-elevated font-body text-[11px] font-bold text-text-dim transition-colors hover:text-text"
+                                >
+                                  تبديل
                                 </button>
                               </div>
                             </div>
@@ -539,7 +539,7 @@ export function TeamOfWeekForm({
               </div>
               <button
                 onClick={() => setPickerSlot(null)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-line font-num text-sm text-text-dim transition-colors hover:text-text"
+                className="flex h-11 w-11 items-center justify-center rounded-lg border border-line font-num text-sm text-text-dim transition-colors hover:text-text"
               >
                 ×
               </button>

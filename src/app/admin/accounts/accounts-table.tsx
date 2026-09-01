@@ -199,7 +199,7 @@ export default function AccountsTable({ teams, managers }: { teams: TeamOption[]
                           >
                             <input type="hidden" name="userId" value={manager.id} />
                             <input type="hidden" name="teamId" value={team.id} />
-                            <button type="submit" title="فك الارتباط" className="text-text-dimmer transition-colors hover:text-live">
+                            <button type="submit" title="فك الارتباط" aria-label="فك الارتباط" className="-m-2 flex h-8 w-8 items-center justify-center rounded-lg text-text-dimmer transition-colors hover:bg-live/10 hover:text-live">
                               <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 8h10" /></svg>
                             </button>
                           </form>

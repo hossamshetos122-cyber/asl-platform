@@ -3,6 +3,7 @@
 import { useState, useTransition, Fragment } from "react";
 import { useFormStatus } from "react-dom";
 import { SearchInput } from "@/components/ui/search-input";
+import { Modal } from "@/components/ui/modal";
 import { normalizeArabic } from "@/lib/search";
 import {
   createTournament,
@@ -144,19 +145,17 @@ function EditRow({ tournament, onClose }: { tournament: TournamentRow; onClose: 
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <tr>
-      <td colSpan={6} className="px-4 py-3">
-        <form action={async (formData) => {
-          setError(null);
-          try {
-            if (logoUrl !== undefined) formData.set("logoUrl", logoUrl || "");
-            if (coverUrl !== undefined) formData.set("coverUrl", coverUrl || "");
-            await updateTournament(formData);
-            onClose();
-          } catch (e: unknown) {
-            setError(e instanceof Error ? e.message : "حدث خطأ");
-          }
-        }} className="rounded-xl border border-accent/20 bg-surface p-4">
+    <form action={async (formData) => {
+      setError(null);
+      try {
+        if (logoUrl !== undefined) formData.set("logoUrl", logoUrl || "");
+        if (coverUrl !== undefined) formData.set("coverUrl", coverUrl || "");
+        await updateTournament(formData);
+        onClose();
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "حدث خطأ");
+      }
+    }} className="rounded-xl border border-accent/20 bg-surface p-4">
           <input type="hidden" name="id" value={tournament.id} />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2"><ImageUpload name="logoUrl" purpose="tournament-logo" label="شعار البطولة" value={logoUrl} onChange={setLogoUrl} /></div>
@@ -186,10 +185,8 @@ function EditRow({ tournament, onClose }: { tournament: TournamentRow; onClose: 
           <div className="flex items-center gap-3">
             <button type="submit" className="btn-primary">تحديث</button>
             <button type="button" onClick={onClose} className="rounded-lg border border-line px-4 py-2 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>
-          </div>
-        </form>
-      </td>
-    </tr>
+        </div>
+      </form>
   );
 }
 
@@ -244,8 +241,8 @@ function TeamManager({ tournament, allTeams }: { tournament: TournamentRow; allT
               {tournament.teams.map((team) => (
                 <span key={team.id} className="inline-flex items-center gap-1.5 rounded-lg border border-accent/20 bg-accent/[0.04] px-2.5 py-1">
                   <span className="font-body text-xs font-bold text-text">{team.name}</span>
-                  <button onClick={() => handleRemove(team.id)} disabled={isPending} className="flex h-4 w-4 items-center justify-center rounded-full text-text-dimmer transition-colors hover:bg-live/20 hover:text-live">
-                    <svg className="h-2.5 w-2.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 3l6 6M9 3l-6 6" /></svg>
+                  <button onClick={() => handleRemove(team.id)} disabled={isPending} aria-label={`إزالة ${team.name}`} className="-m-2 flex h-8 w-8 items-center justify-center rounded-full text-text-dimmer transition-colors hover:bg-live/20 hover:text-live">
+                    <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 3l6 6M9 3l-6 6" /></svg>
                   </button>
                 </span>
               ))}
@@ -384,11 +381,8 @@ export default function TournamentsTable({ tournaments, allTeams = [] }: { tourn
               </tr>
             </thead>
             <tbody className="divide-y divide-line/50">
-              {filtered.map((tournament) =>
-                editingId === tournament.id ? (
-                  <EditRow key={tournament.id} tournament={tournament} onClose={() => setEditingId(null)} />
-                ) : (
-                  <Fragment key={tournament.id}>
+              {filtered.map((tournament) => (
+                <Fragment key={tournament.id}>
                     <tr key={tournament.id} className="transition-colors hover:bg-surface-elevated/50">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
@@ -405,7 +399,7 @@ export default function TournamentsTable({ tournaments, allTeams = [] }: { tourn
                       <td className="px-4 py-3 font-num text-sm font-bold text-text">{tournament._count.teams}</td>
                       <td className="px-4 py-3 font-body text-sm text-text-dim">{formatLongDate(new Date(tournament.startDate))}</td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <FeaturedButton tournament={tournament} />
                           <button onClick={() => setEditingId(tournament.id)} className="rounded-lg border border-accent/30 bg-accent/10 px-3 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11">تعديل</button>
                           <TournamentDeleteRow tournamentId={tournament.id} />
@@ -418,12 +412,20 @@ export default function TournamentsTable({ tournaments, allTeams = [] }: { tourn
                       </td>
                     </tr>
                   </Fragment>
-                )
-              )}
+              ))}
             </tbody>
           </table>
         </div>
       )}
+      {editingId && (() => {
+        const tournament = tournaments.find((t) => t.id === editingId);
+        if (!tournament) return null;
+        return (
+          <Modal title="تعديل البطولة" onClose={() => setEditingId(null)}>
+            <EditRow key={tournament.id} tournament={tournament} onClose={() => setEditingId(null)} />
+          </Modal>
+        );
+      })()}
     </>
   );
 }

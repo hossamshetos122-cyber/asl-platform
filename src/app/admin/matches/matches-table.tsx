@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { createMatch, setMatchResult, setMatchResultWithGoals, updateMatchSchedule, deleteMatch } from "@/lib/actions/matches";
@@ -528,17 +528,6 @@ useEffect(() => {
   );
 }
 
-function GoalEntryButton({ match, isOpen, onClick }: { match: MatchRow; isOpen: boolean; onClick: () => void }) {
-  const label = match.status === "SCHEDULED" || match.status === "POSTPONED"
-    ? "إدخال النتيجة والأهداف"
-    : "تحديث النتيجة والأهداف";
-  return (
-    <button onClick={onClick} className={`rounded-lg border px-2.5 font-body text-[11px] font-bold transition-colors min-h-11 ${isOpen ? "border-accent/50 bg-accent/20 text-accent-bright" : "border-accent/30 bg-accent/10 text-accent hover:bg-accent/20"}`}>
-      {label}
-    </button>
-  );
-}
-
 function ScheduleEditForm({ match, onClose }: { match: MatchRow; onClose: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string>(match.status === "POSTPONED" ? "POSTPONED" : match.status === "CANCELLED" ? "CANCELLED" : "SCHEDULED");
@@ -613,105 +602,77 @@ function MatchDeleteRow({ matchId }: { matchId: string }) {
   );
 }
 
-function MatchRowItem({ match, editingSchedule, setEditingSchedule, goalRowId, setGoalRowId, playersByTeam, eventsByMatch }: {
+function MatchRowItem({ match, onEditGoals, onEditSchedule }: {
   match: MatchRow;
-  editingSchedule: string | null;
-  setEditingSchedule: (id: string | null) => void;
-  goalRowId: string | null;
-  setGoalRowId: (id: string | null) => void;
-  playersByTeam: Record<string, GoalPlayerOption[]>;
-  eventsByMatch: Record<string, EventLite[]>;
+  onEditGoals: () => void;
+  onEditSchedule: () => void;
 }) {
   const overdue = isOverdueMatch(match);
-  const goalsOpen = goalRowId === match.id;
-  const existingEvents = eventsByMatch[match.id] ?? [];
-
-  const existingHomeGoals = existingEvents.filter((g) => g.type === "GOAL" && g.teamId === match.homeTeamId).map((g) => g.playerId);
-  const existingAwayGoals = existingEvents.filter((g) => g.type === "GOAL" && g.teamId === match.awayTeamId).map((g) => g.playerId);
-  const existingHomeAssists = existingEvents.filter((e) => e.type === "ASSIST" && e.teamId === match.homeTeamId).map((e) => e.playerId);
-  const existingAwayAssists = existingEvents.filter((e) => e.type === "ASSIST" && e.teamId === match.awayTeamId).map((e) => e.playerId);
-  const existingHomeYellow = existingEvents.filter((e) => e.type === "YELLOW_CARD" && e.teamId === match.homeTeamId).map((e) => e.playerId);
-  const existingAwayYellow = existingEvents.filter((e) => e.type === "YELLOW_CARD" && e.teamId === match.awayTeamId).map((e) => e.playerId);
-  const existingHomeRed = existingEvents.filter((e) => e.type === "RED_CARD" && e.teamId === match.homeTeamId).map((e) => e.playerId);
-  const existingAwayRed = existingEvents.filter((e) => e.type === "RED_CARD" && e.teamId === match.awayTeamId).map((e) => e.playerId);
 
   return (
-    <>
-      {editingSchedule === match.id ? (
-        <tr className="bg-surface-elevated/40">
-          <td colSpan={7} className="px-4 py-3">
-            <ScheduleEditForm match={match} onClose={() => setEditingSchedule(null)} />
-          </td>
-        </tr>
-      ) : (
-        <tr className={`transition-colors hover:bg-surface-elevated/50 ${overdue ? "bg-live/[0.06]" : ""}`}>
-          <td className="px-4 py-3">
-            <span className="font-body text-[12px] text-text-dim">{match.tournament.name}</span>
-          </td>
-          <td className="px-4 py-3">
-            <div className="flex items-center gap-2">
-              <span className="font-body text-sm font-bold text-text">{match.homeTeam.name}</span>
-              <span className="font-utility text-[10px] text-text-dimmer">vs</span>
-              <span className="font-body text-sm font-bold text-text">{match.awayTeam.name}</span>
-              {overdue && <span className="rounded-md bg-live/15 px-2 py-0.5 font-utility text-[9px] tracking-wider text-live">متأخرة</span>}
-            </div>
-            {match.round && <span className="font-body text-[11px] text-text-dimmer">{match.round}</span>}
-          </td>
-          <td className="px-4 py-3">
-            <span className="font-num text-lg font-bold text-text">{match.homeScore} - {match.awayScore}</span>
-          </td>
-          <td className="px-4 py-3">
-            <span className={`rounded-md px-2 py-0.5 font-utility text-[10px] tracking-wider ${STATUS_COLORS[match.status] ?? ""}`}>
-              {STATUS_LABELS[match.status] ?? match.status}
-            </span>
-          </td>
-          <td className="px-4 py-3 font-body text-[12px] text-text-dim">{formatDate(new Date(match.kickoffAt))}</td>
-          <td className="px-4 py-3">
-            {match.venue ? (
-              <span className="flex items-center gap-1.5 font-body text-[11px] text-text-dim">
-                <svg className="h-3 w-3 flex-shrink-0 text-accent" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="8" cy="8" r="7" /><circle cx="8" cy="8" r="2.5" /><path d="M8 2v2.5M8 11.5V14M2.5 8H5M11 8h2.5" />
-                </svg>
-                <span className="max-w-[110px] truncate">{match.venue}</span>
-              </span>
-            ) : (
-              <span className="font-body text-[11px] text-live">مطلوب</span>
-            )}
-          </td>
-          <td className="px-4 py-3">
-            <div className="flex items-center gap-2">
-              {match.status !== "CANCELLED" && (
-                <GoalEntryButton match={match} isOpen={goalsOpen} onClick={() => setGoalRowId(goalsOpen ? null : match.id)} />
-              )}
-              <button onClick={() => { setEditingSchedule(match.id); setGoalRowId(null); }} className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11">الموعد</button>
-              <Link href={`/admin/matches/${match.id}/squads`} className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11 inline-flex items-center">القوائم</Link>
-              <MatchDeleteRow matchId={match.id} />
-            </div>
-          </td>
-        </tr>
-      )}
-      {goalsOpen && (
-        <tr className="bg-surface-elevated/40">
-          <td colSpan={7} className="px-4 py-3">
-            <GoalAssignPanel
-              match={match}
-              prefix={`${match.id}-home`}
-              homePlayers={playersByTeam[match.homeTeamId] ?? []}
-              awayPlayers={playersByTeam[match.awayTeamId] ?? []}
-              existingHome={existingHomeGoals}
-              existingAway={existingAwayGoals}
-              existingHomeAssists={existingHomeAssists}
-              existingAwayAssists={existingAwayAssists}
-              existingHomeYellow={existingHomeYellow}
-              existingAwayYellow={existingAwayYellow}
-              existingHomeRed={existingHomeRed}
-              existingAwayRed={existingAwayRed}
-              onClose={() => setGoalRowId(null)}
-            />
-          </td>
-        </tr>
-      )}
-    </>
+    <tr className={`transition-colors hover:bg-surface-elevated/50 ${overdue ? "bg-live/[0.06]" : ""}`}>
+      <td className="px-4 py-3">
+        <span className="font-body text-[12px] text-text-dim">{match.tournament.name}</span>
+      </td>
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className="font-body text-sm font-bold text-text">{match.homeTeam.name}</span>
+          <span className="font-utility text-[10px] text-text-dimmer">vs</span>
+          <span className="font-body text-sm font-bold text-text">{match.awayTeam.name}</span>
+          {overdue && <span className="rounded-md bg-live/15 px-2 py-0.5 font-utility text-[9px] tracking-wider text-live">متأخرة</span>}
+        </div>
+        {match.round && <span className="font-body text-[11px] text-text-dim">{match.round}</span>}
+      </td>
+      <td className="px-4 py-3">
+        <span className="font-num text-lg font-bold text-text">{match.homeScore} - {match.awayScore}</span>
+      </td>
+      <td className="px-4 py-3">
+        <span className={`rounded-md px-2 py-0.5 font-utility text-[10px] tracking-wider ${STATUS_COLORS[match.status] ?? ""}`}>
+          {STATUS_LABELS[match.status] ?? match.status}
+        </span>
+      </td>
+      <td className="px-4 py-3 font-body text-[12px] text-text-dim">{formatDate(new Date(match.kickoffAt))}</td>
+      <td className="px-4 py-3">
+        {match.venue ? (
+          <span className="flex items-center gap-1.5 font-body text-[11px] text-text-dim">
+            <svg className="h-3 w-3 flex-shrink-0 text-accent" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="8" cy="8" r="7" /><circle cx="8" cy="8" r="2.5" /><path d="M8 2v2.5M8 11.5V14M2.5 8H5M11 8h2.5" />
+            </svg>
+            <span className="max-w-[110px] truncate">{match.venue}</span>
+          </span>
+        ) : (
+          <span className="font-body text-[11px] text-live">مطلوب</span>
+        )}
+      </td>
+      <td className="px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {match.status !== "CANCELLED" && (
+            <button onClick={onEditGoals} className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11">
+              {match.status === "SCHEDULED" || match.status === "POSTPONED" ? "إدخال النتيجة والأهداف" : "تحديث النتيجة والأهداف"}
+            </button>
+          )}
+          <button onClick={onEditSchedule} className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11">الموعد</button>
+          <Link href={`/admin/matches/${match.id}/squads`} className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11 inline-flex items-center">القوائم</Link>
+          <MatchDeleteRow matchId={match.id} />
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+function Overlay({ children, onClose, title }: { children: ReactNode; onClose: () => void; title: string }) {
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 p-3 sm:p-6">
+      <div className="mx-auto flex min-h-full w-full max-w-2xl items-start justify-center sm:items-center">
+        <div className="w-full rounded-2xl border border-line bg-surface shadow-2xl">
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-surface px-4 py-3">
+            <span className="font-display text-[15px] font-black text-text">{title}</span>
+            <button type="button" onClick={onClose} aria-label="إغلاق" className="btn-icon font-body text-lg text-text-dim transition-colors hover:bg-surface-elevated hover:text-text">×</button>
+          </div>
+          <div className="p-4">{children}</div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -798,18 +759,57 @@ export default function MatchesTable({ matches, teams, tournaments, referees = [
                 <MatchRowItem
                   key={match.id}
                   match={match}
-                  editingSchedule={editingSchedule}
-                  setEditingSchedule={setEditingSchedule}
-                  goalRowId={goalRowId}
-                  setGoalRowId={setGoalRowId}
-                  playersByTeam={playersByTeam}
-                  eventsByMatch={eventsByMatch}
+                  onEditGoals={() => { setGoalRowId(match.id); setEditingSchedule(null); }}
+                  onEditSchedule={() => { setEditingSchedule(match.id); setGoalRowId(null); }}
                 />
               ))}
             </tbody>
           </table>
         </div>
       )}
+
+      {goalRowId && (() => {
+        const match = filtered.find((m) => m.id === goalRowId);
+        if (!match) return null;
+        const existingEvents = eventsByMatch[match.id] ?? [];
+        const existingHomeGoals = existingEvents.filter((g) => g.type === "GOAL" && g.teamId === match.homeTeamId).map((g) => g.playerId);
+        const existingAwayGoals = existingEvents.filter((g) => g.type === "GOAL" && g.teamId === match.awayTeamId).map((g) => g.playerId);
+        const existingHomeAssists = existingEvents.filter((e) => e.type === "ASSIST" && e.teamId === match.homeTeamId).map((e) => e.playerId);
+        const existingAwayAssists = existingEvents.filter((e) => e.type === "ASSIST" && e.teamId === match.awayTeamId).map((e) => e.playerId);
+        const existingHomeYellow = existingEvents.filter((e) => e.type === "YELLOW_CARD" && e.teamId === match.homeTeamId).map((e) => e.playerId);
+        const existingAwayYellow = existingEvents.filter((e) => e.type === "YELLOW_CARD" && e.teamId === match.awayTeamId).map((e) => e.playerId);
+        const existingHomeRed = existingEvents.filter((e) => e.type === "RED_CARD" && e.teamId === match.homeTeamId).map((e) => e.playerId);
+        const existingAwayRed = existingEvents.filter((e) => e.type === "RED_CARD" && e.teamId === match.awayTeamId).map((e) => e.playerId);
+        return (
+          <Overlay title="تسجيل النتيجة والأهداف" onClose={() => setGoalRowId(null)}>
+            <GoalAssignPanel
+              match={match}
+              prefix={`${match.id}-home`}
+              homePlayers={playersByTeam[match.homeTeamId] ?? []}
+              awayPlayers={playersByTeam[match.awayTeamId] ?? []}
+              existingHome={existingHomeGoals}
+              existingAway={existingAwayGoals}
+              existingHomeAssists={existingHomeAssists}
+              existingAwayAssists={existingAwayAssists}
+              existingHomeYellow={existingHomeYellow}
+              existingAwayYellow={existingAwayYellow}
+              existingHomeRed={existingHomeRed}
+              existingAwayRed={existingAwayRed}
+              onClose={() => setGoalRowId(null)}
+            />
+          </Overlay>
+        );
+      })()}
+
+      {editingSchedule && (() => {
+        const match = filtered.find((m) => m.id === editingSchedule);
+        if (!match) return null;
+        return (
+          <Overlay title="تعديل موعد المباراة" onClose={() => setEditingSchedule(null)}>
+            <ScheduleEditForm match={match} onClose={() => setEditingSchedule(null)} />
+          </Overlay>
+        );
+      })()}
     </>
   );
 }

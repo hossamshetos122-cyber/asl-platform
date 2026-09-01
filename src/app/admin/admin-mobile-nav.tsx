@@ -69,7 +69,7 @@ export function AdminMobileNav() {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="إغلاق"
-                className="flex h-9 w-9 items-center justify-center rounded-lg font-body text-lg text-text-dim transition-colors hover:bg-surface-elevated hover:text-text"
+                className="flex h-11 w-11 items-center justify-center rounded-lg font-body text-lg text-text-dim transition-colors hover:bg-surface-elevated hover:text-text"
               >
                 ×
               </button>

@@ -64,7 +64,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Image src={adminLogo} alt="شعار الدوري" width={40} height={40} priority className="h-8 w-8 rounded-full object-cover border border-accent/20" />
           <span className="font-display text-sm font-black text-text">لوحة التحكم</span>
         </div>
-        <LogoutButton className="rounded-lg border border-line px-3.5 py-2 font-body text-[12px] font-bold text-text-dim hover:bg-surface-elevated transition-colors">
+        <LogoutButton className="flex min-h-11 items-center rounded-lg border border-line px-3.5 py-2 font-body text-[12px] font-bold text-text-dim hover:bg-surface-elevated transition-colors">
           خروج
         </LogoutButton>
       </div>

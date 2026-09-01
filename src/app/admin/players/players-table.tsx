@@ -6,6 +6,7 @@ import { createPlayer, deletePlayer, updatePlayer } from "@/lib/actions/players"
 import { ImageDisplay } from "@/components/ui/image-display";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { SearchInput } from "@/components/ui/search-input";
+import { Modal } from "@/components/ui/modal";
 import { normalizeArabic } from "@/lib/search";
 
 interface PlayerRow {
@@ -166,10 +167,8 @@ function InlineEditForm({ player, onClose }: { player: PlayerRow; onClose: () =>
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <tr>
-      <td colSpan={6} className="px-4 py-3">
-        <form action={async (formData) => {
-          setError(null);
+    <form action={async (formData) => {
+      setError(null);
           try {
             if (photoUrl !== undefined) formData.set("photoUrl", photoUrl || "");
             const res = await updatePlayer(player.id, formData);
@@ -212,10 +211,8 @@ function InlineEditForm({ player, onClose }: { player: PlayerRow; onClose: () =>
           <div className="mt-4 flex items-center gap-3">
             <button type="submit" className="btn-primary">تحديث</button>
             <button type="button" onClick={onClose} className="rounded-lg border border-line px-4 py-2 font-body text-[12px] font-bold text-text-dim transition-colors hover:text-text">إلغاء</button>
-          </div>
-        </form>
-      </td>
-    </tr>
+        </div>
+    </form>
   );
 }
 
@@ -276,43 +273,48 @@ export default function PlayersTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-line/50">
-              {filtered.map((player) =>
-                editingId === player.id ? (
-                  <InlineEditForm key={player.id} player={player} onClose={() => setEditingId(null)} />
-                ) : (
-                  <tr key={player.id} className="transition-colors hover:bg-surface-elevated/50">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <ImageDisplay src={player.photoUrl} alt={player.user.fullName} type="player" size="sm" />
-                        <div>
-                          <div className="font-body text-sm font-bold text-text">{player.user.fullName}</div>
-                          <div className="font-body text-[12px] text-text-dimmer" dir="ltr">{player.user.email}</div>
-                        </div>
+              {filtered.map((player) => (
+                <tr key={player.id} className="transition-colors hover:bg-surface-elevated/50">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <ImageDisplay src={player.photoUrl} alt={player.user.fullName} type="player" size="sm" />
+                      <div>
+                        <div className="font-body text-sm font-bold text-text">{player.user.fullName}</div>
+                        <div className="font-body text-[12px] text-text-dimmer" dir="ltr">{player.user.email}</div>
                       </div>
-                    </td>
-                    <td className="px-4 py-3 font-body text-sm text-text-dim">
-                      {player.memberships[0]?.team.name ?? <span className="text-text-dimmer">بدون فريق</span>}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="rounded-md border border-line bg-surface-elevated px-2 py-0.5 font-utility text-[10px] tracking-wider text-text-dim">
-                        {POSITION_LABELS[player.position] ?? player.position}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-num text-sm font-bold text-accent">{player.jerseyNumber ?? "—"}</td>
-                    <td className="px-4 py-3 font-body text-sm text-text-dim">{formatBirthdate(player.dateOfBirth)}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <button onClick={() => setEditingId(player.id)} className="rounded-lg border border-accent/30 bg-accent/10 px-3 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11">تعديل</button>
-                        <PlayerDeleteRow playerId={player.id} />
-                      </div>
-                    </td>
-                  </tr>
-                )
-              )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 font-body text-sm text-text-dim">
+                    {player.memberships[0]?.team.name ?? <span className="text-text-dimmer">بدون فريق</span>}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="rounded-md border border-line bg-surface-elevated px-2 py-0.5 font-utility text-[10px] tracking-wider text-text-dim">
+                      {POSITION_LABELS[player.position] ?? player.position}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 font-num text-sm font-bold text-accent">{player.jerseyNumber ?? "—"}</td>
+                  <td className="px-4 py-3 font-body text-sm text-text-dim">{formatBirthdate(player.dateOfBirth)}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button onClick={() => setEditingId(player.id)} className="rounded-lg border border-accent/30 bg-accent/10 px-3 font-body text-[11px] font-bold text-accent transition-colors hover:bg-accent/20 min-h-11">تعديل</button>
+                      <PlayerDeleteRow playerId={player.id} />
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       )}
+      {editingId && (() => {
+        const player = players.find((p) => p.id === editingId);
+        if (!player) return null;
+        return (
+          <Modal title="تعديل اللاعب" onClose={() => setEditingId(null)}>
+            <InlineEditForm key={player.id} player={player} onClose={() => setEditingId(null)} />
+          </Modal>
+        );
+      })()}
     </>
   );
 }

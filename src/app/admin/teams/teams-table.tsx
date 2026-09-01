@@ -6,6 +6,7 @@ import { createTeam, updateTeam, deleteTeam } from "@/lib/actions/teams";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { SearchInput } from "@/components/ui/search-input";
+import { Modal } from "@/components/ui/modal";
 import { normalizeArabic } from "@/lib/search";
 
 interface TeamRow {
@@ -123,12 +124,11 @@ function EditRow({ team, onClose }: { team: TeamRow; onClose: () => void }) {
   const [logoUrl, setLogoUrl] = useState<string | null>(team.crestUrl);
   const [error, setError] = useState<string | null>(null);
   return (
-    <tr>
-      <td colSpan={5} className="px-4 py-3">
-        {error && (
-          <div className="mb-3 rounded-lg border border-live/30 bg-live/10 px-4 py-2 font-body text-sm text-live">{error}</div>
-        )}
-        <form
+    <div>
+      {error && (
+        <div className="mb-3 rounded-lg border border-live/30 bg-live/10 px-4 py-2 font-body text-sm text-live">{error}</div>
+      )}
+      <form
           action={async (formData) => {
             setError(null);
             if (logoUrl !== undefined) formData.set("logoUrl", logoUrl || "");
@@ -192,10 +192,9 @@ function EditRow({ team, onClose }: { team: TeamRow; onClose: () => void }) {
             >
               إلغاء
             </button>
-          </div>
-        </form>
-      </td>
-    </tr>
+        </div>
+      </form>
+    </div>
   );
 }
 
@@ -248,17 +247,22 @@ export default function TeamsTable({ teams }: { teams: TeamRow[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-line/50">
-              {filtered.map((team) =>
-                editingId === team.id ? (
-                  <EditRow key={team.id} team={team} onClose={() => setEditingId(null)} />
-                ) : (
-                  <TeamDeleteRow key={team.id} team={team} onEdit={() => setEditingId(team.id)} />
-                )
-              )}
+              {filtered.map((team) => (
+                <TeamDeleteRow key={team.id} team={team} onEdit={() => setEditingId(team.id)} />
+              ))}
             </tbody>
           </table>
         </div>
       )}
+      {editingId && (() => {
+        const team = teams.find((t) => t.id === editingId);
+        if (!team) return null;
+        return (
+          <Modal title="تعديل الفريق" onClose={() => setEditingId(null)}>
+            <EditRow key={team.id} team={team} onClose={() => setEditingId(null)} />
+          </Modal>
+        );
+      })()}
     </>
   );
 }
