@@ -284,10 +284,21 @@ useEffect(() => {
     (homeScore === 0 || homeSel.every((s) => s !== "")) &&
     (awayScore === 0 || awaySel.every((s) => s !== ""));
 
+  const hasEmptyCard =
+    homeYellowSel.some((s) => s === "") ||
+    awayYellowSel.some((s) => s === "") ||
+    homeRedSel.some((s) => s === "") ||
+    awayRedSel.some((s) => s === "");
+
   async function save(withEvents: boolean) {
     setSaving(true);
     setError(null);
     try {
+      if (withEvents && hasEmptyCard) {
+        setError("حدّد لاعباً لكل كارت (أصفر/أحمر) قبل الحفظ، أو احذف الكارت الفارغ");
+        setSaving(false);
+        return;
+      }
       if (withEvents) {
         await setMatchResultWithGoals(
           match.id, homeScore, awayScore, homeSel, awaySel,

@@ -255,6 +255,17 @@ export async function setMatchResultWithGoals(
   const homeAssistIds = Array.isArray(homeAssistPlayerIds) ? homeAssistPlayerIds.filter((s) => s !== "") : [];
   const awayAssistIds = Array.isArray(awayAssistPlayerIds) ? awayAssistPlayerIds.filter((s) => s !== "") : [];
 
+  // A card that has no player selected (placeholder "اختر اللاعب") must block the
+  // save instead of being silently dropped or reaching the DB with a bad id.
+  const missingCardPlayer =
+    (Array.isArray(homeYellowPlayerIds) && homeYellowPlayerIds.some((s) => !s)) ||
+    (Array.isArray(awayYellowPlayerIds) && awayYellowPlayerIds.some((s) => !s)) ||
+    (Array.isArray(homeRedPlayerIds) && homeRedPlayerIds.some((s) => !s)) ||
+    (Array.isArray(awayRedPlayerIds) && awayRedPlayerIds.some((s) => !s));
+  if (missingCardPlayer) {
+    throw new Error("حدّد لاعباً لكل كارت (أصفر/أحمر) قبل الحفظ، أو احذف الكارت الفارغ");
+  }
+
   if (homeGoalIds.length !== parsed.data.homeScore) {
     throw new Error(`حدّد لاعباً لكل هدف من أهداف الفريق المضيف (${parsed.data.homeScore} أهداف) أو اضغط «حفظ النتيجة فقط»`);
   }
