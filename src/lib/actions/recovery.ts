@@ -11,6 +11,7 @@ import { requestPasswordResetSchema, resetPasswordSchema } from "@/lib/validatio
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sendMail } from "@/lib/mail";
 import { auditLog } from "@/lib/audit";
+import { getSiteConfig } from "@/lib/data/site-config";
 
 export type RecoveryResult = { success: boolean; error?: string; fieldErrors?: Record<string, string>; resetLink?: string };
 
@@ -69,9 +70,11 @@ export async function requestPasswordResetAction(
   const resetLink = `${APP_ORIGIN}/reset-password?token=${token}`;
   const actionLink = `${APP_ORIGIN}/reset-password?token=${token}`;
 
+  const leagueName = (await getSiteConfig()).leagueName;
+
   const mail = await sendMail({
     to: user.email,
-    subject: "إعادة تعيين كلمة المرور — دوري نجوم الإسكندرية",
+    subject: `إعادة تعيين كلمة المرور — ${leagueName}`,
     text: `مرحباً ${user.fullName}،\n\nاطلبت إعادة تعيين كلمة المرور لحسابك.\n\nافتح الرابط التالي لتحديد كلمة مرور جديدة (صالح لمدة ساعة واحدة):\n${resetLink}\n\nإذا لم تطلب ذلك، تجاهل هذه الرسالة.`,
     html: `<div dir="rtl" style="font-family:system-ui,sans-serif;line-height:1.7"><h2>إعادة تعيين كلمة المرور</h2><p>مرحباً ${user.fullName}،</p><p>اضغط على الزر التالي لتحديد كلمة مرور جديدة (صالح لمدة ساعة واحدة):</p><p><a href="${actionLink}" style="background:#1d6ff2;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:700">إعادة تعيين كلمة المرور</a></p><p>إذا لم تطلب ذلك، تجاهل هذه الرسالة.</p></div>`,
   });
@@ -165,10 +168,12 @@ export async function sendVerificationEmailAction(): Promise<RecoveryResult> {
   const token = await createVerificationToken(user.id, "EMAIL_VERIFICATION");
   const verifyLink = `${APP_ORIGIN}/verify-email?token=${token}`;
 
+  const leagueName = (await getSiteConfig()).leagueName;
+
   const mail = await sendMail({
     to: user.email,
-    subject: "تأكيد البريد الإلكتروني — دوري نجوم الإسكندرية",
-    text: `مرحباً ${user.fullName}،\n\nللتحقق من بريدك الإلكتروني في منصة دوري نجوم الإسكندرية اتبع الرابط التالي (صالح لمدة ساعة واحدة):\n${verifyLink}`,
+    subject: `تأكيد البريد الإلكتروني — ${leagueName}`,
+    text: `مرحباً ${user.fullName}،\n\nللتحقق من بريدك الإلكتروني في منصة ${leagueName} اتبع الرابط التالي (صالح لمدة ساعة واحدة):\n${verifyLink}`,
     html: `<div dir="rtl" style="font-family:system-ui,sans-serif;line-height:1.7"><h2>تأكيد البريد الإلكتروني</h2><p>مرحباً ${user.fullName}،</p><p><a href="${verifyLink}" style="background:#1d6ff2;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:700">تأكيد بريدي الإلكتروني</a></p></div>`,
   });
 
