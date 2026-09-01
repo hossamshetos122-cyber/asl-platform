@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import { requireAdmin } from "@/lib/auth";
+import { getSiteConfig } from "@/lib/data/site-config";
 import { SidebarNav } from "./sidebar-nav";
 import { LogoutButton } from "@/components/auth/logout-button";
 
@@ -16,6 +17,7 @@ const NAV_ITEMS = [
   { label: "فريق الأسبوع", href: "/admin/team-of-week", icon: "team-of-week" },
   { label: "حسابات الفرق", href: "/admin/accounts", icon: "accounts" },
   { label: "الأخبار", href: "/admin/news", icon: "news" },
+  { label: "الإعدادات", href: "/admin/settings", icon: "settings" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -31,12 +33,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
   if (!user) redirect("/login?redirect=/admin");
 
+  const cfg = await getSiteConfig();
+  const adminLogo = cfg.logoUrl || "/images/league-logo.jpg";
+
   return (
     <div className="flex min-h-screen bg-bg">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex lg:w-56 lg:flex-col lg:border-l lg:border-line lg:bg-surface">
         <div className="flex h-14 items-center gap-2.5 border-b border-line px-4">
-          <Image src="/images/league-logo.jpg" alt="شعار الدوري" width={1280} height={698} className="h-8 w-8 rounded-full object-cover border border-accent/20" />
+          <Image src={adminLogo} alt="شعار الدوري" width={1280} height={698} className="h-8 w-8 rounded-full object-cover border border-accent/20" />
           <span className="font-display text-sm font-black text-text">لوحة التحكم</span>
         </div>
         <nav className="flex-1 space-y-0.5 p-2.5">
@@ -55,7 +60,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* Mobile header */}
       <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-surface/95 backdrop-blur px-4 lg:hidden">
         <div className="flex items-center gap-2.5">
-          <Image src="/images/league-logo.jpg" alt="شعار الدوري" width={1280} height={698} className="h-8 w-8 rounded-full object-cover border border-accent/20" />
+          <Image src={adminLogo} alt="شعار الدوري" width={1280} height={698} className="h-8 w-8 rounded-full object-cover border border-accent/20" />
           <span className="font-display text-sm font-black text-text">لوحة التحكم</span>
         </div>
         <LogoutButton className="rounded-lg px-2.5 py-1.5 font-body text-[11px] font-bold text-text-dim hover:bg-surface-elevated transition-colors">
@@ -64,7 +69,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </div>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-surface/95 backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 flex overflow-x-auto border-t border-line bg-surface/95 backdrop-blur lg:hidden">
         {NAV_ITEMS.map((item) => (
           <SidebarNav key={item.href} href={item.href} icon={item.icon} mobile>{item.label}</SidebarNav>
         ))}

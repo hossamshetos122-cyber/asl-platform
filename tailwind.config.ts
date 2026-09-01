@@ -6,25 +6,25 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          DEFAULT: "#0A2647",
-          deep: "#061730",
+          DEFAULT: "rgb(var(--bg-rgb) / <alpha-value>)",
+          deep: "rgb(var(--bg-deep-rgb) / <alpha-value>)",
         },
         surface: {
-          DEFAULT: "#122C4F",
-          elevated: "#16335C",
-          raised2: "#1B3D6B",
+          DEFAULT: "rgb(var(--surface-rgb) / <alpha-value>)",
+          elevated: "rgb(var(--surface-elevated-rgb) / <alpha-value>)",
+          raised2: "rgb(var(--surface-raised2-rgb) / <alpha-value>)",
         },
         purple: {
-          DEFAULT: "#123B6B",
+          DEFAULT: "rgb(var(--purple-rgb) / <alpha-value>)",
           bright: "#2E7BFF",
-          dim: "#0D2B4F",
+          dim: "rgb(var(--purple-dim-rgb) / <alpha-value>)",
         },
         live: "#FF3D2E",
         accent: {
-          DEFAULT: "#FF6B35",
-          bright: "#FF8A5C",
-          dim: "#E04E1A",
-          faint: "rgba(255,107,53,0.08)",
+          DEFAULT: "rgb(var(--accent-rgb) / <alpha-value>)",
+          bright: "rgb(var(--accent-bright-rgb) / <alpha-value>)",
+          dim: "rgb(var(--accent-dim-rgb) / <alpha-value>)",
+          faint: "rgb(var(--accent-faint-rgb) / <alpha-value>)",
         },
         success: {
           DEFAULT: "#00D68F",
@@ -37,11 +37,11 @@ const config: Config = {
         },
         cyan: "#2ED6F5",
         line: "rgba(255,255,255,0.08)",
-        "line-accent": "rgba(255,107,53,0.40)",
+        "line-accent": "rgb(var(--line-accent-rgb) / <alpha-value>)",
         "line-strong": "rgba(255,255,255,0.14)",
         navy: {
-          DEFAULT: "#103E72",
-          light: "#1B5AA6",
+          DEFAULT: "rgb(var(--navy-rgb) / <alpha-value>)",
+          light: "rgb(var(--navy-light-rgb) / <alpha-value>)",
         },
         text: {
           DEFAULT: "#FFFFFF",

@@ -382,3 +382,23 @@ model News {
 
   @@index([publishedAt])
 }
+
+// ---------------------------------------------------------------------------
+// Site / brand configuration (single row, id = "default")
+//
+// Lets a league organizer rebrand the whole platform for any city or district
+// from the admin settings page: tournament name, English name, city, logo and
+// the primary/accent colors. The values are injected into the app as CSS
+// variables at request time (see src/lib/data/site-config.ts + layout.tsx).
+// ---------------------------------------------------------------------------
+
+model SiteConfig {
+  id            String   @id @default("default")
+  leagueName    String
+  leagueNameEn  String
+  cityName      String
+  logoUrl       String
+  primaryColor  String
+  accentColor   String
+  updatedAt     DateTime @default(now())
+}

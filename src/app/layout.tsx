@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cairo, Tajawal } from "next/font/google";
+import { getSiteConfig, siteCssVars } from "@/lib/data/site-config";
 import "./globals.css";
 
 // Self-hosted at build time by next/font — no runtime request to Google Fonts,
@@ -16,22 +17,27 @@ const tajawal = Tajawal({
   variable: "--font-tajawal",
 });
 
-export const metadata: Metadata = {
-  title: "دوري نجوم الإسكندرية للهواة",
-  description:
-    "المنصة الرسمية لإدارة وتنظيم بطولات كرة القدم للهواة في الإسكندرية — نتائج مباشرة، جداول ترتيب، وإدارة فرق.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const cfg = await getSiteConfig();
+  return {
+    title: cfg.leagueName,
+    description: `المنصة الرسمية لإدارة وتنظيم بطولات كرة القدم للهواة في ${cfg.cityName} — نتائج مباشرة، جداول ترتيب، وإدارة فرق.`,
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const cfg = await getSiteConfig();
   return (
     <html
       lang="ar"
       dir="rtl"
       className={`${cairo.variable} ${tajawal.variable}`}
     >
-      <body className="bg-bg text-text font-body antialiased">{children}</body>
+      <body style={siteCssVars(cfg)} className="bg-bg text-text font-body antialiased">
+        {children}
+      </body>
     </html>
   );
 }

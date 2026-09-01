@@ -25,7 +25,11 @@ const NAV_LINKS = [
   { href: "/news", label: "الأخبار" },
 ] as const;
 
-export function MobileMenu() {
+export function MobileMenu({ leagueName, leagueNameEn, logoUrl }: {
+  leagueName: string;
+  leagueNameEn: string;
+  logoUrl: string;
+}) {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [authLoaded, setAuthLoaded] = useState(false);
@@ -81,15 +85,15 @@ export function MobileMenu() {
             {/* Header */}
             <div className="flex items-center gap-3 border-b border-line p-4">
               <Image
-                src="/images/league-logo.jpg"
+                src={logoUrl}
                 alt="شعار الدوري"
                 width={1280}
                 height={698}
                 className="h-9 w-9 rounded-full object-cover border border-accent/20 flex-shrink-0"
               />
               <div>
-                <div className="font-display text-sm font-black text-text">دوري نجوم الإسكندرية</div>
-                <div className="font-utility text-[8px] tracking-[0.18em] text-accent/60 uppercase">Alexandria Amateur League</div>
+                <div className="font-display text-sm font-black text-text">{leagueName}</div>
+                <div className="font-utility text-[8px] tracking-[0.18em] text-accent/60 uppercase">{leagueNameEn}</div>
               </div>
             </div>
 

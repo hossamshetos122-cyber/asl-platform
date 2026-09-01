@@ -994,6 +994,24 @@ async function main(): Promise<void> {
   }
 
   // ======================================================================
+  // Site configuration (single row, id = "default")
+  // ======================================================================
+
+  await prisma.siteConfig.upsert({
+    where: { id: "default" },
+    update: {},
+    create: {
+      id: "default",
+      leagueName: "دوري نجوم الإسكندرية للهواة",
+      leagueNameEn: "Alexandria Amateur League",
+      cityName: "الإسكندرية",
+      logoUrl: "/images/league-logo.jpg",
+      primaryColor: "#0A2647",
+      accentColor: "#FF6B35",
+    },
+  });
+
+  // ======================================================================
   // Summary
   // ======================================================================
 

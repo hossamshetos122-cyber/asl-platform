@@ -2,6 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------------------------------------------------------------------------
+   Runtime theme variables.
+   The admin Settings page persists the primary (`--bg`) and accent (`--accent`)
+   colors onto <body> via an inline style (see src/lib/data/site-config.ts).
+   Every other brand token is derived from those two in TypeScript and set as
+   BOTH a hex value (used by gradients below) and an RGB-channel triplet
+   (`--*-rgb`, used by Tailwind's rgb(var() / <alpha-value>) so opacity
+   modifiers like `bg-accent/10` keep working).
+   The :root values below are the ALEXANDRIA defaults used until a site config
+   is loaded — so the site always looks right even before the DB is read.
+   --------------------------------------------------------------------------- */
+:root {
+  --bg: #0a2647;
+  --bg-rgb: 10 38 71;
+  --accent: #ff6b35;
+  --accent-rgb: 255 107 53;
+
+  --bg-deep: #061730;
+  --bg-deep-rgb: 6 23 48;
+  --surface: #122c4f;
+  --surface-rgb: 18 44 79;
+  --surface-elevated: #16335c;
+  --surface-elevated-rgb: 22 51 92;
+  --surface-raised2: #1b3d6b;
+  --surface-raised2-rgb: 27 61 107;
+  --purple: #123b6b;
+  --purple-rgb: 18 59 107;
+  --purple-dim: #0d2b4f;
+  --purple-dim-rgb: 13 43 79;
+  --navy: #103e72;
+  --navy-rgb: 16 62 114;
+  --navy-light: #1b5aa6;
+  --navy-light-rgb: 27 90 166;
+
+  --accent-bright: #ff8a5c;
+  --accent-bright-rgb: 255 138 92;
+  --accent-dim: #e04e1a;
+  --accent-dim-rgb: 224 78 26;
+  --accent-faint: #ff6b35;
+  --accent-faint-rgb: 255 107 53;
+  --line-accent: #ff6b35;
+  --line-accent-rgb: 255 107 53;
+}
+
 @layer base {
   * {
     @apply border-line;
@@ -12,7 +56,7 @@
   }
 
   body {
-    background: #0a2647;
+    background: var(--bg, #0a2647);
   }
 
   :focus-visible {
@@ -122,10 +166,10 @@
 .hero-bg {
   background:
     radial-gradient(60% 82% at 88% 8%, rgba(46, 123, 255, 0.26), transparent 62%),
-    radial-gradient(48% 72% at 8% 88%, rgba(255, 107, 53, 0.16), transparent 58%),
-    radial-gradient(46% 66% at 35% 118%, rgba(16, 62, 114, 0.6), transparent 62%),
-    radial-gradient(32% 46% at 108% 106%, rgba(253, 115, 1, 0.13), transparent 55%),
-    linear-gradient(165deg, #0d223f 0%, #0a2647 48%, #061730 100%);
+    radial-gradient(48% 72% at 8% 88%, color-mix(in srgb, var(--accent, #ff6b35) 16%, transparent), transparent 58%),
+    radial-gradient(46% 66% at 35% 118%, color-mix(in srgb, var(--bg, #0a2647) 60%, #103e72 40%) 0.6, transparent 62%),
+    radial-gradient(32% 46% at 108% 106%, color-mix(in srgb, var(--accent, #fd7301) 13%, transparent), transparent 55%),
+    linear-gradient(165deg, color-mix(in srgb, var(--bg, #0d223f) 72%, #0d223f) 0%, var(--bg, #0a2647) 48%, var(--bg-deep, #061730) 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -138,7 +182,11 @@
 
 /* Broadcast-style text gradients */
 .text-gradient-hero {
-  background: linear-gradient(120deg, #ff8a5c 0%, #ff6b35 30%, #8fb5ff 62%, #ffffff 100%);
+  background: linear-gradient(120deg,
+    var(--accent-bright, #ff8a5c) 0%,
+    var(--accent, #ff6b35) 30%,
+    #8fb5ff 62%,
+    #ffffff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -269,6 +317,6 @@
 
 /* Gradient accent line */
 .gradient-accent {
-  background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.4), rgba(46, 123, 255, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, var(--line-accent, rgba(255, 107, 53, 0.4)), rgba(46, 123, 255, 0.4), transparent);
   height: 1px;
 }

@@ -1,19 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
+import { getSiteConfig } from "@/lib/data/site-config";
 import { MobileMenu } from "./mobile-menu";
 import { DesktopNavLinks } from "./desktop-nav-links";
 import { AuthNav } from "@/components/auth/auth-nav";
 import { NavbarShell } from "./navbar-shell";
 
-export function Navbar() {
+export async function Navbar() {
+  const cfg = await getSiteConfig();
+  const logoUrl = cfg.logoUrl || "/images/league-logo.jpg";
   return (
     <NavbarShell>
       <div className="page-container flex items-center justify-between h-14 sm:h-16">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
           <Image
-            src="/images/league-logo.jpg"
-            alt="شعار دوري نجوم الإسكندرية"
+            src={logoUrl}
+            alt={`شعار ${cfg.leagueName}`}
             width={1280}
             height={698}
             className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover border-2 border-accent/40 shadow-glow-sm"
@@ -21,10 +24,10 @@ export function Navbar() {
           />
           <div className="leading-tight hidden sm:block">
             <div className="font-display text-[13px] font-black text-text leading-tight group-hover:text-accent-bright transition-colors">
-              دوري نجوم الإسكندرية
+              {cfg.leagueName}
             </div>
             <div className="font-utility text-[8px] tracking-[0.18em] text-text-dim uppercase">
-              Alexandria Amateur League
+              {cfg.leagueNameEn}
             </div>
           </div>
         </Link>
@@ -44,7 +47,7 @@ export function Navbar() {
             </svg>
             إنشاء فريق
           </Link>
-          <MobileMenu />
+          <MobileMenu leagueName={cfg.leagueName} leagueNameEn={cfg.leagueNameEn} logoUrl={logoUrl} />
         </div>
       </div>
     </NavbarShell>

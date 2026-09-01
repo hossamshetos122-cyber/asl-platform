@@ -349,3 +349,39 @@ export const confirmSquadSchema = z.object({
   squadId: cuid,
   status: SquadStatus,
 });
+
+// ---------------------------------------------------------------------------
+// Site / brand configuration
+// ---------------------------------------------------------------------------
+
+const hexColor = z
+  .string()
+  .trim()
+  .regex(/^#[0-9a-fA-F]{6}$/, "اكتب لوناً صالحاً بصيغة HEX مثل #FF6B35");
+
+export const siteConfigSchema = z.object({
+  leagueName: z
+    .string()
+    .trim()
+    .min(2, "اسم الدوري مطلوب")
+    .max(120, "اسم الدوري طويل جداً"),
+  leagueNameEn: z
+    .string()
+    .trim()
+    .min(2, "الاسم الإنجليزي مطلوب")
+    .max(120, "الاسم الإنجليزي طويل جداً")
+    .optional()
+    .or(z.literal("")),
+  cityName: z
+    .string()
+    .trim()
+    .min(1, "اسم المدينة مطلوب")
+    .max(80, "اسم المدينة طويل جداً"),
+  logoUrl: z
+    .string()
+    .max(5_000_000, "حجم الصورة يتجاوز الحد الأقصى")
+    .min(1, "اختر شعاراً أو اتركه")
+    .default(""),
+  accentColor: hexColor,
+  bgColor: hexColor,
+});

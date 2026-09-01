@@ -26,6 +26,8 @@ qa-*.png
 .DS_Store
 *.pem
 npm-debug.log*
+server.log
+server-err.log
 
 # typescript
 *.tsbuildinfo
