@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import { createManagerAccount, unlinkManager } from "@/lib/actions/accounts";
+import { SearchInput } from "@/components/ui/search-input";
+import { normalizeArabic } from "@/lib/search";
 
 interface TeamOption {
   id: string;
@@ -125,10 +127,31 @@ function CreateAccountForm({ teams, onCreated }: { teams: TeamOption[]; onCreate
 
 export default function AccountsTable({ teams, managers }: { teams: TeamOption[]; managers: ManagerRow[] }) {
   const router = useRouter();
+  const [search, setSearch] = useState("");
+
+  const query = normalizeArabic(search.trim());
+  const filtered = query
+    ? managers.filter((m) => {
+        const name = normalizeArabic(m.fullName);
+        const email = normalizeArabic(m.email);
+        const teamsList = m.managedTeams.map((t) => normalizeArabic(t.name)).join(" ");
+        return name.includes(query) || email.includes(query) || teamsList.includes(query);
+      })
+    : managers;
+
+  const hasResults = filtered.length > 0;
 
   return (
     <>
       <CreateAccountForm teams={teams} onCreated={() => router.refresh()} />
+      <div className="max-w-md">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="ابحث باسم المدير أو البريد أو الفريق..."
+          label="بحث في حسابات المديرين"
+        />
+      </div>
       <div className="overflow-x-auto rounded-xl border border-line bg-surface">
         <table className="w-full text-right">
           <thead>
@@ -146,7 +169,15 @@ export default function AccountsTable({ teams, managers }: { teams: TeamOption[]
                 </td>
               </tr>
             )}
-            {managers.map((manager) => (
+            {search.trim() && !hasResults && managers.length > 0 && (
+              <tr>
+                <td colSpan={3} className="px-4 py-10 text-center">
+                  <p className="font-body text-sm font-bold text-text-dim">لا توجد نتائج مطابقة لبحثك.</p>
+                  <p className="mt-1 font-body text-[12px] text-text-dimmer">جرّب كتابة اسم أو بريد أو فريق آخر.</p>
+                </td>
+              </tr>
+            )}
+            {filtered.map((manager) => (
               <tr key={manager.id} className="transition-colors hover:bg-surface-elevated/50">
                 <td className="px-4 py-3">
                   <div className="font-body text-sm font-bold text-text">{manager.fullName}</div>

@@ -2,6 +2,8 @@
 
 import { useState, useTransition, Fragment } from "react";
 import { useFormStatus } from "react-dom";
+import { SearchInput } from "@/components/ui/search-input";
+import { normalizeArabic } from "@/lib/search";
 import {
   createTournament,
   updateTournament,
@@ -334,13 +336,39 @@ function TournamentDeleteRow({ tournamentId }: { tournamentId: string }) {
 
 export default function TournamentsTable({ tournaments, allTeams = [] }: { tournaments: TournamentRow[]; allTeams?: TeamOption[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  const query = normalizeArabic(search.trim());
+  const filtered = query
+    ? tournaments.filter((t) => {
+        const name = normalizeArabic(t.name);
+        const format = normalizeArabic(t.format);
+        const status = normalizeArabic(t.status);
+        return name.includes(query) || format.includes(query) || status.includes(query);
+      })
+    : tournaments;
+
+  const hasResults = filtered.length > 0;
 
   return (
     <>
       <InlineCreateForm />
+      <div className="max-w-md">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="ابحث باسم البطولة أو الصيغة..."
+          label="بحث في البطولات"
+        />
+      </div>
       {tournaments.length === 0 ? (
         <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
           <p className="font-body text-sm text-text-dim">لا توجد بطولات بعد. أضف بطولة للبدء.</p>
+        </div>
+      ) : !hasResults ? (
+        <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
+          <p className="font-body text-sm font-bold text-text-dim">لا توجد نتائج مطابقة لبحثك.</p>
+          <p className="mt-1 font-body text-[12px] text-text-dimmer">جرّب كتابة اسم أو صيغة أخرى.</p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-line bg-surface">
@@ -356,7 +384,7 @@ export default function TournamentsTable({ tournaments, allTeams = [] }: { tourn
               </tr>
             </thead>
             <tbody className="divide-y divide-line/50">
-              {tournaments.map((tournament) =>
+              {filtered.map((tournament) =>
                 editingId === tournament.id ? (
                   <EditRow key={tournament.id} tournament={tournament} onClose={() => setEditingId(null)} />
                 ) : (

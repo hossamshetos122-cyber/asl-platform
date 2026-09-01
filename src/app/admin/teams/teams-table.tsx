@@ -5,6 +5,8 @@ import { useFormStatus } from "react-dom";
 import { createTeam, updateTeam, deleteTeam } from "@/lib/actions/teams";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { SearchInput } from "@/components/ui/search-input";
+import { normalizeArabic } from "@/lib/search";
 
 interface TeamRow {
   id: string;
@@ -199,13 +201,39 @@ function EditRow({ team, onClose }: { team: TeamRow; onClose: () => void }) {
 
 export default function TeamsTable({ teams }: { teams: TeamRow[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  const query = normalizeArabic(search.trim());
+  const filtered = query
+    ? teams.filter((team) => {
+        const name = normalizeArabic(team.name);
+        const short = normalizeArabic(team.shortName);
+        const city = normalizeArabic(team.city || "");
+        return name.includes(query) || short.includes(query) || city.includes(query);
+      })
+    : teams;
+
+  const hasResults = filtered.length > 0;
 
   return (
     <>
+      <div className="max-w-md">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="ابحث باسم الفريق أو المدينة..."
+          label="بحث في الفرق"
+        />
+      </div>
       <InlineCreateForm />
       {teams.length === 0 ? (
         <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
           <p className="font-body text-sm text-text-dim">لا توجد فرق بعد. أضف فريق للبدء.</p>
+        </div>
+      ) : !hasResults ? (
+        <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
+          <p className="font-body text-sm font-bold text-text-dim">لا توجد نتائج مطابقة لبحثك.</p>
+          <p className="mt-1 font-body text-[12px] text-text-dimmer">جرّب كتابة اسم أو مدينة أخرى.</p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-line bg-surface">
@@ -220,7 +248,7 @@ export default function TeamsTable({ teams }: { teams: TeamRow[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-line/50">
-              {teams.map((team) =>
+              {filtered.map((team) =>
                 editingId === team.id ? (
                   <EditRow key={team.id} team={team} onClose={() => setEditingId(null)} />
                 ) : (

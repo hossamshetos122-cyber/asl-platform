@@ -6,6 +6,8 @@ import Link from "next/link";
 import { createMatch, setMatchResult, setMatchResultWithGoals, updateMatchSchedule, deleteMatch } from "@/lib/actions/matches";
 import { formatMatchDateTime } from "@/lib/dates";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { SearchInput } from "@/components/ui/search-input";
+import { normalizeArabic } from "@/lib/search";
 
 export interface GoalPlayerOption {
   id: string;
@@ -723,7 +725,28 @@ export default function MatchesTable({ matches, teams, tournaments, referees = [
 }) {
   const [editingSchedule, setEditingSchedule] = useState<string | null>(null);
   const [goalRowId, setGoalRowId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
   const overdueCount = matches.filter(isOverdueMatch).length;
+
+  const query = normalizeArabic(search.trim());
+  const filtered = query
+    ? matches.filter((match) => {
+        const home = normalizeArabic(match.homeTeam.name);
+        const away = normalizeArabic(match.awayTeam.name);
+        const tournament = normalizeArabic(match.tournament.name);
+        const venue = normalizeArabic(match.venue || "");
+        const round = normalizeArabic(match.round || "");
+        return (
+          home.includes(query) ||
+          away.includes(query) ||
+          tournament.includes(query) ||
+          venue.includes(query) ||
+          round.includes(query)
+        );
+      })
+    : matches;
+
+  const hasResults = filtered.length > 0;
 
   return (
     <>
@@ -739,9 +762,22 @@ export default function MatchesTable({ matches, teams, tournaments, referees = [
           </div>
         </div>
       )}
+      <div className="max-w-md">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="ابحث بفريق أو بطولة أو ملعب..."
+          label="بحث في المباريات"
+        />
+      </div>
       {matches.length === 0 ? (
         <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
           <p className="font-body text-sm text-text-dim">لا توجد مباريات بعد. أضف مباراة للبدء.</p>
+        </div>
+      ) : !hasResults ? (
+        <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
+          <p className="font-body text-sm font-bold text-text-dim">لا توجد نتائج مطابقة لبحثك.</p>
+          <p className="mt-1 font-body text-[12px] text-text-dimmer">جرّب كتابة اسم فريق أو بطولة أو ملعب آخر.</p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-line bg-surface">
@@ -758,7 +794,7 @@ export default function MatchesTable({ matches, teams, tournaments, referees = [
               </tr>
             </thead>
             <tbody className="divide-y divide-line/50">
-              {matches.map((match) => (
+              {filtered.map((match) => (
                 <MatchRowItem
                   key={match.id}
                   match={match}

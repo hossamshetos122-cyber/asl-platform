@@ -5,6 +5,8 @@ import { useFormStatus } from "react-dom";
 import { createPlayer, deletePlayer, updatePlayer } from "@/lib/actions/players";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { SearchInput } from "@/components/ui/search-input";
+import { normalizeArabic } from "@/lib/search";
 
 interface PlayerRow {
   id: string;
@@ -225,13 +227,40 @@ export default function PlayersTable({
   teams: TeamOption[];
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  const query = normalizeArabic(search.trim());
+  const filtered = query
+    ? players.filter((p) => {
+        const name = normalizeArabic(p.user.fullName);
+        const jersey = p.jerseyNumber != null ? String(p.jerseyNumber) : "";
+        const position = normalizeArabic(p.position);
+        const teamsList = p.memberships.map((m) => normalizeArabic(m.team.name)).join(" ");
+        return name.includes(query) || jersey.includes(query) || position.includes(query) || teamsList.includes(query);
+      })
+    : players;
+
+  const hasResults = filtered.length > 0;
 
   return (
     <>
+      <div className="max-w-md">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="ابحث بالاسم أو المركز أو الفريق أو رقم القميص..."
+          label="بحث في اللاعبين"
+        />
+      </div>
       <InlineCreateForm teams={teams} />
       {players.length === 0 ? (
         <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
           <p className="font-body text-sm text-text-dim">لا يوجد لاعبون بعد. أضف لاعب للبدء.</p>
+        </div>
+      ) : !hasResults ? (
+        <div className="rounded-xl border border-line bg-surface px-6 py-10 text-center">
+          <p className="font-body text-sm font-bold text-text-dim">لا توجد نتائج مطابقة لبحثك.</p>
+          <p className="mt-1 font-body text-[12px] text-text-dimmer">جرّب كتابة اسم أو مركز أو فريق أو رقم قميص آخر.</p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-line bg-surface">
@@ -247,7 +276,7 @@ export default function PlayersTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-line/50">
-              {players.map((player) =>
+              {filtered.map((player) =>
                 editingId === player.id ? (
                   <InlineEditForm key={player.id} player={player} onClose={() => setEditingId(null)} />
                 ) : (
