@@ -27,6 +27,8 @@ export async function saveTeamOfTheWeek(input: {
   weekStart?: Date | string | null;
   weekEnd?: Date | string | null;
   formation: string;
+  managerName?: string | null;
+  managerPhotoUrl?: string | null;
   slots: { playerId: string; positionSlot: string; captain: boolean }[];
   ratings: { playerId: string; rating: number | null }[];
 }): Promise<TeamOfTheWeekActionResult> {
@@ -94,6 +96,8 @@ export async function saveTeamOfTheWeek(input: {
           weekStart: parseDate(input.weekStart),
           weekEnd: parseDate(input.weekEnd),
           formation: formation.key,
+          managerName: input.managerName?.trim() || null,
+          managerPhotoUrl: input.managerPhotoUrl || null,
           tournamentId: input.tournamentId,
           createdById: user.id,
           slots: {

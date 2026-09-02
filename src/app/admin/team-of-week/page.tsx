@@ -88,6 +88,8 @@ export default async function AdminTeamOfWeekPage() {
                 weekEnd: latestWeek.weekEnd,
                 formation: latestWeek.formation,
                 tournamentId: latestWeek.tournamentId,
+                managerName: latestWeek.managerName,
+                managerPhotoUrl: latestWeek.managerPhotoUrl,
                 slots: latestWeek.slots.map((s) => ({
                   playerId: s.playerId,
                   positionSlot: s.positionSlot,

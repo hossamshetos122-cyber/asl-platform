@@ -206,14 +206,16 @@ model TournamentTeam {
 }
 
 model TeamOfTheWeek {
-  id           String        @id @default(cuid())
-  weekLabel    String
-  weekStart    DateTime?
-  weekEnd      DateTime?
-  formation    String // "4-4-2" | "4-3-3" | "3-5-2" | ...
-  tournamentId String
-  createdById  String
-  createdAt    DateTime      @default(now())
+  id              String        @id @default(cuid())
+  weekLabel       String
+  weekStart       DateTime?
+  weekEnd         DateTime?
+  formation       String // "4-4-2" | "4-3-3" | "3-5-2" | ...
+  managerName     String?
+  managerPhotoUrl String?
+  tournamentId    String
+  createdById     String
+  createdAt       DateTime      @default(now())
 
   tournament Tournament       @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
   createdBy  User             @relation("TOTWCreator", fields: [createdById], references: [id], onDelete: Restrict)

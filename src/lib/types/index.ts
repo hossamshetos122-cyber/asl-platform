@@ -129,6 +129,8 @@ export interface TeamOfTheWeekVM {
   weekStart: Date | null;
   weekEnd: Date | null;
   tournamentName: string;
+  managerName: string | null;
+  managerPhotoUrl: string | null;
   slots: TeamOfTheWeekSlotVM[];
 }
 

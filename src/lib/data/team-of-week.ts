@@ -100,6 +100,8 @@ export async function getTeamOfTheWeek(): Promise<Result<TeamOfTheWeekVM>> {
         weekStart: week.weekStart,
         weekEnd: week.weekEnd,
         tournamentName: week.tournament.name,
+        managerName: week.managerName,
+        managerPhotoUrl: week.managerPhotoUrl,
         slots,
       },
     };

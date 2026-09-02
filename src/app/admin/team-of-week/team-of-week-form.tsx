@@ -11,6 +11,7 @@ import { DEFAULT_FORMATION, FORMATIONS, getFormationSlots } from "@/lib/formatio
 import { LINEUP_SIZE } from "@/lib/team-of-week";
 import { TOTWCard } from "@/components/ui/totw-card";
 import { ImageDisplay } from "@/components/ui/image-display";
+import { ImageUpload } from "@/components/ui/image-upload";
 import type { TOTWCandidateVM } from "@/lib/types";
 
 interface SlotState {
@@ -26,6 +27,8 @@ interface LatestWeekProps {
   weekEnd: Date | null;
   formation: string;
   tournamentId: string;
+  managerName: string | null;
+  managerPhotoUrl: string | null;
   slots: { playerId: string; positionSlot: string; captain: boolean }[];
 }
 
@@ -117,6 +120,8 @@ export function TeamOfWeekForm({
   const [weekStart, setWeekStart] = useState(toDateInput(initialRange.start));
   const [weekEnd, setWeekEnd] = useState(toDateInput(initialRange.end));
   const [formation, setFormation] = useState(latestWeek?.formation ?? DEFAULT_FORMATION);
+  const [managerName, setManagerName] = useState(latestWeek?.managerName ?? "");
+  const [managerPhotoUrl, setManagerPhotoUrl] = useState<string | null>(latestWeek?.managerPhotoUrl ?? null);
   const [slots, setSlots] = useState<Record<string, SlotState>>(() =>
     buildInitialSlots(latestWeek?.formation ?? DEFAULT_FORMATION, latestWeek, candidates)
   );
@@ -245,6 +250,8 @@ export function TeamOfWeekForm({
         weekStart: weekStart || null,
         weekEnd: weekEnd || null,
         formation,
+        managerName: managerName.trim() || null,
+        managerPhotoUrl,
         slots: formationSlotDefs.map((def) => ({
           playerId: slotAt(def.key).playerId!,
           positionSlot: def.key,
@@ -350,6 +357,22 @@ export function TeamOfWeekForm({
                 className="rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent"
               />
             </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4 border-b border-line p-5 lg:flex-row lg:items-end">
+          <div className="w-full lg:flex-1">
+            <label className="mb-1.5 block font-utility text-[9px] tracking-[0.15em] text-text-dimmer uppercase">المدرب (اختياري)</label>
+            <input
+              type="text"
+              value={managerName}
+              onChange={(e) => setManagerName(e.target.value)}
+              placeholder="اسم المدرب"
+              className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent"
+            />
+          </div>
+          <div className="w-full lg:w-56">
+            <ImageUpload name="managerPhotoUrl" purpose="general" label="صورة المدرب (اختياري)" value={managerPhotoUrl} onChange={setManagerPhotoUrl} />
           </div>
         </div>
 
