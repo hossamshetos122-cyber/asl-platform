@@ -507,7 +507,7 @@ useEffect(() => {
                               if (t === "home") setHomeSelPen(next); else setAwaySelPen(next);
                             }}
                             disabled={saving}
-                            className={`min-h-11 rounded-md px-2.5 font-body text-[10px] font-bold transition-colors ${goalPens[idx] ? "bg-sky-500 text-white" : "border border-line text-text-dim hover:border-sky-400"}`}>
+                            className={`min-h-11 rounded-md px-2.5 font-body text-[10px] font-bold transition-colors ${goalPens[idx] ? "bg-accent text-black" : "border border-line text-text-dim hover:border-accent"}`}>
                             جزاء
                           </button>
                           <button type="button"
