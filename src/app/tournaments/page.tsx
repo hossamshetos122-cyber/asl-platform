@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getTournaments } from "@/lib/data/tournaments";
-import { SectionHeader } from "@/components/ui/section-header";
+import { PageHero } from "@/components/ui/page-hero";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { TournamentsBrowser } from "./tournaments-browser";
@@ -23,7 +23,7 @@ export default async function TournamentsPage() {
     <>
       <Navbar />
       <main className="page-container page-padding">
-        <SectionHeader title="البطولات" tag="COMPETITIONS" bordered={false} />
+        <PageHero title="البطولات" tag="COMPETITIONS" description="استعرض البطولات والمسابقات التي ينظمها دوري نجوم الإسكندرية للهواة." />
         <Suspense fallback={<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-36 animate-pulse rounded-xl border border-line bg-surface" />

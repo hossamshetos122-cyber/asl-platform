@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getPlayersList } from "@/lib/data/players";
-import { SectionHeader } from "@/components/ui/section-header";
+import { PageHero } from "@/components/ui/page-hero";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { PlayersBrowser } from "./players-browser";
@@ -28,7 +28,7 @@ export default async function PlayersPage() {
     <>
       <Navbar />
       <main className="page-container page-padding">
-        <SectionHeader title="اللاعبون" tag="PLAYERS" bordered={false} />
+        <PageHero title="اللاعبون" tag="PLAYERS" description="استعرض لاعبي فرق دوري نجوم الإسكندرية للهواة." />
         <Suspense fallback={<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="h-56 animate-pulse rounded-2xl border border-line bg-surface" />

@@ -3,6 +3,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getTopAssisters, getTopScorers } from "@/lib/stats";
 import { SectionHeader } from "@/components/ui/section-header";
+import { PageHero } from "@/components/ui/page-hero";
 import { ErrorState } from "@/components/ui/error-state";
 import { ScorerPodium } from "@/components/top-scorers/scorer-podium";
 
@@ -27,7 +28,7 @@ export default async function TopScorersPage() {
     <>
       <Navbar />
       <main className="page-container page-padding">
-        <SectionHeader title="ترتيب الهدافين" tag="TOP SCORERS" bordered={false} />
+        <PageHero title="ترتيب الهدافين" tag="TOP SCORERS" description="أفضل الهدافين وصنّاع الأهداف في الدوري هذا الموسم." />
         <Suspense fallback={<div className="h-48 animate-pulse rounded-xl border border-line bg-surface" />}>
           <FullTopScorers />
         </Suspense>

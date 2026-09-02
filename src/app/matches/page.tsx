@@ -3,7 +3,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { prisma } from "@/lib/prisma";
 import { getMatches } from "@/lib/data/matches";
-import { SectionHeader } from "@/components/ui/section-header";
+import { PageHero } from "@/components/ui/page-hero";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { ImageDisplay } from "@/components/ui/image-display";
@@ -108,7 +108,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
     <>
       <Navbar />
       <main className="page-container page-padding">
-        <SectionHeader title="المباريات" tag="MATCHES" bordered={false} />
+        <PageHero title="المباريات" tag="MATCHES" description="جميع مباريات الدوري — الجولات، النتائج، والمواعيد." />
         <div className="mb-6">
           <MatchFilters teams={teams} />
         </div>

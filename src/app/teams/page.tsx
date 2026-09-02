@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getTeams } from "@/lib/data/teams";
-import { SectionHeader } from "@/components/ui/section-header";
+import { PageHero } from "@/components/ui/page-hero";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { TeamsBrowser } from "./teams-browser";
@@ -23,7 +23,7 @@ export default async function TeamsPage() {
     <>
       <Navbar />
       <main className="page-container page-padding">
-        <SectionHeader title="الفرق" tag="TEAMS" bordered={false} />
+        <PageHero title="الفرق" tag="TEAMS" description="تصفّح فرق الدوري وتعرف على تشكيلات كل نادٍ." />
         <Suspense fallback={<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="h-24 animate-pulse rounded-xl border border-line bg-surface" />
