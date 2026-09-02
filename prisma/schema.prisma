@@ -408,3 +408,11 @@ model SiteConfig {
   accentColor   String
   updatedAt     DateTime @default(now())
 }
+
+// Distributed counter store for the shared rate limiter. Lives in the same
+// Postgres as the app so every serverless instance reads one counter.
+model RateLimitCounter {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+}
