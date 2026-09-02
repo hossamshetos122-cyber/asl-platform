@@ -37,11 +37,11 @@ const TIER_STYLES: Record<RatingTierKey, TierStyle> = {
     glow: "shadow-[0_0_16px_rgba(46,214,245,0.28)]",
   },
   gold: {
-    border: "border-[#F5C518]/70",
-    strip: "from-[#FFD166] via-[#F5C518] to-[#FFD166]",
-    badge: "bg-[#F5C518] text-[#1d1400]",
-    ring: "ring-[#F5C518]/60",
-    glow: "shadow-[0_0_16px_rgba(245,197,24,0.25)]",
+    border: "border-[#E8B23A]/70",
+    strip: "from-[#F7D488] via-[#E8B23A] to-[#F7D488]",
+    badge: "bg-[#E8B23A] text-[#141006]",
+    ring: "ring-[#E8B23A]/60",
+    glow: "shadow-[0_0_16px_rgba(232,178,58,0.25)]",
   },
   silver: {
     border: "border-[#c7d0e0]/60",
