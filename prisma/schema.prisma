@@ -98,6 +98,7 @@ model Team {
   awayMatches  Match[]         @relation("AwayTeam")
   tournamentEntries TournamentTeam[]
   matchSquads  MatchSquad[]
+  matchEvents  MatchEvent[]
 
   @@index([name])
   @@index([ownerId])
@@ -271,6 +272,7 @@ model Match {
   award      MatchAward?
   squads     MatchSquad[]
 
+  @@unique([tournamentId, homeTeamId, awayTeamId])
   @@index([status, kickoffAt])
   @@index([tournamentId])
 }
@@ -286,9 +288,11 @@ model MatchEvent {
 
   match  Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
   player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Restrict)
 
   @@index([matchId])
   @@index([playerId, type])
+  @@index([teamId])
 }
 
 model MatchAward {

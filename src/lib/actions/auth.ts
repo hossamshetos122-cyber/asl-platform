@@ -11,7 +11,7 @@ import {
   cleanupExpiredSessions,
 } from "@/lib/auth";
 import { registerSchema, loginSchema } from "@/lib/validation";
-import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit";
+import { checkRateLimitDistributed, resetRateLimitDistributed } from "@/lib/rate-limit";
 import { auditLog } from "@/lib/audit";
 
 const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME || "session";
@@ -64,7 +64,7 @@ export async function registerAction(
 
   // Rate limit registration to prevent spam
   const rateLimitKey = `register:${email.toLowerCase()}`;
-  const rateCheck = checkRateLimit({
+  const rateCheck = await checkRateLimitDistributed({
     key: rateLimitKey,
     maxAttempts: REGISTER_MAX_ATTEMPTS,
     windowMs: REGISTER_WINDOW_MS,
@@ -135,7 +135,7 @@ export async function loginAction(
 
   // Rate limit by email (normalized) to prevent brute-force
   const rateLimitKey = `login:${email.toLowerCase()}`;
-  const rateCheck = checkRateLimit({
+  const rateCheck = await checkRateLimitDistributed({
     key: rateLimitKey,
     maxAttempts: LOGIN_MAX_ATTEMPTS,
     windowMs: LOGIN_WINDOW_MS,
@@ -161,7 +161,7 @@ export async function loginAction(
     }
 
     // Successful login — reset rate limit and cleanup expired sessions
-    resetRateLimit(rateLimitKey);
+    await resetRateLimitDistributed(rateLimitKey);
     cleanupExpiredSessions().catch(() => {});
 
     // Revoke all existing sessions for this user before creating a new one

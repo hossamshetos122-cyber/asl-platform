@@ -132,19 +132,28 @@ export async function createMatch(formData: FormData) {
     if (!referee) throw new Error("الحكم غير موجود");
   }
 
-  const match = await prisma.match.create({
-    data: {
-      tournamentId,
-      homeTeamId,
-      awayTeamId,
-      refereeId: refereeId ?? null,
-      kickoffAt: new Date(kickoffAt),
-      venue,
-      venueImageUrl: venueImageUrl ?? null,
-      round,
-      status,
-    },
-  });
+  const match = await (async () => {
+    try {
+      return await prisma.match.create({
+        data: {
+          tournamentId,
+          homeTeamId,
+          awayTeamId,
+          refereeId: refereeId ?? null,
+          kickoffAt: new Date(kickoffAt),
+          venue,
+          venueImageUrl: venueImageUrl ?? null,
+          round,
+          status,
+        },
+      });
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "code" in error && error.code === "P2002") {
+        throw new Error("المباراة بين هذين الفريقين مسجلة مسبقًا في هذه البطولة");
+      }
+      throw error;
+    }
+  })();
 
   await auditLog({
     actorId: user.id,

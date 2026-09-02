@@ -1,13 +1,12 @@
 /**
- * Simple in-memory rate limiter.
+ * Rate limiter with dual backends.
  *
- * Works per-process. Adequate for a single-instance Next.js deployment
- * (Vercel serverless, single Node process). Not distributed — each
- * serverless cold start gets a fresh map, which is acceptable because
- * brute-force attacks against a single instance are still bounded.
- *
- * For multi-instance deployments, swap the Map for Redis or a shared
- * store.
+ * 1. In-memory (per-process) — used when no shared store is configured, and as
+ *    the unit-testable core.
+ * 2. Upstash Redis (shared across instances) — used automatically when
+ *    UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are set, so every
+ *    serverless instance shares one counter. Falls back to in-memory if the
+ *    shared store is unreachable (fail-open, still bounded per instance).
  */
 
 interface RateLimitEntry {
@@ -30,6 +29,26 @@ function cleanup(): void {
       store.delete(key);
     }
   }
+}
+
+function upstashConfigured(): boolean {
+  return Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+}
+
+async function upstashExec(commands: unknown[][]): Promise<number[]> {
+  const url = process.env.UPSTASH_REDIS_REST_URL!;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN!;
+  const res = await fetch(`${url}/pipeline`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(commands),
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    throw new Error(`upstash rate-limit error: ${res.status}`);
+  }
+  const data = (await res.json()) as { result?: unknown }[];
+  return data.map((item) => Number(item.result ?? 0));
 }
 
 /**
@@ -64,4 +83,49 @@ export function checkRateLimit(params: {
 /** Reset rate limit for a key (e.g. after successful login). */
 export function resetRateLimit(key: string): void {
   store.delete(key);
+}
+
+/**
+ * Distributed variant: shared counter when Upstash Redis is configured,
+ * otherwise identical to the in-memory `checkRateLimit`.
+ */
+export async function checkRateLimitDistributed(params: {
+  key: string;
+  maxAttempts: number;
+  windowMs: number;
+}): Promise<{ ok: true } | { ok: false; retryAfterMs: number }> {
+  if (!upstashConfigured()) {
+    return checkRateLimit(params);
+  }
+
+  const { key, maxAttempts, windowMs } = params;
+  const seconds = Math.max(1, Math.ceil(windowMs / 1000));
+
+  try {
+    const [count] = await upstashExec([["INCR", key]]);
+    if (count === 1) {
+      await upstashExec([["EXPIRE", key, seconds]]);
+    }
+    if ((count ?? 0) > maxAttempts) {
+      const [ttlSeconds] = await upstashExec([["PTTL", key]]);
+      const retryAfterMs = (ttlSeconds ?? 0) > 0 ? (ttlSeconds ?? 0) * 1000 : windowMs;
+      return { ok: false, retryAfterMs };
+    }
+    return { ok: true };
+  } catch {
+    return checkRateLimit(params);
+  }
+}
+
+/** Distributed reset; falls back to in-memory when no shared store is configured. */
+export async function resetRateLimitDistributed(key: string): Promise<void> {
+  if (!upstashConfigured()) {
+    resetRateLimit(key);
+    return;
+  }
+  try {
+    await upstashExec([["DEL", key]]);
+  } catch {
+    resetRateLimit(key);
+  }
 }

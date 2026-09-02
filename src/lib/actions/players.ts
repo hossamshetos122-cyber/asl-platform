@@ -7,7 +7,7 @@ import { getTeamSquadSize } from "@/lib/data/teams";
 import { sendMail } from "@/lib/mail";
 import { auditLog } from "@/lib/audit";
 import { notifyUser, notifyTeamContacts } from "@/lib/notify";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimitDistributed } from "@/lib/rate-limit";
 import { getSiteConfig } from "@/lib/data/site-config";
 import {
   createPlayerSchema,
@@ -537,7 +537,7 @@ export async function claimPlayerAccount(
   const { playerId, email: rawEmail, phone } = parsed.data;
   const email = rawEmail.trim().toLowerCase();
 
-  const rateCheck = checkRateLimit({
+  const rateCheck = await checkRateLimitDistributed({
     key: `claim:${playerId}`,
     maxAttempts: 5,
     windowMs: 15 * 60 * 1000,
@@ -628,8 +628,8 @@ export async function requestTeamJoin(teamId: string): Promise<PlayerActionResul
     });
     if (!team) return { success: false, error: "الفريق غير موجود" };
 
-    const rateCheck = checkRateLimit({
-      key: `teamjoin:${user.id}:${teamId}`,
+const rateCheck = await checkRateLimitDistributed({
+    key: `teamjoin:${user.id}:${teamId}`,
       maxAttempts: 3,
       windowMs: 15 * 60 * 1000,
     });

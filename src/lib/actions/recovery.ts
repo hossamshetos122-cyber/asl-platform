@@ -8,7 +8,7 @@ import {
   hashPassword,
 } from "@/lib/auth";
 import { requestPasswordResetSchema, resetPasswordSchema } from "@/lib/validation";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimitDistributed } from "@/lib/rate-limit";
 import { sendMail } from "@/lib/mail";
 import { auditLog } from "@/lib/audit";
 import { getSiteConfig } from "@/lib/data/site-config";
@@ -44,7 +44,7 @@ export async function requestPasswordResetAction(
   const email = parsed.data.email;
 
   // Rate limit to prevent email flooding abuse.
-  const rateCheck = checkRateLimit({
+  const rateCheck = await checkRateLimitDistributed({
     key: `reset:${email.toLowerCase()}`,
     maxAttempts: REQUEST_MAX_ATTEMPTS,
     windowMs: REQUEST_WINDOW_MS,
