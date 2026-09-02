@@ -69,10 +69,22 @@ function RegisterFallback() {
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="relative min-h-screen overflow-hidden bg-bg flex items-center justify-center px-4">
+      {/* Brand stage */}
+      <div className="hero-glow-orb -top-40 right-[-120px] h-96 w-96 bg-accent/10" />
+      <div className="hero-glow-orb bottom-[-160px] left-[-120px] h-96 w-96 bg-accent/[0.07]" />
+
+      <Link
+        href="/"
+        className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 font-body text-sm font-bold text-text-dim transition-colors hover:text-accent"
+      >
+        <svg className="h-4 w-4" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 6h8M7 3l3 3-3 3" /></svg>
+        الرئيسية
+      </Link>
+
+      <div className="relative w-full max-w-md">
         <div className="mb-6 flex flex-col items-center">
-          <Image src="/images/league-logo.jpg" alt="شعار الدوري" width={1280} height={698} className="relative h-16 w-16 rounded-full object-cover border border-accent/20 shadow-glow mb-4" />
+          <Image src="/images/league-logo.jpg" alt="شعار الدوري" width={1280} height={698} className="relative h-16 w-16 rounded-full object-cover border-2 border-accent/30 shadow-glow mb-4" />
           <h1 className="font-display text-2xl sm:text-3xl font-black text-text">إنشاء حساب جديد</h1>
           <p className="mt-1.5 font-body text-sm text-text-dim">أنشئ حسابك للبدء.</p>
         </div>
