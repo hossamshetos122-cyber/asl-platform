@@ -14,19 +14,19 @@
    is loaded — so the site always looks right even before the DB is read.
    --------------------------------------------------------------------------- */
 :root {
-  --bg: #0a2647;
-  --bg-rgb: 10 38 71;
-  --accent: #ff6b35;
-  --accent-rgb: 255 107 53;
+  --bg: #0a1f3c;
+  --bg-rgb: 10 31 60;
+  --accent: #ffd400;
+  --accent-rgb: 255 212 0;
 
-  --bg-deep: #061730;
-  --bg-deep-rgb: 6 23 48;
-  --surface: #122c4f;
-  --surface-rgb: 18 44 79;
-  --surface-elevated: #16335c;
-  --surface-elevated-rgb: 22 51 92;
-  --surface-raised2: #1b3d6b;
-  --surface-raised2-rgb: 27 61 107;
+  --bg-deep: #07152b;
+  --bg-deep-rgb: 7 21 43;
+  --surface: #122b4e;
+  --surface-rgb: 18 43 78;
+  --surface-elevated: #17335c;
+  --surface-elevated-rgb: 23 51 92;
+  --surface-raised2: #1d3d6d;
+  --surface-raised2-rgb: 29 61 109;
   --purple: #123b6b;
   --purple-rgb: 18 59 107;
   --purple-dim: #0d2b4f;
@@ -36,14 +36,14 @@
   --navy-light: #1b5aa6;
   --navy-light-rgb: 27 90 166;
 
-  --accent-bright: #ff8a5c;
-  --accent-bright-rgb: 255 138 92;
-  --accent-dim: #e04e1a;
-  --accent-dim-rgb: 224 78 26;
-  --accent-faint: #ff6b35;
-  --accent-faint-rgb: 255 107 53;
-  --line-accent: #ff6b35;
-  --line-accent-rgb: 255 107 53;
+  --accent-bright: #ffe94d;
+  --accent-bright-rgb: 255 233 77;
+  --accent-dim: #d9b400;
+  --accent-dim-rgb: 217 180 0;
+  --accent-faint: #ffd400;
+  --accent-faint-rgb: 255 212 0;
+  --line-accent: #ffd400;
+  --line-accent-rgb: 255 212 0;
 }
 
 @layer base {
@@ -82,7 +82,7 @@
   }
 
   .page-padding {
-    @apply pt-10 sm:pt-12 lg:pt-14 pb-8 sm:pb-10 lg:pb-12;
+    @apply pt-12 sm:pt-16 lg:pt-20 pb-10 sm:pb-14 lg:pb-16;
   }
 
   .section-title {
@@ -122,7 +122,7 @@
   }
 
 .btn-primary {
-  @apply rounded-lg bg-accent px-6 py-3 font-body text-sm font-black text-white transition-all hover:bg-accent-bright hover:shadow-glow active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply rounded-lg bg-accent px-6 py-3 font-body text-sm font-black text-[#0b1220] transition-all hover:bg-accent-bright hover:shadow-glow active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
   .btn-secondary {
@@ -172,7 +172,7 @@
   }
 
   .editorial-section {
-    @apply py-8 sm:py-10;
+    @apply py-10 sm:py-12;
   }
 }
 
@@ -180,11 +180,11 @@
 .hero-bg {
   background:
     radial-gradient(60% 82% at 88% 8%, rgba(46, 123, 255, 0.26), transparent 62%),
-    radial-gradient(48% 72% at 8% 88%, color-mix(in srgb, var(--accent, #ff6b35) 16%, transparent), transparent 58%),
-    radial-gradient(46% 66% at 35% 118%, color-mix(in srgb, var(--bg, #0a2647) 60%, #103e72 40%) 0.6, transparent 62%),
-    radial-gradient(32% 46% at 108% 106%, color-mix(in srgb, var(--accent, #fd7301) 13%, transparent), transparent 55%),
-    linear-gradient(165deg, color-mix(in srgb, var(--bg, #0d223f) 72%, #0d223f) 0%, var(--bg, #0a2647) 48%, var(--bg-deep, #061730) 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    radial-gradient(48% 72% at 8% 88%, color-mix(in srgb, var(--accent, #ffd400) 16%, transparent), transparent 58%),
+    radial-gradient(46% 66% at 35% 118%, color-mix(in srgb, var(--bg, #0a1f3c) 60%, #103e72 40%) 0.6, transparent 62%),
+    radial-gradient(32% 46% at 108% 106%, color-mix(in srgb, var(--accent, #ffd400) 13%, transparent), transparent 55%),
+    linear-gradient(165deg, color-mix(in srgb, var(--bg, #0d223f) 72%, #0d223f) 0%, var(--bg, #0a1f3c) 48%, var(--bg-deep, #07152b) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hero-glow-orb {
@@ -197,9 +197,9 @@
 /* Broadcast-style text gradients */
 .text-gradient-hero {
   background: linear-gradient(120deg,
-    var(--accent-bright, #ff8a5c) 0%,
-    var(--accent, #ff6b35) 30%,
-    #8fb5ff 62%,
+    var(--accent-bright, #ffe94d) 0%,
+    var(--accent, #ffd400) 38%,
+    #2e7bff 74%,
     #ffffff 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -331,6 +331,6 @@
 
 /* Gradient accent line */
 .gradient-accent {
-  background: linear-gradient(90deg, transparent, var(--line-accent, rgba(255, 107, 53, 0.4)), rgba(46, 123, 255, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, var(--line-accent, rgba(255, 212, 0, 0.4)), rgba(46, 123, 255, 0.4), transparent);
   height: 1px;
 }

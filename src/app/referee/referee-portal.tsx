@@ -71,7 +71,7 @@ function ScoreEditor({ match, players }: { match: RefereeMatchVM; players: Recor
         <label className="mb-1 block font-utility text-[8px] tracking-[0.14em] text-text-dimmer uppercase">الدقيقة</label>
         <input name="minute" type="number" min={0} max={120} defaultValue={match.minute ?? ""} placeholder="-" className="w-16 rounded-lg border border-line bg-bg px-2.5 py-2 font-num text-[12px] font-bold text-text outline-none focus:border-accent" dir="ltr" />
       </div>
-      <button type="submit" className="rounded-lg bg-accent px-4 py-2 font-body text-[12px] font-bold text-white transition-colors hover:bg-accent-bright">
+      <button type="submit" className="rounded-lg bg-accent px-4 py-2 font-body text-[12px] font-bold text-[#0b1220] transition-colors hover:bg-accent-bright">
         حفظ النتيجة
       </button>
       {match.minute !== null && match.status === "LIVE" && (

@@ -81,7 +81,7 @@ async function NewsGrid({ page }: { page: number }) {
                   key={p}
                   href={`/news?page=${p}`}
                   className={`h-9 w-9 rounded-lg border font-num text-[12px] font-bold transition-colors flex items-center justify-center ${
-                    active ? "border-accent bg-accent text-white" : "border-line text-text-dim hover:border-accent/40 hover:text-accent"
+                    active ? "border-accent bg-accent text-[#0b1220]" : "border-line text-text-dim hover:border-accent/40 hover:text-accent"
                   }`}
                 >
                   {p}

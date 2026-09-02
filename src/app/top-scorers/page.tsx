@@ -1,115 +1,25 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { getTopAssisters, getTopScorers } from "@/lib/stats";
 import { SectionHeader } from "@/components/ui/section-header";
-import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
-import { ImageDisplay } from "@/components/ui/image-display";
+import { ScorerPodium } from "@/components/top-scorers/scorer-podium";
 
 export const dynamic = "force-dynamic";
 
 async function FullTopScorers() {
   const result = await getTopScorers(undefined, 50);
   if (result.status === "error") return <ErrorState message={result.message} />;
-  if (result.status === "empty") return <EmptyState message="لا يوجد هدافون مسجّلون بعد." />;
 
-  return (
-    <div className="rounded-xl border border-line bg-surface overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-line-strong bg-surface-elevated/40">
-              <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase w-10">#</th>
-              <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">اللاعب</th>
-              <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase hidden sm:table-cell">الفريق</th>
-              <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-sky-400 uppercase hidden md:table-cell">مساهمة</th>
-              <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-emerald-500 uppercase">الأهداف</th>
-            </tr>
-          </thead>
-          <tbody>
-            {result.data.map((scorer) => (
-              <tr key={scorer.playerId} className="border-b border-line/40 transition-colors hover:bg-surface-elevated/30">
-                <td className="px-3 py-2.5 text-center">
-                  <span className={`inline-flex h-6 w-6 items-center justify-center rounded font-num text-[10px] font-bold ${scorer.rank === 1 ? "bg-emerald-500 text-bg" : scorer.rank <= 3 ? "border border-emerald-500/40 text-emerald-500" : "text-text-dimmer"}`}>
-                    {String(scorer.rank).padStart(2, "0")}
-                  </span>
-                </td>
-                <td className="px-3 py-2.5">
-                  <Link href={`/players/${scorer.playerId}`} className="flex items-center gap-2 group py-1.5 -my-1.5">
-                    <ImageDisplay src={scorer.photoUrl} alt={scorer.playerName} type="player" size="sm" />
-                    <div>
-                      <span className="font-body text-[12px] font-bold text-text group-hover:text-accent transition-colors block">{scorer.playerName}</span>
-                      <span className="font-utility text-[8px] tracking-wider text-text-dimmer uppercase sm:hidden">{scorer.teamName}</span>
-                    </div>
-                  </Link>
-                </td>
-                <td className="px-3 py-2.5 font-body text-[12px] text-text-dim hidden sm:table-cell">{scorer.teamName}</td>
-                <td className="px-3 py-2.5 text-center">
-                  <span className="font-num text-[12px] font-bold text-sky-400">{scorer.assists}+{scorer.goals}</span>
-                </td>
-                <td className="px-3 py-2.5 text-center">
-                  <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded bg-emerald-500/10 px-1.5 font-num text-[12px] font-bold text-emerald-500">{scorer.goals}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  return <ScorerPodium list={result.status === "empty" ? [] : result.data} metric="goals" resource="هدف" empty="لا يوجد هدافون مسجّلون بعد." />;
 }
 
 async function FullTopAssisters() {
   const result = await getTopAssisters(undefined, 50);
   if (result.status === "error") return <ErrorState message={result.message} />;
-  if (result.status === "empty") return <EmptyState message="لا يوجد صنّاع أهداف مسجّلون بعد." />;
 
-  return (
-    <div className="rounded-xl border border-line bg-surface overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-line-strong bg-surface-elevated/40">
-              <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase w-10">#</th>
-              <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase">اللاعب</th>
-              <th className="px-3 py-2.5 text-right font-utility text-[9px] tracking-[0.12em] text-text-dimmer uppercase hidden sm:table-cell">الفريق</th>
-              <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-sky-400 uppercase hidden md:table-cell">مساهمة</th>
-              <th className="px-3 py-2.5 text-center font-utility text-[9px] tracking-[0.12em] text-amber-400 uppercase">الأسيست</th>
-            </tr>
-          </thead>
-          <tbody>
-            {result.data.map((assister) => (
-              <tr key={assister.playerId} className="border-b border-line/40 transition-colors hover:bg-surface-elevated/30">
-                <td className="px-3 py-2.5 text-center">
-                  <span className={`inline-flex h-6 w-6 items-center justify-center rounded font-num text-[10px] font-bold ${assister.rank === 1 ? "bg-amber-400 text-bg" : assister.rank <= 3 ? "border border-amber-400/40 text-amber-400" : "text-text-dimmer"}`}>
-                    {String(assister.rank).padStart(2, "0")}
-                  </span>
-                </td>
-                <td className="px-3 py-2.5">
-                  <Link href={`/players/${assister.playerId}`} className="flex items-center gap-2 group py-1.5 -my-1.5">
-                    <ImageDisplay src={assister.photoUrl} alt={assister.playerName} type="player" size="sm" />
-                    <div>
-                      <span className="font-body text-[12px] font-bold text-text group-hover:text-accent transition-colors block">{assister.playerName}</span>
-                      <span className="font-utility text-[8px] tracking-wider text-text-dimmer uppercase sm:hidden">{assister.teamName}</span>
-                    </div>
-                  </Link>
-                </td>
-                <td className="px-3 py-2.5 font-body text-[12px] text-text-dim hidden sm:table-cell">{assister.teamName}</td>
-                <td className="px-3 py-2.5 text-center">
-                  <span className="font-num text-[12px] font-bold text-sky-400">{assister.goals}+{assister.assists}</span>
-                </td>
-                <td className="px-3 py-2.5 text-center">
-                  <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded bg-amber-400/10 px-1.5 font-num text-[12px] font-bold text-amber-400">{assister.assists}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  return <ScorerPodium list={result.status === "empty" ? [] : result.data} metric="assists" resource="أسيست" empty="لا يوجد صنّاع أهداف مسجّلون بعد." />;
 }
 
 export default async function TopScorersPage() {

@@ -432,7 +432,7 @@ export function TeamOfWeekForm({
                                   type="button"
                                   onClick={() => toggleCaptain(def.key)}
                                   className={`h-11 w-11 rounded font-display text-[11px] font-black transition-colors ${
-                                    slot.captain ? "bg-accent text-white" : "border border-line bg-surface-elevated text-text-dimmer hover:text-text"
+                                    slot.captain ? "bg-accent text-[#0b1220]" : "border border-line bg-surface-elevated text-text-dimmer hover:text-text"
                                   }`}
                                   title="كابتن"
                                 >

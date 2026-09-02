@@ -153,7 +153,7 @@ export function MobileMenu({ leagueName, leagueNameEn, logoUrl }: {
 
             {/* CTA */}
             <div className="p-3 border-t border-line">
-              <Link href="/teams/new" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 rounded-lg bg-accent px-6 py-3 font-body text-sm font-extrabold text-white transition-all hover:bg-accent-bright">
+              <Link href="/teams/new" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 rounded-lg bg-accent px-6 py-3 font-body text-sm font-extrabold text-[#0b1220] transition-all hover:bg-accent-bright">
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M8 3v10M3 8h10" /></svg>
                 إنشاء فريق
               </Link>

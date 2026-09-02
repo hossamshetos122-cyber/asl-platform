@@ -35,8 +35,10 @@ export default async function HomePage() {
   return (
     <>
       <Navbar />
+      <Suspense fallback={null}>
+        <LiveMatchBanner />
+      </Suspense>
       <Hero />
-      <LiveMatchBanner />
       <UpcomingMatches />
       <LatestResults />
       <section className="page-container editorial-section">

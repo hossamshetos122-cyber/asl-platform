@@ -89,7 +89,7 @@ export function TOTWCard({
       </div>
       <div className="absolute right-1 top-1 flex flex-col items-end gap-0.5">
         {captain && (
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent font-display text-[9px] font-black text-white">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent font-display text-[9px] font-black text-[#0b1220]">
             C
           </span>
         )}

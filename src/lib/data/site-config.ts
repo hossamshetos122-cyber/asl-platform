@@ -32,8 +32,8 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     process.env.NEXT_PUBLIC_LEAGUE_NAME_EN || "Alexandria Amateur League",
   cityName: process.env.NEXT_PUBLIC_CITY_NAME || "الإسكندرية",
   logoUrl: process.env.NEXT_PUBLIC_LEAGUE_LOGO || "/images/league-logo.jpg",
-  primaryColor: process.env.NEXT_PUBLIC_PRIMARY_COLOR || "#0A2647",
-  accentColor: process.env.NEXT_PUBLIC_ACCENT_COLOR || "#FF6B35",
+  primaryColor: process.env.NEXT_PUBLIC_PRIMARY_COLOR || "#0A1F3C",
+  accentColor: process.env.NEXT_PUBLIC_ACCENT_COLOR || "#FFD400",
 };
 
 /** Cache tag for the site config so `revalidateTag` can bust it on save. */
@@ -131,7 +131,7 @@ export function siteCssVars(cfg: SiteConfig): React.CSSProperties {
 
 function hexToRgb(hex: string): string {
   const m = /^#([0-9a-fA-F]{6})$/.exec(hex.trim());
-  if (!m || !m[1]) return "10 38 71";
+  if (!m || !m[1]) return "10 31 60";
   const v = parseInt(m[1], 16);
   return `${(v >> 16) & 255} ${(v >> 8) & 255} ${v & 255}`;
 }

@@ -54,7 +54,7 @@ export function TeamJoinButton({
             }
           })
         }
-        className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 font-body text-[12px] font-extrabold text-white transition-all hover:bg-accent-bright active:scale-[0.98] disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 font-body text-[12px] font-extrabold text-[#0b1220] transition-all hover:bg-accent-bright active:scale-[0.98] disabled:opacity-50"
       >
         <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 8h-1m4 0h-1M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" /><circle cx="8.5" cy="7" r="4" />

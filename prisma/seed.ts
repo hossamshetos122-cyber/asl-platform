@@ -1006,8 +1006,8 @@ async function main(): Promise<void> {
       leagueNameEn: "Alexandria Amateur League",
       cityName: "الإسكندرية",
       logoUrl: "/images/league-logo.jpg",
-      primaryColor: "#0A2647",
-      accentColor: "#FF6B35",
+      primaryColor: "#0A1F3C",
+      accentColor: "#FFD400",
     },
   });
 

@@ -5,6 +5,7 @@ import { ErrorState } from "@/components/ui/error-state";
 import { ImageDisplay } from "@/components/ui/image-display";
 import { getRatingTier, type RatingTierKey } from "@/lib/ratings";
 import type { TeamOfTheWeekSlotVM } from "@/lib/types";
+import { motion, staggerContainer, popIn } from "@/components/ui/motion";
 
 function datesLabel(weekStart: Date | null, weekEnd: Date | null): string | null {
   if (!weekStart || !weekEnd) return null;
@@ -66,7 +67,7 @@ function ShieldCard({ slot }: { slot: TeamOfTheWeekSlotVM }) {
   const tier = TIER_STYLES[getRatingTier(player.rating)];
 
   return (
-    <div className="flex w-[clamp(46px,13.2vw,92px)] flex-col items-center">
+    <motion.div variants={popIn()} className="flex w-[clamp(46px,13.2vw,92px)] flex-col items-center">
       <div
         style={{ clipPath: SHIELD_CLIP }}
         className={`relative flex h-[78px] w-full flex-col items-center overflow-hidden border bg-gradient-to-b from-white/[0.10] via-white/[0.03] to-black/25 ${tier.border} ${tier.glow} sm:h-[132px]`}
@@ -75,7 +76,7 @@ function ShieldCard({ slot }: { slot: TeamOfTheWeekSlotVM }) {
 
         <div className="absolute top-1 left-1 flex flex-col items-start gap-0.5 sm:top-2 sm:left-1.5">
           {slot.captain && (
-            <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent font-display text-[8px] font-black text-white sm:h-4 sm:w-4 sm:text-[9px]">
+            <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent font-display text-[8px] font-black text-[#0b1220] sm:h-4 sm:w-4 sm:text-[9px]">
               C
             </span>
           )}
@@ -121,7 +122,7 @@ function ShieldCard({ slot }: { slot: TeamOfTheWeekSlotVM }) {
 
       <p className="mt-1 w-full break-words text-center font-body leading-snug text-[8px] font-bold text-[#f2f6ff] sm:text-[11px]">{player.name}</p>
       <p className="mt-0.5 w-full text-center font-utility text-[6.5px] tracking-[0.08em] text-white/45 uppercase sm:text-[8px] sm:tracking-[0.12em]">{slot.label}</p>
-    </div>
+    </motion.div>
   );
 }
 
@@ -136,7 +137,14 @@ export async function TeamOfWeek() {
       {result.status === "empty" && <EmptyState message="لم يتم اختيار فريق الأسبوع بعد." />}
 
       {result.status === "success" && (
-        <div data-team-of-week className="overflow-hidden rounded-3xl border border-line bg-surface">
+        <motion.div
+          data-team-of-week
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.15 }}
+          className="overflow-hidden rounded-3xl border border-line bg-surface"
+        >
           <div className="border-b border-line bg-gradient-to-l from-[#0d1830] via-[#123B6B] to-[#0d1830] px-4 py-3 sm:px-7 sm:py-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -213,7 +221,7 @@ export async function TeamOfWeek() {
               );
             })()}
           </div>
-        </div>
+        </motion.div>
       )}
     </section>
   );

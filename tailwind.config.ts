@@ -52,7 +52,7 @@ const config: Config = {
       },
       fontFamily: {
         display: ["var(--font-cairo)", "sans-serif"],
-        body: ["var(--font-tajawal)", "sans-serif"],
+        body: ["var(--font-almarai)", "sans-serif"],
         utility: ["var(--font-cairo)", "sans-serif"],
         num: ["var(--font-cairo)", "sans-serif"],
       },
@@ -64,9 +64,9 @@ const config: Config = {
         "2xl": "24px",
       },
       boxShadow: {
-        glow: "0 0 20px rgba(255,107,53,0.16)",
-        "glow-sm": "0 0 10px rgba(255,107,53,0.10)",
-        "glow-lg": "0 0 40px rgba(255,107,53,0.22), 0 0 80px rgba(255,107,53,0.08)",
+        glow: "0 0 20px rgba(255,212,0,0.20)",
+        "glow-sm": "0 0 10px rgba(255,212,0,0.14)",
+        "glow-lg": "0 0 40px rgba(255,212,0,0.28), 0 0 80px rgba(255,212,0,0.10)",
         "pulse-green": "0 0 20px rgba(0,214,143,0.25)",
         deep: "0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.25)",
         elevated: "0 4px 20px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.18)",

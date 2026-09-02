@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cairo, Tajawal } from "next/font/google";
+import { Cairo, Almarai } from "next/font/google";
 import { getSiteConfig, siteCssVars } from "@/lib/data/site-config";
 import "./globals.css";
 
@@ -11,10 +11,10 @@ const cairo = Cairo({
   variable: "--font-cairo",
 });
 
-const tajawal = Tajawal({
-  subsets: ["arabic", "latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-tajawal",
+const almarai = Almarai({
+  subsets: ["arabic"],
+  weight: ["400", "700", "800"],
+  variable: "--font-almarai",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -33,7 +33,7 @@ export default async function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={`${cairo.variable} ${tajawal.variable}`}
+      className={`${cairo.variable} ${almarai.variable}`}
     >
       <body style={siteCssVars(cfg)} className="bg-bg text-text font-body antialiased">
         {children}

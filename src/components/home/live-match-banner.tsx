@@ -17,12 +17,13 @@ export async function LiveMatchBanner() {
   };
 
   return (
-    <section className="relative border-y border-live/20 overflow-hidden bg-surface">
-      <div className="absolute inset-0 bg-gradient-to-r from-live/[0.04] via-transparent to-live/[0.04]" />
+    <section className="sticky top-14 sm:top-16 z-40 relative border-y border-live/25 overflow-hidden bg-surface">
+      <div className="absolute inset-0 bg-gradient-to-r from-live/[0.05] via-transparent to-live/[0.05]" />
+      <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-live/70 via-live/30 to-transparent" />
 
-      <div className="page-container relative py-5 sm:py-7">
+      <div className="page-container relative py-4 sm:py-5">
         {/* Status */}
-        <div className="mb-4 flex items-center justify-center gap-2.5">
+        <div className="mb-3 flex items-center justify-center gap-2.5">
           <LiveMatchUI matchId={match.id} initial={liveInitial} role="pill" />
           <span className="font-utility text-[10px] tracking-wider text-text-dimmer uppercase">{match.tournamentName}</span>
           {match.venue && (

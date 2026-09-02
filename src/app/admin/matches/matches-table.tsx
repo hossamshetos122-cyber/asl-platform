@@ -426,7 +426,7 @@ useEffect(() => {
       <div className="mb-4 grid grid-cols-2 gap-1 rounded-xl border border-line bg-surface-elevated/40 p-1">
         {(["home", "away"] as const).map((t) => (
           <button key={t} type="button" onClick={() => setActiveTab(t)}
-            className={`min-h-[44px] truncate rounded-lg px-2 font-body text-[13px] font-bold transition-colors ${activeTab === t ? "bg-accent text-white" : "text-text-dim hover:text-text"}`}>
+            className={`min-h-[44px] truncate rounded-lg px-2 font-body text-[13px] font-bold transition-colors ${activeTab === t ? "bg-accent text-[#0b1220]" : "text-text-dim hover:text-text"}`}>
             {teamLabel(t)}
           </button>
         ))}

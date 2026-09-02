@@ -37,7 +37,7 @@ export async function StandingsTable({ tournamentId }: StandingsTableProps) {
             </thead>
             <tbody>
               {result.data.map((row) => (
-                <tr key={row.team.id} className={`border-b border-line/40 transition-colors hover:bg-surface-elevated/30 ${row.rank <= 3 ? "bg-emerald-500/[0.05]" : ""}`}>
+                <tr key={row.team.id} className={`border-b border-line/40 transition-colors hover:bg-surface-elevated/30 ${row.rank <= 3 ? "bg-emerald-500/[0.05]" : "even:bg-white/[0.02]"}`}>
                   <td className="px-3 py-2.5 text-center">
                     <span className={`inline-flex h-6 w-6 items-center justify-center rounded font-num text-[10px] font-bold ${
                       row.rank === 1 ? "bg-emerald-500 text-bg" : row.rank <= 3 ? "border border-emerald-500/40 text-emerald-500" : "text-text-dimmer"
