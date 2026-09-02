@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { staggerContainer, popIn } from "@/lib/motion-variants";
 import { ImageDisplay } from "@/components/ui/image-display";
@@ -58,21 +59,33 @@ const TIER_STYLES: Record<RatingTierKey, TierStyle> = {
   },
 };
 
+/** True from the `sm` breakpoint up (SSR-safe: starts as mobile sizing). */
+function useDesktop(): boolean {
+  const [desktop, setDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 640px)");
+    setDesktop(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setDesktop(e.matches);
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, []);
+  return desktop;
+}
+
 /**
  * Broadcast-style player card: real headshot above a semi-transparent name
  * plate, with a small club crest near the head, jersey number, captain badge
  * and a rating chip. `depth` (0 = close to viewer, 1 = far) drives the size.
  */
-function PlayerCard({ slot, depth }: { slot: TeamOfTheWeekSlotVM; depth: number }) {
+function PlayerCard({ slot, cardWidth }: { slot: TeamOfTheWeekSlotVM; cardWidth: number }) {
   const player = slot.player;
   const tier = TIER_STYLES[getRatingTier(player.rating)];
-  const cardWidth = Math.round(78 - depth * 28);
 
   return (
     <motion.div
       variants={popIn()}
-      className="relative flex min-w-0 flex-1 flex-col items-center"
-      style={{ maxWidth: `${cardWidth}px` }}
+      className="relative flex flex-col items-center"
+      style={{ width: `${cardWidth}px`, flexShrink: 0 }}
     >
       <div
         className={`relative w-full overflow-hidden rounded-lg border bg-[#0a1324] ${tier.border} ${tier.glow}`}
@@ -142,13 +155,14 @@ function PlayerCard({ slot, depth }: { slot: TeamOfTheWeekSlotVM; depth: number 
 
 /** A pitched football pitch drawn on a plane tilted with CSS 3D. */
 function PitchScene({ bands }: { bands: { band: number; slots: TeamOfTheWeekSlotVM[] }[] }) {
+  const desktop = useDesktop();
   const ordered = [...bands].sort((a, b) => a.band - b.band); // GK (near) → attackers (far)
   const rowCount = ordered.length;
 
   return (
     <div
-      className="relative w-full overflow-hidden rounded-[22px] border border-white/10 bg-[#071326]"
-      style={{ aspectRatio: "9 / 11", perspective: "1200px", perspectiveOrigin: "50% -20%" }}
+      className="relative h-[500px] w-full overflow-hidden rounded-[22px] border border-white/10 bg-[#071326] sm:h-[620px]"
+      style={{ perspective: "1200px", perspectiveOrigin: "50% -20%" }}
     >
       {/* tilted grass surface (far edge recedes = depth) */}
       <div
@@ -208,10 +222,14 @@ function PitchScene({ bands }: { bands: { band: number; slots: TeamOfTheWeekSlot
       <div className="absolute inset-0 flex flex-col justify-between px-2 py-[6.5%] sm:px-3 sm:py-[7%]">
         {ordered.map((band, i) => {
           const depth = rowCount <= 1 ? 0 : i / (rowCount - 1);
+          // Cards scale down on phones so their stacked height always fits the
+          // pitch: 78px base on desktop, 56px on mobile, shrinking with depth.
+          const base = desktop ? 78 : 56;
+          const cardWidth = Math.max(30, Math.round(base - depth * (desktop ? 28 : 18)));
           return (
-            <div key={band.band} className="flex flex-1 items-center justify-center gap-[3px] sm:gap-2">
+            <div key={band.band} className="flex flex-1 items-center justify-center gap-1 sm:gap-2">
               {band.slots.map((slot) => (
-                <PlayerCard key={slot.positionSlot} slot={slot} depth={depth} />
+                <PlayerCard key={slot.positionSlot} slot={slot} cardWidth={cardWidth} />
               ))}
             </div>
           );
