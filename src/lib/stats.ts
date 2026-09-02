@@ -213,6 +213,136 @@ export async function getFeaturedGoalsCount(): Promise<number> {
   }
 }
 
+type FinishedMatchWithTeams = Match & { homeTeam: Team; awayTeam: Team };
+
+/**
+ * Pure, database-free standings computation. Feeds only FINISHED matches (the
+ * caller filters by status); kept deterministic so units can be tested and so
+ * the table is the same on every read.
+ *
+ * Tie-breakers: points -> goal difference -> goals scored -> head-to-head
+ * (team id order makes it acyclic) -> Arabic-alphabetical name.
+ */
+export function computeStandings(
+  matches: FinishedMatchWithTeams[],
+  limit = 5
+): StandingRowVM[] {
+  interface Accumulator {
+    team: Team;
+    played: number;
+    won: number;
+    drawn: number;
+    lost: number;
+    goalsFor: number;
+    goalsAgainst: number;
+  }
+
+  const table = new Map<string, Accumulator>();
+
+  const ensureRow = (team: Team): Accumulator => {
+    const existing = table.get(team.id);
+    if (existing) return existing;
+    const fresh: Accumulator = {
+      team,
+      played: 0,
+      won: 0,
+      drawn: 0,
+      lost: 0,
+      goalsFor: 0,
+      goalsAgainst: 0,
+    };
+    table.set(team.id, fresh);
+    return fresh;
+  };
+
+  const applyResult = (match: FinishedMatchWithTeams): void => {
+    const home = ensureRow(match.homeTeam);
+    const away = ensureRow(match.awayTeam);
+
+    home.played += 1;
+    away.played += 1;
+    home.goalsFor += match.homeScore;
+    home.goalsAgainst += match.awayScore;
+    away.goalsFor += match.awayScore;
+    away.goalsAgainst += match.homeScore;
+
+    if (match.homeScore > match.awayScore) {
+      home.won += 1;
+      away.lost += 1;
+    } else if (match.homeScore < match.awayScore) {
+      away.won += 1;
+      home.lost += 1;
+    } else {
+      home.drawn += 1;
+      away.drawn += 1;
+    }
+  };
+
+  for (const match of matches) {
+    applyResult(match);
+  }
+
+  // Build a map of head-to-head results between teams
+  // key = "teamA_id:teamB_id" (sorted), value = { goalsFor, goalsAgainst } from teamA's perspective
+  const h2hMap = new Map<string, { goalsFor: number; goalsAgainst: number }>();
+  for (const match of matches) {
+    const aId = match.homeTeamId < match.awayTeamId ? match.homeTeamId : match.awayTeamId;
+    const bId = match.homeTeamId < match.awayTeamId ? match.awayTeamId : match.homeTeamId;
+    const key = `${aId}:${bId}`;
+    const existing = h2hMap.get(key) ?? { goalsFor: 0, goalsAgainst: 0 };
+    if (match.homeTeamId === aId) {
+      existing.goalsFor += match.homeScore;
+      existing.goalsAgainst += match.awayScore;
+    } else {
+      existing.goalsFor += match.awayScore;
+      existing.goalsAgainst += match.homeScore;
+    }
+    h2hMap.set(key, existing);
+  }
+
+  return Array.from(table.values())
+    .map((row) => ({
+      rank: 0,
+      team: {
+        id: row.team.id,
+        name: row.team.name,
+        shortCode: row.team.shortName,
+        crestUrl: row.team.crestUrl,
+      },
+      played: row.played,
+      won: row.won,
+      drawn: row.drawn,
+      lost: row.lost,
+      goalsFor: row.goalsFor,
+      goalsAgainst: row.goalsAgainst,
+      points: row.won * 3 + row.drawn,
+    }))
+    .sort((a, b) => {
+      // 1. Points
+      if (b.points !== a.points) return b.points - a.points;
+      // 2. Goal difference
+      const gdA = a.goalsFor - a.goalsAgainst;
+      const gdB = b.goalsFor - b.goalsAgainst;
+      if (gdB !== gdA) return gdB - gdA;
+      // 3. Goals scored
+      if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+      // 4. Head-to-head (deterministic — alphabetical order ensures no cycles)
+      const aId = a.team.id;
+      const bId = b.team.id;
+      const key = aId < bId ? `${aId}:${bId}` : `${bId}:${aId}`;
+      const h2h = h2hMap.get(key);
+      if (h2h) {
+        const aGoalsFor = aId < bId ? h2h.goalsFor : h2h.goalsAgainst;
+        const bGoalsFor = aId < bId ? h2h.goalsAgainst : h2h.goalsFor;
+        if (aGoalsFor !== bGoalsFor) return bGoalsFor - aGoalsFor;
+      }
+      // 5. Alphabetical fallback (deterministic)
+      return a.team.name.localeCompare(b.team.name, "ar");
+    })
+    .slice(0, limit)
+    .map((row, index) => ({ ...row, rank: index + 1 }));
+}
+
 /**
  * Standings are computed on read from finished matches rather than stored,
  * so this is the single source of truth. For an amateur-league match volume
@@ -233,124 +363,7 @@ export async function getStandings(
       return { status: "empty" };
     }
 
-    interface Accumulator {
-      team: Team;
-      played: number;
-      won: number;
-      drawn: number;
-      lost: number;
-      goalsFor: number;
-      goalsAgainst: number;
-    }
-
-    const table = new Map<string, Accumulator>();
-
-    const ensureRow = (team: Team): Accumulator => {
-      const existing = table.get(team.id);
-      if (existing) return existing;
-      const fresh: Accumulator = {
-        team,
-        played: 0,
-        won: 0,
-        drawn: 0,
-        lost: 0,
-        goalsFor: 0,
-        goalsAgainst: 0,
-      };
-      table.set(team.id, fresh);
-      return fresh;
-    };
-
-    const applyResult = (
-      match: Match & { homeTeam: Team; awayTeam: Team }
-    ): void => {
-      const home = ensureRow(match.homeTeam);
-      const away = ensureRow(match.awayTeam);
-
-      home.played += 1;
-      away.played += 1;
-      home.goalsFor += match.homeScore;
-      home.goalsAgainst += match.awayScore;
-      away.goalsFor += match.awayScore;
-      away.goalsAgainst += match.homeScore;
-
-      if (match.homeScore > match.awayScore) {
-        home.won += 1;
-        away.lost += 1;
-      } else if (match.homeScore < match.awayScore) {
-        away.won += 1;
-        home.lost += 1;
-      } else {
-        home.drawn += 1;
-        away.drawn += 1;
-      }
-    };
-
-    for (const match of matches) {
-      applyResult(match);
-    }
-
-    // Build a map of head-to-head results between teams
-    // key = "teamA_id:teamB_id" (sorted), value = { goalsFor, goalsAgainst } from teamA's perspective
-    const h2hMap = new Map<string, { goalsFor: number; goalsAgainst: number }>();
-    for (const match of matches) {
-      const aId = match.homeTeamId < match.awayTeamId ? match.homeTeamId : match.awayTeamId;
-      const bId = match.homeTeamId < match.awayTeamId ? match.awayTeamId : match.homeTeamId;
-      const key = `${aId}:${bId}`;
-      const existing = h2hMap.get(key) ?? { goalsFor: 0, goalsAgainst: 0 };
-      if (match.homeTeamId === aId) {
-        existing.goalsFor += match.homeScore;
-        existing.goalsAgainst += match.awayScore;
-      } else {
-        existing.goalsFor += match.awayScore;
-        existing.goalsAgainst += match.homeScore;
-      }
-      h2hMap.set(key, existing);
-    }
-
-    const rows: StandingRowVM[] = Array.from(table.values())
-      .map((row) => ({
-        rank: 0,
-        team: {
-          id: row.team.id,
-          name: row.team.name,
-          shortCode: row.team.shortName,
-          crestUrl: row.team.crestUrl,
-        },
-        played: row.played,
-        won: row.won,
-        drawn: row.drawn,
-        lost: row.lost,
-        goalsFor: row.goalsFor,
-        goalsAgainst: row.goalsAgainst,
-        points: row.won * 3 + row.drawn,
-      }))
-      .sort((a, b) => {
-        // 1. Points
-        if (b.points !== a.points) return b.points - a.points;
-        // 2. Goal difference
-        const gdA = a.goalsFor - a.goalsAgainst;
-        const gdB = b.goalsFor - b.goalsAgainst;
-        if (gdB !== gdA) return gdB - gdA;
-        // 3. Goals scored
-        if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
-        // 4. Head-to-head (deterministic — alphabetical order ensures no cycles)
-        const aId = a.team.id;
-        const bId = b.team.id;
-        const key = aId < bId ? `${aId}:${bId}` : `${bId}:${aId}`;
-        const h2h = h2hMap.get(key);
-        if (h2h) {
-          const aGoalsFor = aId < bId ? h2h.goalsFor : h2h.goalsAgainst;
-          const bGoalsFor = aId < bId ? h2h.goalsAgainst : h2h.goalsFor;
-          if (aGoalsFor !== bGoalsFor) return bGoalsFor - aGoalsFor;
-        }
-        // 5. Alphabetical fallback (deterministic)
-        return a.team.name.localeCompare(b.team.name, "ar");
-      })
-      .slice(0, limit)
-      .map((row, index) => ({ ...row, rank: index + 1 }));
-
-    return { status: "success", data: rows };
+    return { status: "success", data: computeStandings(matches, limit) };
   } catch (error) {
     console.error("[getStandings]", error);
     return { status: "error", message: "تعذّر تحميل جدول الترتيب." };

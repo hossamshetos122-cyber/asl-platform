@@ -379,6 +379,17 @@ export async function deletePlayer(playerId: string): Promise<PlayerActionResult
       select: { teamId: true },
     });
 
+    // Deleting a player silently cascades their match events (goals, assists,
+    // cards), which would retroactively rewrite the top-scorers and discipline
+    // tables. Refuse when any recorded match involvement exists.
+    const eventCount = await prisma.matchEvent.count({ where: { playerId } });
+    if (eventCount > 0) {
+      return {
+        success: false,
+        error: "لا يمكن حذف اللاعب لأنه لديه أحداث مسجلة في المباريات (أهداف/كروت). احذف مبارياته أو عدّل بياناته بدلاً من ذلك.",
+      };
+    }
+
     await prisma.$transaction(async (tx) => {
       await tx.player.delete({ where: { id: playerId } });
       try {
@@ -424,6 +435,17 @@ export async function addToTeam(teamId: string, playerId: string) {
   // Verify player exists
   const playerExists = await prisma.player.findUnique({ where: { id: playerId }, select: { id: true } });
   if (!playerExists) throw new Error("اللاعب غير موجود");
+
+  // A player may only be ACTIVE on one team at a time — activating them here
+  // while they are already an ACTIVE member elsewhere would corrupt squads,
+  // match scoring and the standings roster attribution.
+  const otherActive = await prisma.teamMembership.findFirst({
+    where: { playerId, status: "ACTIVE", teamId: { not: teamId } },
+    select: { team: { select: { name: true } } },
+  });
+  if (otherActive) {
+    throw new Error(`اللاعب عضو فعلي بالفعل في فريق ${otherActive.team.name} — أزله من فريقه الحالي أولاً`);
+  }
 
   const existing = await prisma.teamMembership.findUnique({
     where: { teamId_playerId: { teamId, playerId } },
@@ -702,6 +724,19 @@ export async function respondTeamJoin(
       const squadSize = await getTeamSquadSize(teamId);
       if (squadSize >= SQUAD_LIMIT) {
         return { success: false, error: `القائمة ممتلئة (الحد الأقصى ${SQUAD_LIMIT} لاعب)` };
+      }
+
+      // Same single-team rule as addToTeam: approving must not put a player on
+      // two ACTIVE rosters at once.
+      const otherActive = await prisma.teamMembership.findFirst({
+        where: { playerId: membership.playerId, status: "ACTIVE", teamId: { not: teamId } },
+        select: { team: { select: { name: true } } },
+      });
+      if (otherActive) {
+        return {
+          success: false,
+          error: `اللاعب عضو فعلي بالفعل في فريق ${otherActive.team.name} — أزله من فريقه الحالي أولاً`,
+        };
       }
 
       await prisma.teamMembership.update({

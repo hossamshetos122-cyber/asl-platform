@@ -318,6 +318,17 @@ useEffect(() => {
   const awayList = awayPlayers;
 
   const playersFor = (team: "home" | "away") => (team === "home" ? homePlayers : awayPlayers);
+
+  // An own goal is scored by a player of the OPPOSING team (it counts toward
+  // this team's score). Goal slots flagged as own must therefore pick from the
+  // opponent's roster.
+  const goalSlotPlayers = (team: "home" | "away", idx: number) => {
+    const own = team === "home" ? homeSelOwn[idx] ?? false : awaySelOwn[idx] ?? false;
+    return own ? playersFor(team === "home" ? "away" : "home") : playersFor(team);
+  };
+  const goalSlotTeamLabel = (team: "home" | "away", idx: number) =>
+    teamLabel((team === "home" ? homeSelOwn[idx] : awaySelOwn[idx]) ? (team === "home" ? "away" : "home") : team);
+
   const listFor = (kind: "goal" | "assist" | "yellow" | "red", team: "home" | "away") => {
     if (team === "home") {
       return kind === "goal" ? [homeSel, setHomeSel] as const
@@ -458,14 +469,15 @@ useEffect(() => {
                 <div className="space-y-2">
                   {Array.from({ length: score }, (_, idx) => {
                     const id = goals[idx] ?? "";
-                    const player = players.find((p) => p.id === id);
+                    const goalPool = goalSlotPlayers(t, idx);
+                    const player = goalPool.find((p) => p.id === id) ?? [...homePlayers, ...awayPlayers].find((p) => p.id === id);
                     return (
                       <div key={idx} className="rounded-lg border border-line/60 bg-surface-elevated/40 p-2">
                         <div className="flex items-center gap-2">
                           <span className="w-6 flex-shrink-0 text-center font-num text-[12px] text-text-dimmer">{idx + 1}</span>
                           <button type="button" onClick={() => setPicker({ team: t, kind: "goal", slot: idx })} disabled={saving}
                             className="min-h-[44px] flex-1 truncate rounded-lg border border-accent/30 bg-bg px-3 text-right font-body text-[13px] font-bold text-text transition-colors hover:border-accent">
-                            {player ? playerLabel(player) : "اختر اللاعب"}
+                            {player ? playerLabel(player) : `اختر اللاعب (${goalSlotTeamLabel(t, idx)})`}
                           </button>
                           <button type="button" onClick={() => removeAtKind("goal", t, idx)} disabled={saving} aria-label="إزالة الهدف"
                             className="btn-icon h-11 w-11 flex-shrink-0 border border-live/30 text-live transition-colors hover:bg-live/10">×</button>
@@ -594,10 +606,10 @@ useEffect(() => {
       </div>
       <p className="mt-2 font-body text-[10px] text-text-dimmer">الأهداف تُحتسب تلقائياً في جدول الهدافين وصفحة اللاعب، والكروت تظهر في سجل الانضباط وتُحسب الإيقافات تلقائياً (حمراء = إيقاف مباراة، كارتان أصفراوان في مباراتين = إيقاف مباراة). إذا غيرت النتيجة لاحقاً، تُعاد اختيارات الأهداف والكروت وستُستبدل السابقة.</p>
 
-      {picker && playersFor(picker.team).length > 0 && (
+      {picker && (picker.kind === "goal" ? goalSlotPlayers(picker.team, picker.slot) : playersFor(picker.team)).length > 0 && (
         <PlayerPickerSheet
-          title={`${picker.kind === "assist" ? "اختر صانع الهدف" : picker.kind === "yellow" ? "اختر لاعب الكارت الأصفر" : picker.kind === "red" ? "اختر لاعب الكارت الأحمر" : "اختر مسجل الهدف"} — ${teamLabel(picker.team)}`}
-          options={playersFor(picker.team)}
+          title={`${picker.kind === "assist" ? "اختر صانع الهدف" : picker.kind === "yellow" ? "اختر لاعب الكارت الأصفر" : picker.kind === "red" ? "اختر لاعب الكارت الأحمر" : picker.kind === "goal" && goalSlotPlayers(picker.team, picker.slot) !== playersFor(picker.team) ? "اختر مسجل الهدف العكسي" : "اختر مسجل الهدف"} — ${goalSlotTeamLabel(picker.team, picker.slot)}`}
+          options={picker.kind === "goal" ? goalSlotPlayers(picker.team, picker.slot) : playersFor(picker.team)}
           onSelect={applyPicker}
           onClose={() => setPicker(null)}
         />
@@ -850,10 +862,14 @@ export default function MatchesTable({ matches, teams, tournaments, referees = [
         const match = filtered.find((m) => m.id === goalRowId);
         if (!match) return null;
         const existingEvents = eventsByMatch[match.id] ?? [];
-        const goalTypeOf = (e: EventLite, teamId: string) =>
-          (e.type === "GOAL" || e.type === "PENALTY_SCORED" || e.type === "OWN_GOAL") && e.teamId === teamId;
-        const existingHomeGoalEvents = existingEvents.filter((g) => goalTypeOf(g, match.homeTeamId));
-        const existingAwayGoalEvents = existingEvents.filter((g) => goalTypeOf(g, match.awayTeamId));
+        const creditedGoalEvents = (creditedTeamId: string, opponentTeamId: string) =>
+          existingEvents.filter(
+            (e) =>
+              ((e.type === "GOAL" || e.type === "PENALTY_SCORED") && e.teamId === creditedTeamId) ||
+              (e.type === "OWN_GOAL" && e.teamId === opponentTeamId),
+          );
+        const existingHomeGoalEvents = creditedGoalEvents(match.homeTeamId, match.awayTeamId);
+        const existingAwayGoalEvents = creditedGoalEvents(match.awayTeamId, match.homeTeamId);
         const existingHomeGoals = existingHomeGoalEvents.map((g) => g.playerId);
         const existingAwayGoals = existingAwayGoalEvents.map((g) => g.playerId);
         const existingHomeGoalMins = existingHomeGoalEvents.map((g) => g.minute);

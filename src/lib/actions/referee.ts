@@ -129,6 +129,9 @@ export async function refereeAddEvent(formData: FormData): Promise<RefereeAction
   });
   if (!match) return { ok: false, error: "المباراة غير موجودة" };
   if (match.status === "CANCELLED") return { ok: false, error: "لا يمكن إضافة أحداث لمباراة ملغاة" };
+  if (match.status === "FINISHED") {
+    return { ok: false, error: "لا يمكن إضافة أحداث لمباراة منتهية" };
+  }
   if (parsed.data.teamId !== match.homeTeamId && parsed.data.teamId !== match.awayTeamId) {
     return { ok: false, error: "الفريق غير مشارك في هذه المباراة" };
   }

@@ -13,6 +13,7 @@ import {
   confirmSquadSchema,
   cuid,
 } from "@/lib/validation";
+import { buildGoalEvent, expectedGoalScorerTeam } from "@/lib/match-events";
 import { auditLog } from "@/lib/audit";
 import { notifyUser } from "@/lib/notify";
 
@@ -335,18 +336,15 @@ export async function setMatchResultWithGoals(
   const homePens = Array.isArray(homePenaltyFlags) ? homePenaltyFlags : [];
   const awayPens = Array.isArray(awayPenaltyFlags) ? awayPenaltyFlags : [];
 
-  const clampMinute = (m: number): number => {
-    if (typeof m !== "number" || Number.isNaN(m)) return 0;
-    return Math.min(120, Math.max(0, Math.round(m)));
-  };
-
-  const goalEvent = (playerId: string, teamId: string, idx: number, own: boolean[], pens: boolean[], mins: number[]) => ({
-    matchId,
-    playerId,
-    teamId,
-    type: own[idx] ? "OWN_GOAL" : pens[idx] ? "PENALTY_SCORED" : "GOAL",
-    minute: clampMinute(mins[idx] ?? 0),
-  });
+  const goalEvent = (playerId: string, idx: number, own: boolean[], pens: boolean[], mins: number[], creditedTeamId: string, opponentTeamId: string) =>
+    buildGoalEvent({
+      playerId,
+      creditedTeamId,
+      opponentTeamId,
+      minute: mins[idx] ?? 0,
+      own: own[idx] ?? false,
+      penalty: pens[idx] ?? false,
+    });
 
   // A card that has no player selected (placeholder "اختر اللاعب") must block the
   // save instead of being silently dropped or reaching the DB with a bad id.
@@ -391,18 +389,51 @@ export async function setMatchResultWithGoals(
       where: { playerId: { in: allIds }, status: "ACTIVE" },
       select: { playerId: true, teamId: true },
     });
-    const membershipByPlayer = new Map(memberships.map((m) => [m.playerId, m.teamId]));
+    // A set (not a map) so a player mistakenly ACTIVE in two teams cannot
+    // silently resolve to the wrong club — every player has to match both the
+    // id and the expected team.
+    const membershipKeys = new Set(memberships.map((m) => `${m.playerId}:${m.teamId}`));
     const assertOfTeam = (pid: string, teamId: string, teamLabel: string) => {
-      if (membershipByPlayer.get(pid) !== teamId) {
+      if (!membershipKeys.has(`${pid}:${teamId}`)) {
         throw new Error(`أحد اللاعبين المختارين ليس من ${teamLabel}`);
       }
     };
-    for (const pid of [...homeGoalIds, ...homeYellowIds, ...homeRedIds, ...homeAssistIds]) {
+
+    // Cards and assists always belong to the team they are credited to.
+    for (const pid of [...homeYellowIds, ...homeRedIds, ...homeAssistIds]) {
       assertOfTeam(pid, match.homeTeamId, "الفريق المضيف");
     }
-    for (const pid of [...awayGoalIds, ...awayYellowIds, ...awayRedIds, ...awayAssistIds]) {
+    for (const pid of [...awayYellowIds, ...awayRedIds, ...awayAssistIds]) {
       assertOfTeam(pid, match.awayTeamId, "الفريق الضيف");
     }
+
+    // Goals: normal/penalty scorers come from the credited team; an own goal
+    // comes from the OPPOSING player (it still counts toward the credited
+    // team's score but belongs to the conceding player's club).
+    homeGoalIds.forEach((pid, i) => {
+      const expected = expectedGoalScorerTeam({
+        own: homeOwn[i] ?? false,
+        creditedTeamId: match.homeTeamId,
+        opponentTeamId: match.awayTeamId,
+      });
+      assertOfTeam(
+        pid,
+        expected,
+        expected === match.homeTeamId ? "الفريق المضيف" : "الفريق الضيف",
+      );
+    });
+    awayGoalIds.forEach((pid, i) => {
+      const expected = expectedGoalScorerTeam({
+        own: awayOwn[i] ?? false,
+        creditedTeamId: match.awayTeamId,
+        opponentTeamId: match.homeTeamId,
+      });
+      assertOfTeam(
+        pid,
+        expected,
+        expected === match.awayTeamId ? "الفريق الضيف" : "الفريق المضيف",
+      );
+    });
   }
 
   await prisma.$transaction(async (tx) => {
@@ -429,8 +460,8 @@ export async function setMatchResultWithGoals(
       type: string;
       minute: number;
     }[] = [
-      ...homeGoalIds.map((playerId, i) => goalEvent(playerId, match.homeTeamId, i, homeOwn, homePens, homeGoalMins)),
-      ...awayGoalIds.map((playerId, i) => goalEvent(playerId, match.awayTeamId, i, awayOwn, awayPens, awayGoalMins)),
+      ...homeGoalIds.map((playerId, i) => ({ matchId, ...goalEvent(playerId, i, homeOwn, homePens, homeGoalMins, match.homeTeamId, match.awayTeamId) })),
+      ...awayGoalIds.map((playerId, i) => ({ matchId, ...goalEvent(playerId, i, awayOwn, awayPens, awayGoalMins, match.awayTeamId, match.homeTeamId) })),
       ...homeAssistIds.map((playerId) => ({
         matchId, playerId, teamId: match.homeTeamId, type: ASSIST_TYPE, minute: 0,
       })),
@@ -588,6 +619,10 @@ export async function addMatchEvent(matchId: string, formData: FormData) {
 
   if (match.status === "CANCELLED") {
     throw new Error("لا يمكن إضافة أحداث لمباراة ملغاة");
+  }
+
+  if (match.status === "FINISHED") {
+    throw new Error("لا يمكن إضافة أحداث لمباراة منتهية — استخدم «حفظ النتيجة والأهداف» لتعديل أهداف مباراة منتهية");
   }
 
   // Verify team belongs to this match

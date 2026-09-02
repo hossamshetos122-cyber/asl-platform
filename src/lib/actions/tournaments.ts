@@ -57,6 +57,20 @@ export async function removeTeamFromTournament(tournamentId: string, teamId: str
   });
   if (!entry) throw new Error("الفريق غير مسجّل في هذه البطولة");
 
+  // Removing a team that already has fixtures would leave its matches and
+  // standings rows (computed from those matches) pointing at a non-participant.
+  const matchCount = await prisma.match.count({
+    where: {
+      tournamentId,
+      OR: [{ homeTeamId: teamId }, { awayTeamId: teamId }],
+    },
+  });
+  if (matchCount > 0) {
+    throw new Error(
+      `لا يمكن إزالة الفريق من البطولة لأن لديه ${matchCount} مباراة مسجلة. احذف مبارياته أولاً.`,
+    );
+  }
+
   await prisma.tournamentTeam.delete({ where: { tournamentId_teamId: { tournamentId, teamId } } });
 
   await auditLog({
