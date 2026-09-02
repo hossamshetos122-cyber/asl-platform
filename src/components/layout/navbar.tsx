@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getSiteConfig } from "@/lib/data/site-config";
 import { MobileMenu } from "./mobile-menu";
 import { DesktopNavLinks } from "./desktop-nav-links";
+import { MobileBottomNav } from "./mobile-nav";
 import { AuthNav } from "@/components/auth/auth-nav";
 import { NavbarShell } from "./navbar-shell";
 
@@ -10,8 +11,9 @@ export async function Navbar() {
   const cfg = await getSiteConfig();
   const logoUrl = cfg.logoUrl || "/images/league-logo.jpg";
   return (
-    <NavbarShell>
-      <div className="page-container flex items-center justify-between h-14 sm:h-16">
+    <>
+      <NavbarShell>
+        <div className="page-container flex items-center justify-between h-14 sm:h-16">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
           <Image
@@ -50,6 +52,8 @@ export async function Navbar() {
           <MobileMenu leagueName={cfg.leagueName} leagueNameEn={cfg.leagueNameEn} logoUrl={logoUrl} />
         </div>
       </div>
-    </NavbarShell>
+      </NavbarShell>
+      <MobileBottomNav />
+    </>
   );
 }

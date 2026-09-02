@@ -37,7 +37,7 @@ export default async function RootLayout({
       dir="rtl"
       className={`${alexandria.variable} ${anton.variable}`}
     >
-      <body style={siteCssVars(cfg)} className="bg-bg text-text font-body antialiased">
+      <body style={siteCssVars(cfg)} className="bg-bg text-text font-body antialiased pb-16 lg:pb-0">
         {children}
       </body>
     </html>

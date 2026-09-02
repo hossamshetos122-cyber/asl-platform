@@ -118,8 +118,13 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
             <span className="badge-muted">{match.tournamentName}</span>
             {match.round && <span className="badge-muted">{match.round}</span>}
           </div>
-          <div className="px-5 py-6 sm:py-8">
-            <div className="grid grid-cols-3 items-center gap-3 text-center">
+          <div className="relative overflow-hidden px-5 py-6 sm:py-8">
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/[0.08] blur-3xl" />
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+            </div>
+            <div className="relative grid grid-cols-3 items-center gap-3 text-center">
               <div className="flex flex-col items-center gap-2.5">
                 <TeamBadge team={match.homeTeam} size="lg" />
                 <div className="font-display text-sm sm:text-base font-black text-text">{match.homeTeam.name}</div>
