@@ -68,7 +68,7 @@ export async function getSiteConfig(): Promise<SiteConfig> {
   return unstable_cache(
     fetchSiteConfigFromDb,
     ["site-config"],
-    { tags: [SITE_CONFIG_TAG], revalidate: 30 },
+    { tags: [SITE_CONFIG_TAG], revalidate: 3600 },
   )();
 }
 
