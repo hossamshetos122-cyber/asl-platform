@@ -26,7 +26,7 @@ const SIZE_MAP = {
 
 function TeamLogoFallback({ shortCode, size }: { shortCode?: string; size: string }) {
   return (
-    <div className={`${size} flex items-center justify-center rounded-2xl border border-accent/25 bg-gradient-to-br from-[#123B6B] to-purple-bright/30`}>
+    <div className={`${size} flex items-center justify-center rounded-2xl border border-accent/25 bg-gradient-to-br from-surface-elevated to-surface-raised2`}>
       <span className="font-display font-black text-accent-bright">{shortCode || "FK"}</span>
     </div>
   );
@@ -34,7 +34,7 @@ function TeamLogoFallback({ shortCode, size }: { shortCode?: string; size: strin
 
 function PlayerFallback({ size }: { size: string }) {
   return (
-    <div className={`${size} flex items-center justify-center rounded-xl border border-accent/20 bg-gradient-to-br from-[#123B6B] to-surface-raised2`}>
+    <div className={`${size} flex items-center justify-center rounded-xl border border-accent/20 bg-gradient-to-br from-surface-elevated to-surface-raised2`}>
       <svg className="h-1/2 w-1/2 text-accent" viewBox="0 0 24 24" fill="currentColor" opacity="0.55">
         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
       </svg>
@@ -44,7 +44,7 @@ function PlayerFallback({ size }: { size: string }) {
 
 function TournamentFallback({ size }: { size: string }) {
   return (
-    <div className={`${size} flex items-center justify-center rounded-xl border border-accent/20 bg-gradient-to-br from-[#123B6B] to-surface-raised2`}>
+    <div className={`${size} flex items-center justify-center rounded-xl border border-accent/20 bg-gradient-to-br from-surface-elevated to-surface-raised2`}>
       <svg className="h-1/2 w-1/2 text-accent-bright" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.55">
         <path d="M6 9H4.5a2.5 2.5 0 010-5H6m12 5h1.5a2.5 2.5 0 000-5H18M4 22h16M10 22V8a2 2 0 012-2h0a2 2 0 012 2v14" />
       </svg>
@@ -54,7 +54,7 @@ function TournamentFallback({ size }: { size: string }) {
 
 function CoverFallback({ size }: { size: string }) {
   return (
-    <div className={`${size} flex items-center justify-center rounded-xl border border-accent/15 bg-gradient-to-br from-[#123B6B] via-purple to-bg`}>
+    <div className={`${size} flex items-center justify-center rounded-xl border border-accent/15 bg-gradient-to-br from-surface via-surface-elevated to-bg`}>
       <div className="text-center">
         <svg className="mx-auto h-8 w-8 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.35">
           <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -71,7 +71,7 @@ function AvatarFallback({ name, size }: { name: string; size: string }) {
   const initial = ((name || "").trim().charAt(0) || "؟").toUpperCase();
 
   return (
-    <div className={`${size} flex items-center justify-center rounded-full border border-accent/25 bg-gradient-to-br from-[#123B6B] to-purple-bright/30`}>
+    <div className={`${size} flex items-center justify-center rounded-full border border-accent/25 bg-gradient-to-br from-surface-elevated to-surface-raised2`}>
       <span className="font-display font-black text-accent-bright">{initial}</span>
     </div>
   );

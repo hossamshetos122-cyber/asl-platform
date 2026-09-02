@@ -15,10 +15,10 @@ export function NavbarShell({ children }: { children: React.ReactNode }) {
   return (
     <nav
       aria-label="القائمة الرئيسية"
-      className={`sticky top-0 z-50 backdrop-blur-lg transition-all duration-300 ${
+      className={`sticky top-0 z-50 backdrop-blur-xl transition-all duration-300 border-b ${
         scrolled
-          ? "bg-[#0a203c]/95 border-b border-accent/20 shadow-deep"
-          : "bg-[#0d1830]/90 border-b border-white/10"
+          ? "bg-bg/90 border-accent/20 shadow-deep"
+          : "bg-bg/70 border-white/[0.06]"
       }`}
     >
       {children}

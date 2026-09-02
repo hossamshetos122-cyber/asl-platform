@@ -7,7 +7,7 @@ import { staggerContainer, fadeUp, popIn } from "@/lib/motion-variants";
 import type { HomeStatsVM } from "@/lib/types";
 
 function formatNumber(value: number): string {
-  return new Intl.NumberFormat("ar-EG").format(value);
+  return new Intl.NumberFormat("en-US").format(value);
 }
 
 function StatIcon({ type }: { type: "team" | "goal" | "tournament" | "player" }) {
@@ -81,11 +81,11 @@ export function HeroVisual({ season, stats }: { season: string; stats: HomeStats
             <stop offset="1" stopColor="rgba(255,255,255,0)" />
           </linearGradient>
           <linearGradient id="beamB" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="rgba(255,212,0,0.14)" />
-            <stop offset="1" stopColor="rgba(255,212,0,0)" />
+            <stop offset="0" stopColor="rgba(232,178,58,0.16)" />
+            <stop offset="1" stopColor="rgba(232,178,58,0)" />
           </linearGradient>
           <pattern id="crowd" width="12" height="9" patternUnits="userSpaceOnUse">
-            <rect x="0" y="0" width="12" height="9" fill="rgba(3,14,32,0.55)" />
+            <rect x="0" y="0" width="12" height="9" fill="rgba(2,2,2,0.6)" />
             <circle cx="3" cy="4" r="1.7" fill="rgba(255,255,255,0.07)" />
             <circle cx="9" cy="4" r="1.7" fill="rgba(255,255,255,0.05)" />
           </pattern>
@@ -216,11 +216,11 @@ export function HeroVisual({ season, stats }: { season: string; stats: HomeStats
                   whileHover={{ y: -3, scale: 1.03 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
-                  <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] px-4 sm:px-6 py-4 sm:py-5 text-center backdrop-blur-sm transition-colors hover:border-accent/50 hover:bg-white/[0.06] hover:shadow-glow">
-                    <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg border border-accent/25 bg-accent/10 text-accent transition-transform group-hover:scale-110 sm:h-9 sm:w-9">
+                  <div className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-gradient-to-b from-surface to-surface-elevated px-4 sm:px-6 py-4 sm:py-5 text-center backdrop-blur-sm transition-all hover:border-accent/45 hover:shadow-glow">
+                    <div className="mx-auto mb-3 flex h-8 w-8 items-center justify-center rounded-lg border border-accent/25 bg-accent/10 text-accent transition-transform group-hover:scale-110 sm:h-9 sm:w-9">
                       <StatIcon type={item.icon} />
                     </div>
-                    <div className="font-num text-3xl sm:text-4xl lg:text-[44px] font-black text-accent leading-none mb-1.5 tabular-nums">
+                    <div className="font-num text-3xl sm:text-4xl lg:text-[44px] font-normal leading-none mb-1.5 tabular-nums text-gradient-gold">
                       {formatNumber(item.value)}
                     </div>
                     <div className="font-utility text-[10px] tracking-[0.18em] text-text-dim uppercase">{item.label}</div>

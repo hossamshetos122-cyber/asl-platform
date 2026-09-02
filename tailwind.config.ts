@@ -45,16 +45,16 @@ const config: Config = {
         },
         text: {
           DEFAULT: "#FFFFFF",
-          dim: "#C7D2E3",
-          dimmer: "#94A3B8",
-          faint: "#64748B",
+          dim: "#B8B8BE",
+          dimmer: "#83838B",
+          faint: "#55555C",
         },
       },
       fontFamily: {
-        display: ["var(--font-cairo)", "sans-serif"],
-        body: ["var(--font-almarai)", "sans-serif"],
-        utility: ["var(--font-cairo)", "sans-serif"],
-        num: ["var(--font-cairo)", "sans-serif"],
+        display: ["var(--font-alexandria)", "sans-serif"],
+        body: ["var(--font-alexandria)", "sans-serif"],
+        utility: ["var(--font-alexandria)", "sans-serif"],
+        num: ["var(--font-anton)", "sans-serif"],
       },
       borderRadius: {
         sm: "6px",

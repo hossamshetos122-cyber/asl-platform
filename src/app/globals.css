@@ -14,36 +14,36 @@
    is loaded — so the site always looks right even before the DB is read.
    --------------------------------------------------------------------------- */
 :root {
-  --bg: #0a1f3c;
-  --bg-rgb: 10 31 60;
-  --accent: #ffd400;
-  --accent-rgb: 255 212 0;
+  --bg: #0a0a0a;
+  --bg-rgb: 10 10 10;
+  --accent: #e8b23a;
+  --accent-rgb: 232 178 58;
 
-  --bg-deep: #07152b;
-  --bg-deep-rgb: 7 21 43;
-  --surface: #122b4e;
-  --surface-rgb: 18 43 78;
-  --surface-elevated: #17335c;
-  --surface-elevated-rgb: 23 51 92;
-  --surface-raised2: #1d3d6d;
-  --surface-raised2-rgb: 29 61 109;
-  --purple: #123b6b;
-  --purple-rgb: 18 59 107;
-  --purple-dim: #0d2b4f;
-  --purple-dim-rgb: 13 43 79;
-  --navy: #103e72;
-  --navy-rgb: 16 62 114;
-  --navy-light: #1b5aa6;
-  --navy-light-rgb: 27 90 166;
+  --bg-deep: #070707;
+  --bg-deep-rgb: 7 7 7;
+  --surface: #151515;
+  --surface-rgb: 21 21 21;
+  --surface-elevated: #1d1d1d;
+  --surface-elevated-rgb: 29 29 29;
+  --surface-raised2: #262626;
+  --surface-raised2-rgb: 38 38 38;
+  --purple: #111111;
+  --purple-rgb: 17 17 17;
+  --purple-dim: #090909;
+  --purple-dim-rgb: 9 9 9;
+  --navy: #191919;
+  --navy-rgb: 25 25 25;
+  --navy-light: #2e2e2e;
+  --navy-light-rgb: 46 46 46;
 
-  --accent-bright: #ffe94d;
-  --accent-bright-rgb: 255 233 77;
-  --accent-dim: #d9b400;
-  --accent-dim-rgb: 217 180 0;
-  --accent-faint: #ffd400;
-  --accent-faint-rgb: 255 212 0;
-  --line-accent: #ffd400;
-  --line-accent-rgb: 255 212 0;
+  --accent-bright: #f2cf80;
+  --accent-bright-rgb: 242 207 128;
+  --accent-dim: #a17c28;
+  --accent-dim-rgb: 161 124 40;
+  --accent-faint: #e8b23a;
+  --accent-faint-rgb: 232 178 58;
+  --line-accent: #e8b23a;
+  --line-accent-rgb: 232 178 58;
 }
 
 @layer base {
@@ -176,14 +176,14 @@
   }
 }
 
-/* Hero background — deep navy + floodlit coral broadcast look */
+/* Hero background — black/charcoal stage with warm floodlit gold (premium broadcast) */
 .hero-bg {
   background:
-    radial-gradient(60% 82% at 88% 8%, rgba(46, 123, 255, 0.26), transparent 62%),
-    radial-gradient(48% 72% at 8% 88%, color-mix(in srgb, var(--accent, #ffd400) 16%, transparent), transparent 58%),
-    radial-gradient(46% 66% at 35% 118%, color-mix(in srgb, var(--bg, #0a1f3c) 60%, #103e72 40%) 0.6, transparent 62%),
-    radial-gradient(32% 46% at 108% 106%, color-mix(in srgb, var(--accent, #ffd400) 13%, transparent), transparent 55%),
-    linear-gradient(165deg, color-mix(in srgb, var(--bg, #0d223f) 72%, #0d223f) 0%, var(--bg, #0a1f3c) 48%, var(--bg-deep, #07152b) 100%);
+    radial-gradient(70% 90% at 50% -10%, rgba(255, 255, 255, 0.07), transparent 60%),
+    radial-gradient(52% 72% at 88% 12%, color-mix(in srgb, var(--accent, #e8b23a) 13%, transparent), transparent 58%),
+    radial-gradient(46% 66% at 12% 90%, color-mix(in srgb, var(--accent, #e8b23a) 9%, transparent), transparent 60%),
+    radial-gradient(60% 90% at 50% 110%, color-mix(in srgb, #ffffff 5%, transparent), transparent 58%),
+    linear-gradient(170deg, #101010 0%, var(--bg, #0a0a0a) 45%, var(--bg-deep, #070707) 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -196,18 +196,18 @@
 
 /* Broadcast-style text gradients */
 .text-gradient-hero {
-  background: linear-gradient(120deg,
-    var(--accent-bright, #ffe94d) 0%,
-    var(--accent, #ffd400) 38%,
-    #2e7bff 74%,
-    #ffffff 100%);
+  background: linear-gradient(115deg,
+    #ffe9b8 0%,
+    var(--accent-bright, #f2cf80) 30%,
+    var(--accent, #e8b23a) 60%,
+    #f7f3ea 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .text-gradient-gold {
-  background: linear-gradient(120deg, #ffe066 0%, #f5c518 45%, #e8a100 100%);
+  background: linear-gradient(120deg, #ffe9b8 0%, #e8b23a 45%, #b8862f 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

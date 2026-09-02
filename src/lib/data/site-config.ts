@@ -32,8 +32,8 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     process.env.NEXT_PUBLIC_LEAGUE_NAME_EN || "Alexandria Amateur League",
   cityName: process.env.NEXT_PUBLIC_CITY_NAME || "الإسكندرية",
   logoUrl: process.env.NEXT_PUBLIC_LEAGUE_LOGO || "/images/league-logo.jpg",
-  primaryColor: process.env.NEXT_PUBLIC_PRIMARY_COLOR || "#0A1F3C",
-  accentColor: process.env.NEXT_PUBLIC_ACCENT_COLOR || "#FFD400",
+  primaryColor: process.env.NEXT_PUBLIC_PRIMARY_COLOR || "#0A0A0A",
+  accentColor: process.env.NEXT_PUBLIC_ACCENT_COLOR || "#E8B23A",
 };
 
 /** Cache tag for the site config so `revalidateTag` can bust it on save. */
@@ -92,23 +92,24 @@ export function siteCssVars(cfg: SiteConfig): React.CSSProperties {
     "--accent": accent,
     "--accent-rgb": hexToRgb(accent),
 
-    // Derived background family (darker / slightly blue-tinted)
+    // Derived background family — neutral charcoal scale above the near-black
+    // base (blended toward white), so the whole chrome reads premium/monochrome.
     "--bg-deep": shade(bg, 0.78),
     "--bg-deep-rgb": hexToRgb(shade(bg, 0.78)),
-    "--surface": blend(bg, "#2b6cff", 0.08),
-    "--surface-rgb": hexToRgb(blend(bg, "#2b6cff", 0.08)),
-    "--surface-elevated": blend(bg, "#2b6cff", 0.12),
-    "--surface-elevated-rgb": hexToRgb(blend(bg, "#2b6cff", 0.12)),
-    "--surface-raised2": blend(bg, "#2b6cff", 0.18),
-    "--surface-raised2-rgb": hexToRgb(blend(bg, "#2b6cff", 0.18)),
-    "--purple": blend(bg, "#2e7bff", 0.08),
-    "--purple-rgb": hexToRgb(blend(bg, "#2e7bff", 0.08)),
-    "--purple-dim": shade(bg, 0.94),
-    "--purple-dim-rgb": hexToRgb(shade(bg, 0.94)),
-    "--navy": blend(bg, "#2b6cff", 0.15),
-    "--navy-rgb": hexToRgb(blend(bg, "#2b6cff", 0.15)),
-    "--navy-light": blend(bg, "#4b9bff", 0.3),
-    "--navy-light-rgb": hexToRgb(blend(bg, "#4b9bff", 0.3)),
+    "--surface": blend(bg, "#ffffff", 0.045),
+    "--surface-rgb": hexToRgb(blend(bg, "#ffffff", 0.045)),
+    "--surface-elevated": blend(bg, "#ffffff", 0.075),
+    "--surface-elevated-rgb": hexToRgb(blend(bg, "#ffffff", 0.075)),
+    "--surface-raised2": blend(bg, "#ffffff", 0.11),
+    "--surface-raised2-rgb": hexToRgb(blend(bg, "#ffffff", 0.11)),
+    "--purple": blend(bg, "#ffffff", 0.03),
+    "--purple-rgb": hexToRgb(blend(bg, "#ffffff", 0.03)),
+    "--purple-dim": shade(bg, 0.95),
+    "--purple-dim-rgb": hexToRgb(shade(bg, 0.95)),
+    "--navy": blend(bg, "#ffffff", 0.06),
+    "--navy-rgb": hexToRgb(blend(bg, "#ffffff", 0.06)),
+    "--navy-light": blend(bg, "#ffffff", 0.14),
+    "--navy-light-rgb": hexToRgb(blend(bg, "#ffffff", 0.14)),
 
     // Derived accent family
     "--accent-bright": blend(accent, "#ffffff", 0.45),

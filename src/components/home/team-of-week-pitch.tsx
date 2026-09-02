@@ -88,7 +88,7 @@ function PlayerCard({ slot, cardWidth }: { slot: TeamOfTheWeekSlotVM; cardWidth:
       style={{ width: `${cardWidth}px`, flexShrink: 0 }}
     >
       <div
-        className={`relative w-full overflow-hidden rounded-lg border bg-[#0a1324] ${tier.border} ${tier.glow}`}
+        className={`relative w-full overflow-hidden rounded-lg border bg-[#0b0b0b] ${tier.border} ${tier.glow}`}
         style={{ boxShadow: "0 10px 24px -12px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.12)" }}
       >
         {/* tier strip */}
@@ -99,7 +99,7 @@ function PlayerCard({ slot, cardWidth }: { slot: TeamOfTheWeekSlotVM; cardWidth:
           <ImageDisplay fill type="player" src={player.photoUrl} alt={player.name} shortCode={player.name} />
 
           {/* bottom fade into name plate */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[32%] bg-gradient-to-t from-[#0a1324] to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[32%] bg-gradient-to-t from-[#0b0b0b] to-transparent" />
 
           {/* club crest near the player's head */}
           <div className="absolute top-1 left-1 flex aspect-square h-[24%] min-h-[14px] max-h-6 items-center justify-center overflow-hidden rounded-md border border-white/25 bg-black/40 p-[2px] shadow-md">
@@ -161,7 +161,7 @@ function PitchScene({ bands }: { bands: { band: number; slots: TeamOfTheWeekSlot
 
   return (
     <div
-      className="relative h-[500px] w-full overflow-hidden rounded-[22px] border border-white/10 bg-[#071326] sm:h-[620px]"
+      className="relative h-[500px] w-full overflow-hidden rounded-[22px] border border-white/10 bg-bg sm:h-[620px]"
       style={{ perspective: "1200px", perspectiveOrigin: "50% -20%" }}
     >
       {/* tilted grass surface (far edge recedes = depth) */}
@@ -257,7 +257,7 @@ export function TeamOfWeekPitch({ data }: { data: TeamOfTheWeekVM }) {
 
   return (
     <div data-team-of-week className="overflow-hidden rounded-3xl border border-line bg-surface">
-      <div className="relative border-b border-line bg-gradient-to-l from-[#0d1830] via-[#123B6B] to-[#0d1830] px-4 py-3 sm:px-7 sm:py-4">
+      <div className="relative border-b border-line bg-gradient-to-l from-surface via-surface-elevated to-surface px-4 py-3 sm:px-7 sm:py-4">
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>

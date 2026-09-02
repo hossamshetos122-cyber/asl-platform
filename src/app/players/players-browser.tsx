@@ -83,7 +83,7 @@ function PlayerCard({ player }: { player: PlayerListItem }) {
       style={{ borderColor: role.hexDim }}
     >
       {/* Photo band */}
-      <div className="relative h-28 sm:h-32 overflow-hidden" style={{ background: `radial-gradient(130% 160% at 50% -20%, ${role.soft}, rgba(10,38,71,0) 65%), linear-gradient(180deg, ${role.hexDim}, #0A2647 78%)` }}>
+      <div className="relative h-28 sm:h-32 overflow-hidden" style={{ background: `radial-gradient(130% 160% at 50% -20%, ${role.soft}, rgba(10,10,10,0) 65%), linear-gradient(180deg, ${role.hexDim}, #0A0A0A 78%)` }}>
         {player.jerseyNumber != null && (
           <span className="pointer-events-none absolute left-1 -bottom-2 select-none font-num text-[68px] font-black leading-none text-white/5" dir="ltr">
             {player.jerseyNumber}

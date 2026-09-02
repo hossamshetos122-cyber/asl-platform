@@ -33,7 +33,7 @@ export function DesktopNavLinks() {
             >
               {link.label}
               {isActive && (
-                <span className="absolute bottom-0 left-3 right-3 h-[3px] rounded-full bg-gradient-to-l from-accent to-purple-bright" />
+                <span className="absolute bottom-0 left-3 right-3 h-[3px] rounded-full bg-gradient-to-l from-accent to-accent-bright" />
               )}
             </Link>
           </li>

@@ -62,13 +62,13 @@ function buildThemeVars(bg: string, accent: string): Record<string, string> {
     ...k("--bg", bg),
     ...k("--accent", accent),
     ...k("--bg-deep", shade(bg, 0.78)),
-    ...k("--surface", blend(bg, "#2b6cff", 0.08)),
-    ...k("--surface-elevated", blend(bg, "#2b6cff", 0.12)),
-    ...k("--surface-raised2", blend(bg, "#2b6cff", 0.18)),
-    ...k("--purple", blend(bg, "#2e7bff", 0.08)),
-    ...k("--purple-dim", shade(bg, 0.94)),
-    ...k("--navy", blend(bg, "#2b6cff", 0.15)),
-    ...k("--navy-light", blend(bg, "#4b9bff", 0.3)),
+    ...k("--surface", blend(bg, "#ffffff", 0.045)),
+    ...k("--surface-elevated", blend(bg, "#ffffff", 0.075)),
+    ...k("--surface-raised2", blend(bg, "#ffffff", 0.11)),
+    ...k("--purple", blend(bg, "#ffffff", 0.03)),
+    ...k("--purple-dim", shade(bg, 0.95)),
+    ...k("--navy", blend(bg, "#ffffff", 0.06)),
+    ...k("--navy-light", blend(bg, "#ffffff", 0.14)),
     ...k("--accent-bright", blend(accent, "#ffffff", 0.45)),
     ...k("--accent-dim", shade(accent, 0.7)),
     ...k("--accent-faint", accent),
@@ -206,7 +206,7 @@ export default function SettingsForm(props: SettingsProps) {
             <div className="flex items-center gap-3">
               <input
                 type="color"
-                value={validateHex(bgColor) ? bgColor : "#0A2647"}
+                value={validateHex(bgColor) ? bgColor : "#0A0A0A"}
                 onChange={(e) => { setBgColor(e.target.value); applyPreview(e.target.value, accentColor); }}
                 className="h-10 w-14 cursor-pointer rounded-lg border border-line bg-bg p-1"
               />
@@ -216,11 +216,11 @@ export default function SettingsForm(props: SettingsProps) {
                 onChange={(e) => { setBgColor(e.target.value); applyPreview(e.target.value, accentColor); }}
                 dir="ltr"
                 className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent text-left font-num"
-                placeholder="#0A2647"
+                placeholder="#0A0A0A"
                 required
               />
             </div>
-            <p className="mt-1 font-body text-[10px] text-text-dimmer">اللون الكحلي الرئيسي الذي تظهر به الخلفيات والبطاقات.</p>
+            <p className="mt-1 font-body text-[10px] text-text-dimmer">لون الخلفية الأساسي للواجهة (اسود/فحمي).</p>
           </div>
 
           <div>
@@ -228,7 +228,7 @@ export default function SettingsForm(props: SettingsProps) {
             <div className="flex items-center gap-3">
               <input
                 type="color"
-                value={validateHex(accentColor) ? accentColor : "#FF6B35"}
+                value={validateHex(accentColor) ? accentColor : "#E8B23A"}
                 onChange={(e) => { setAccentColor(e.target.value); applyPreview(bgColor, e.target.value); }}
                 className="h-10 w-14 cursor-pointer rounded-lg border border-line bg-bg p-1"
               />
@@ -238,7 +238,7 @@ export default function SettingsForm(props: SettingsProps) {
                 onChange={(e) => { setAccentColor(e.target.value); applyPreview(bgColor, e.target.value); }}
                 dir="ltr"
                 className="w-full rounded-lg border border-line bg-bg px-3 py-2.5 font-body text-sm text-text outline-none transition-colors focus:border-accent text-left font-num"
-                placeholder="#FF6B35"
+                placeholder="#E8B23A"
                 required
               />
             </div>
